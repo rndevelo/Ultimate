@@ -7,6 +7,7 @@ plugins {
     id("dagger.hilt.android.plugin")
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
+    id ("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 
 android {
@@ -28,28 +29,13 @@ android {
 
     buildTypes {
 
-        val properties = Properties()
-        properties.load(project.rootProject.file("local.properties").inputStream())
-
-
-        debug {
-            buildConfigField(
-                "String",
-                "WEB_ID_CLIENT",
-                "\"${properties.getProperty("WEB_ID_CLIENT")}\""
-            )
-        }
+        debug {}
 
         release {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
-            )
-            buildConfigField(
-                "String",
-                "WEB_ID_CLIENT",
-                "\"${properties.getProperty("WEB_ID_CLIENT")}\""
             )
         }
     }
@@ -78,8 +64,8 @@ dependencies {
 
     // Androidx
     implementation("androidx.core:core-ktx:1.12.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
     implementation("androidx.activity:activity-compose:1.7.2")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0-alpha02")
 
@@ -107,6 +93,13 @@ dependencies {
     implementation("com.google.firebase:firebase-crashlytics-ktx:18.4.3")
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
+
+    // Location
+    implementation ("com.google.android.gms:play-services-location:21.0.1")
+
+    // Google Maps
+    implementation ("com.google.android.gms:play-services-maps:18.1.0")
+    implementation ("com.google.maps.android:maps-compose:2.5.3")
 
     // Timber
     implementation("com.jakewharton.timber:timber:5.0.1")

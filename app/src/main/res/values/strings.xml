@@ -16,4 +16,6 @@
     <string name="login_text_recover_password">Introduce the email</string>
     <string name="login_text_send_recover_password">Send</string>
     <string name="login_text_recover_password_cancel">Cancel</string>
+
+
 </resources>

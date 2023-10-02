@@ -8,7 +8,7 @@ buildscript {
     }
     dependencies {
         // Add the dependency for the Google services Gradle plugin
-        classpath("com.google.dagger:hilt-android-gradle-plugin:2.47")
+        classpath("com.google.dagger:hilt-android-gradle-plugin:2.48")
         classpath("com.google.gms:google-services:4.4.0")
         classpath("com.android.tools.build:gradle:3.4.3")
         classpath("com.google.firebase:firebase-crashlytics-gradle:2.9.9")
@@ -18,4 +18,5 @@ buildscript {
 plugins {
     id("com.android.application") version "8.1.1" apply false
     id("org.jetbrains.kotlin.android") version "1.8.10" apply false
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin") version "2.0.1" apply false
 }

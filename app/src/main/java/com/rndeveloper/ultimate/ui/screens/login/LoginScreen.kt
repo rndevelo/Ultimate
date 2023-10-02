@@ -67,7 +67,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
             navController.navigate(Routes.HomeScreen.route)
         }
     }
-    
+
     LaunchedEffect(key1 = loginUiState.errorMessage) {
         if (!loginUiState.errorMessage?.error.isNullOrBlank()) {
             snackBarHostState.showSnackbar(
