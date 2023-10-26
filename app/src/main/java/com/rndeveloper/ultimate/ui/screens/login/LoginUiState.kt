@@ -3,7 +3,6 @@ package com.rndeveloper.ultimate.ui.screens.login
 import androidx.annotation.StringRes
 import com.rndeveloper.ultimate.R
 import com.rndeveloper.ultimate.exceptions.CustomException
-import com.rndeveloper.ultimate.model.Car
 import com.rndeveloper.ultimate.model.User
 import com.rndeveloper.ultimate.ui.BaseUiState
 
@@ -20,17 +19,7 @@ data class LoginUiState(
 
     constructor() : this(
         screenState = LoginState.Login(),
-        user = User(
-            email = "",
-            pass = "",
-            username = "",
-            uid = "",
-            photo = "",
-            token = "",
-            points = 0,
-            car = Car(0.0, 0.0),
-            createdAt = ""
-        ),
+        user = User(),
         emailErrorMessage = null,
         passErrorMessage = null,
         isLogged = false,

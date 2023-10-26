@@ -15,5 +15,13 @@ object Constants {
     const val MARKER_SCREEN = "marker_screen/{$ARGUMENT_ADDRESS}/{$ARGUMENT_lAT}/{$ARGUMENT_LNG}"
     const val ACCOUNT_SCREEN = "account_screen"
 
+    //    Timer
+    const val REQUEST_CODE = 0
+    const val SPOTS_TIMER = "SPOTS_TIMER"
+    const val INTERVAL: Long = 1_000L
+    const val TIMER: Long = 60_000L
+
+    //    Geofence
+    const val RADIUS_IS_NEAR_SPOT = 500.0f
 
 }

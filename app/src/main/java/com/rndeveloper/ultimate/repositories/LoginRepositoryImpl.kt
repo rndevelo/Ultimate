@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class LoginRepositoryImpl @Inject constructor(
-    private val firebaseAuth: FirebaseAuth
+    private val firebaseAuth: FirebaseAuth,
 ) : LoginRepository {
 
     override fun loginEmailPass(email: String, password: String): Flow<Result<AuthResult>> =
@@ -29,6 +29,8 @@ class LoginRepositoryImpl @Inject constructor(
             awaitClose()
         }
 
+
+//    INTENTAR USAR REGISTER Y LOGIN CON UNA SOLA FUNCION
     override fun register(email: String, password: String): Flow<Result<AuthResult>> =
         channelFlow {
             firebaseAuth.createUserWithEmailAndPassword(email, password)
@@ -62,19 +64,15 @@ class LoginRepositoryImpl @Inject constructor(
             awaitClose()
         }
 
-    override fun getUser(): Flow<Result<Boolean>> = channelFlow {
+    override fun getUserAuthentication(): Flow<Result<Boolean>> = channelFlow {
         firebaseAuth.addAuthStateListener {
             if (it.currentUser != null) {
                 launch {
-                    send(
-                        Result.success(true)
-                    )
+                    send(Result.success(true))
                 }
             } else {
                 launch {
-                    send(
-                        Result.success(false)
-                    )
+                    send(Result.success(false))
                 }
             }
         }
@@ -85,16 +83,11 @@ class LoginRepositoryImpl @Inject constructor(
         firebaseAuth.sendPasswordResetEmail(email)
             .addOnCompleteListener {
                 launch {
-                    send(
-                        Result.success(it.isSuccessful)
-                    )
+                    send(Result.success(it.isSuccessful))
                 }
-            }
-            .addOnFailureListener {
+            }.addOnFailureListener {
                 launch {
-                    send(
-                        Result.failure(it)
-                    )
+                    send(Result.failure(it))
                 }
             }
         awaitClose()
@@ -105,6 +98,6 @@ interface LoginRepository {
     fun loginEmailPass(email: String, password: String): Flow<Result<AuthResult>>
     fun register(email: String, password: String): Flow<Result<AuthResult>>
     fun loginWithGoogle(idToken: String): Flow<Result<AuthResult>>
-    fun getUser(): Flow<Result<Boolean>>
+    fun getUserAuthentication(): Flow<Result<Boolean>>
     fun recoverPassword(email: String): Flow<Result<Boolean>>
 }

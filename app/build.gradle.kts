@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.konan.properties.Properties
-
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -7,7 +5,7 @@ plugins {
     id("dagger.hilt.android.plugin")
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
-    id ("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 
 android {
@@ -70,11 +68,13 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0-alpha02")
 
     // Compose
-    implementation(platform("androidx.compose:compose-bom:2023.03.00"))
+    implementation(platform("androidx.compose:compose-bom:2023.09.00"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.material:material-icons-extended:1.5.2")
+
 
     // Navigation
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
@@ -85,7 +85,7 @@ dependencies {
 
     // Hilt
     implementation("com.google.dagger:hilt-android:2.48")
-    kapt("com.google.dagger:hilt-android-compiler:2.47")
+    kapt("com.google.dagger:hilt-android-compiler:2.48")
 
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:32.2.3"))
@@ -94,12 +94,23 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
 
+    implementation("com.firebase:geofire-android:3.1.0")
+
     // Location
-    implementation ("com.google.android.gms:play-services-location:21.0.1")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
 
     // Google Maps
-    implementation ("com.google.android.gms:play-services-maps:18.1.0")
-    implementation ("com.google.maps.android:maps-compose:2.5.3")
+    implementation("com.google.android.gms:play-services-maps:18.1.0")
+    implementation("com.google.maps.android:maps-compose:2.5.3")
+
+    // DataStore
+    implementation ("androidx.datastore:datastore-preferences:1.0.0")
+
+    // Pretty
+    implementation ("org.ocpsoft.prettytime:prettytime:4.0.4.Final")
+
+    // Gson
+    implementation ("com.google.code.gson:gson:2.9.1")
 
     // Timber
     implementation("com.jakewharton.timber:timber:5.0.1")

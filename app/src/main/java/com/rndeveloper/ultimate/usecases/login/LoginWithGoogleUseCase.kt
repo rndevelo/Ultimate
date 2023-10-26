@@ -15,18 +15,12 @@ class LoginWithGoogleUseCase @Inject constructor(
 ) : BaseUseCase<String, Flow<LoginUiState>>() {
 
     override suspend fun execute(parameters: String): Flow<LoginUiState> = channelFlow {
-        send(
-            LoginUiState().copy(
-                screenState = LoginState.Login(),
-                isLoading = true
-            )
-        )
+        send(LoginUiState().copy(isLoading = true))
 
         repository.loginWithGoogle(parameters)
             .catch { exception ->
                 send(
                     LoginUiState().copy(
-                        screenState = LoginState.Login(),
                         isLoading = false,
                         isLogged = false,
                         errorMessage = CustomException.GenericException(
@@ -40,9 +34,8 @@ class LoginWithGoogleUseCase @Inject constructor(
                     onSuccess = { authResult ->
                         send(
                             LoginUiState().copy(
-                                screenState = LoginState.Login(),
                                 isLogged = true,
-                                isLoading = false
+                                isLoading = false,
                             )
                         )
                     },

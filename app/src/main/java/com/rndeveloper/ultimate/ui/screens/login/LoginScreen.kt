@@ -1,7 +1,6 @@
 package com.rndeveloper.ultimate.ui.screens.login
 
 import android.app.Activity
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -42,6 +41,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -62,8 +62,8 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
     val snackBarHostState = remember { SnackbarHostState() }
     val loginUiState by viewModel.state.collectAsStateWithLifecycle()
 
-    LaunchedEffect(key1 = loginUiState) {
-        if (loginUiState.isLogged) {
+    if (loginUiState.isLogged) {
+        LaunchedEffect(key1 = Unit) {
             navController.navigate(Routes.HomeScreen.route)
         }
     }
@@ -144,12 +144,12 @@ fun LoginContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.Center)
-                .padding(22.dp),
+                .padding(24.dp),
         ) {
             Column(
                 modifier = modifier
-                    .padding(20.dp)
-                    .padding(bottom = 20.dp),
+                    .padding(horizontal = 27.dp)
+                    .padding(bottom = 34.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
@@ -160,7 +160,7 @@ fun LoginContent(
                 )
                 Text(
                     text = "Bienvenido a Paparcar",
-                    style = MaterialTheme.typography.headlineSmall,
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Black),
                     modifier = modifier.padding(bottom = 5.dp)
                 )
                 Text(

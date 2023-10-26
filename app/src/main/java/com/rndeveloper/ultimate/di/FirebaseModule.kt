@@ -1,4 +1,4 @@
-package com.digitalsolution.familyfilmapp.di
+package com.rndeveloper.ultimate.di
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -14,11 +14,13 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object FirebaseModule {
-    @Singleton
-    @Provides
-    fun provideFirebaseFirestore(): FirebaseFirestore = Firebase.firestore
 
     @Singleton
     @Provides
     fun provideFirebaseAuth(): FirebaseAuth = Firebase.auth
+
+    @Singleton
+    @Provides
+    fun provideFirebaseFireStore(): FirebaseFirestore = Firebase.firestore
+
 }

@@ -1,17 +1,12 @@
 package com.rndeveloper.ultimate.ui.screens.login
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rndeveloper.ultimate.usecases.login.LoginEmailPassUseCase
-import com.rndeveloper.ultimate.usecases.login.LoginWithGoogleUseCase
-import com.rndeveloper.ultimate.usecases.login.RecoverPassUseCase
-import com.rndeveloper.ultimate.usecases.login.RegisterUseCase
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.tasks.Task
 import com.rndeveloper.ultimate.exceptions.CustomException
-import com.rndeveloper.ultimate.usecases.login.CheckUserLoggedInUseCase
+import com.rndeveloper.ultimate.usecases.login.LoginUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -26,11 +21,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val loginEmailPassUseCase: LoginEmailPassUseCase,
-    private val loginWithGoogleUseCase: LoginWithGoogleUseCase,
-    private val checkUserLoggedInUseCase: CheckUserLoggedInUseCase,
-    private val registerUseCase: RegisterUseCase,
-    private val recoverPassUseCase: RecoverPassUseCase,
+    private val loginUseCases: LoginUseCases,
     val googleSignInClient: GoogleSignInClient,
 ) : ViewModel() {
 
@@ -43,7 +34,7 @@ class LoginViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            checkUserLoggedInUseCase(Unit).collectLatest { newLoginUiState ->
+            loginUseCases.checkUserLoggedInUseCase(Unit).collectLatest { newLoginUiState ->
                 _state.update {
                     newLoginUiState
                 }
@@ -62,8 +53,8 @@ class LoginViewModel @Inject constructor(
 
     fun signInOrSignUp(email: String, password: String) = viewModelScope.launch {
         when (_state.value.screenState) {
-            is LoginState.Login -> loginEmailPassUseCase(email to password)
-            is LoginState.Register -> registerUseCase(email to password)
+            is LoginState.Login -> loginUseCases.loginEmailPassUseCase(email to password)
+            is LoginState.Register -> loginUseCases.registerUseCase(email to password)
         }.catch { error ->
             _state.update { loginState ->
                 loginState.copy(
@@ -80,7 +71,7 @@ class LoginViewModel @Inject constructor(
     }
 
     fun recoverPassword(email: String) = viewModelScope.launch {
-        recoverPassUseCase(email).catch { error ->
+        loginUseCases.recoverPassUseCase(email).catch { error ->
             _state.update {
                 it.copy(
                     errorMessage = CustomException.GenericException(
@@ -97,7 +88,7 @@ class LoginViewModel @Inject constructor(
 
     fun handleGoogleSignInResult(task: Task<GoogleSignInAccount>) = viewModelScope.launch {
         val account = task.result as GoogleSignInAccount
-        loginWithGoogleUseCase(account.idToken!!).let { result ->
+        loginUseCases.loginWithGoogleUseCase(account.idToken!!).let { result ->
             result.collectLatest { newLoginUIState ->
                 _state.update {
                     newLoginUIState
@@ -105,5 +96,4 @@ class LoginViewModel @Inject constructor(
             }
         }
     }
-
 }

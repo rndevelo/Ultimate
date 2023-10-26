@@ -15,7 +15,7 @@ class CheckUserLoggedInUseCase @Inject constructor(
     private val repository: LoginRepository,
 ) : BaseUseCase<Unit, Flow<LoginUiState>>() {
     override suspend fun execute(parameters: Unit): Flow<LoginUiState> = channelFlow {
-        repository.getUser().catch { exception ->
+        repository.getUserAuthentication().catch { exception ->
             send(
                 LoginUiState().copy(
                     isLogged = false,
