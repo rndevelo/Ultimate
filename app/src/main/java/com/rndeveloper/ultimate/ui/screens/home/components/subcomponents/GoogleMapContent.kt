@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.CameraPositionState
@@ -18,6 +19,7 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.rndeveloper.ultimate.R
 import com.rndeveloper.ultimate.ui.screens.home.HomeUiState
+import com.rndeveloper.ultimate.ui.theme.UltimateTheme
 import com.rndeveloper.ultimate.utils.BitmapHelper
 import com.rndeveloper.ultimate.utils.MapStyle
 
@@ -28,7 +30,6 @@ fun GoogleMapContent(
     mapLoaded: () -> Unit,
     mapType: MapType,
     onSpotSelected: (tag: String) -> Unit,
-    setSpot: (LatLng) -> Unit,
     onSetMyCar: (LatLng) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -64,13 +65,13 @@ fun GoogleMapContent(
                 anchor = Offset(0.5f, 0.5f),
                 icon = BitmapHelper.vectorToBitmap(
                     context = context,
-                    id = R.drawable.logo_google
+                    id = R.drawable.ic_add_my_car
                 ),
+                title = "Your parked car"
             )
         }
 
         homeUiState.spots.forEach { spot ->
-
             Marker(
                 state = MarkerState(position = LatLng(spot.position.lat, spot.position.lng)),
                 anchor = Offset(0.5f, 0.5f),
@@ -86,5 +87,20 @@ fun GoogleMapContent(
                 }
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GoogleMapContentPreview() {
+    UltimateTheme {
+        GoogleMapContent(
+            homeUiState = HomeUiState(),
+            cameraPositionState = CameraPositionState(),
+            mapLoaded = { /*TODO*/ },
+            mapType = MapType.HYBRID,
+            onSpotSelected = {},
+            onSetMyCar = {}
+        )
     }
 }

@@ -53,7 +53,7 @@ fun CountContent(
             }
             Text(
                 text = if (homeUiState.spots.isNotEmpty())
-                    "El puerto de Santa María"
+                    homeUiState.addressLine
                 else "Without spots in this zone",
                 style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Light),
             )

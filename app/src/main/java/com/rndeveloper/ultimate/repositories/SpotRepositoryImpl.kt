@@ -1,10 +1,10 @@
 package com.rndeveloper.ultimate.repositories
 
 import android.location.Geocoder
-import android.os.Build
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.rndeveloper.ultimate.extensions.getAddressList
 import com.rndeveloper.ultimate.model.Directions
 import com.rndeveloper.ultimate.model.Spot
 import kotlinx.coroutines.channels.awaitClose
@@ -19,28 +19,26 @@ class SpotRepositoryImpl @Inject constructor(
 
     override fun getSpots(cameraLatLng: LatLng): Flow<Result<List<Spot>>> = callbackFlow {
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            geocoder.getFromLocation(
-                cameraLatLng.latitude,
-                cameraLatLng.longitude,
-                1
-            ) { addressList ->
+//        FIXME: getAddressList? and getSpots?
 
-                addressList.firstOrNull()?.let { address ->
-                    fireStore
-                        .collection("ITEMS")
-                        .document(address.countryName)
-                        .collection(address.subAdminArea).addSnapshotListener { snapshot, e ->
-                            val items = snapshot?.toObjects(Spot::class.java)
-                            if (items != null) {
-                                trySend(Result.success(items))
-                            } else {
-                                if (e != null) {
-                                    trySend(Result.failure(e.fillInStackTrace()))
-                                }
+        LatLng(
+            cameraLatLng.latitude,
+            cameraLatLng.longitude
+        ).getAddressList(geocoder) { addressList ->
+            addressList.firstOrNull()?.let { address ->
+                fireStore
+                    .collection("ITEMS")
+                    .document(address.countryName)
+                    .collection(address.subAdminArea).addSnapshotListener { snapshot, e ->
+                        val items = snapshot?.toObjects(Spot::class.java)
+                        if (items != null) {
+                            trySend(Result.success(items))
+                        } else {
+                            if (e != null) {
+                                trySend(Result.failure(e.fillInStackTrace()))
                             }
                         }
-                }
+                    }
             }
         }
         awaitClose()
@@ -50,40 +48,37 @@ class SpotRepositoryImpl @Inject constructor(
 
         val tag = fireStore.collection("ITEMS").document().id
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            geocoder.getFromLocation(
-                spot.position.lat,
-                spot.position.lng,
-                1
-            ) { addressList ->
+        LatLng(
+            spot.position.lat,
+            spot.position.lng
+        ).getAddressList(geocoder) { addressList ->
 
-                addressList.firstOrNull()?.let {
+            addressList.firstOrNull()?.let {
 
-                    val directions = Directions(
-                        addressLine = it.getAddressLine(0),
-                        locality = it.locality,
-                        area = it.subAdminArea,
-                        country = it.countryName,
-                    )
+                val directions = Directions(
+                    addressLine = it.getAddressLine(0),
+                    locality = it.locality,
+                    area = it.subAdminArea,
+                    country = it.countryName,
+                )
 
-                    fireStore.collection("ITEMS")
-                        .document(it.countryName)
-                        .collection(it.subAdminArea)
-                        .document(tag)
-                        .set(
-                            spot.copy(
-                                tag = tag,
-                                directions = directions
-                            )
+                fireStore.collection("ITEMS")
+                    .document(it.countryName)
+                    .collection(it.subAdminArea)
+                    .document(tag)
+                    .set(
+                        spot.copy(
+                            tag = tag,
+                            directions = directions
                         )
-                        .addOnSuccessListener { _ ->
-                            trySend(Result.success(true))
-                        }
-                        .addOnFailureListener { error ->
-                            trySend(Result.failure(error))
-                        }
+                    )
+                    .addOnSuccessListener { _ ->
+                        trySend(Result.success(true))
+                    }
+                    .addOnFailureListener { error ->
+                        trySend(Result.failure(error))
+                    }
 
-                }
             }
         }
         awaitClose()

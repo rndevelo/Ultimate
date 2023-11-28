@@ -10,14 +10,17 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rndeveloper.ultimate.model.Spot
 import com.rndeveloper.ultimate.ui.screens.home.HomeUiState
 import com.rndeveloper.ultimate.ui.screens.home.components.subcomponents.CountContent
 import com.rndeveloper.ultimate.ui.screens.home.components.subcomponents.ItemContent
+import com.rndeveloper.ultimate.ui.theme.UltimateTheme
 
 @Composable
 fun SheetContent(
+    isAddPanelState: Boolean,
     homeUiState: HomeUiState,
     scrollState: LazyListState,
     onExpand: () -> Unit,
@@ -51,6 +54,25 @@ fun SheetContent(
             }
         }
         Divider()
+//        AnimatedVisibility(homeUiState.elapsedTime > 0 && !isAddPanelState) {
+//
+//        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SheetContentPreview() {
+    UltimateTheme {
+        SheetContent(
+            isAddPanelState = true,
+            homeUiState = HomeUiState(),
+            scrollState = LazyListState(),
+            onExpand = { /*TODO*/ },
+            onStartTimer = { /*TODO*/ },
+            onSpotSelected = {},
+            onRemoveSpot = {}
+        )
     }
 }
 

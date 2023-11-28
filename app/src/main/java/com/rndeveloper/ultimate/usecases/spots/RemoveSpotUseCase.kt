@@ -25,33 +25,31 @@ class RemoveSpotUseCase @Inject constructor(
 
             // Do login if fields are valid
 
-            repository.removeSpot(parameters)
-                .catch { exception ->
-                    send(
-                        HomeUiState().copy(
-                            isLoading = false,
-                            errorMessage = CustomException.GenericException(
-                                exception.message ?: "Error to remove data"
-                            ),
-                        )
+            repository.removeSpot(parameters).catch { exception ->
+                send(
+                    HomeUiState().copy(
+                        isLoading = false,
+                        errorMessage = CustomException.GenericException(
+                            exception.message ?: "Error to remove data"
+                        ),
                     )
-                }
-                .collectLatest { result ->
-                    result.fold(
-                        onSuccess = {
-                            trySend(HomeUiState().copy(isLoading = false))
-                        },
-                        onFailure = { exception ->
-                            send(
-                                HomeUiState().copy(
-                                    isLoading = false,
-                                    errorMessage = CustomException.GenericException(
-                                        exception.message ?: "Exception, didn't can remove data"
-                                    )
+                )
+            }.collectLatest { result ->
+                result.fold(
+                    onSuccess = {
+                        trySend(HomeUiState().copy(isLoading = false))
+                    },
+                    onFailure = { exception ->
+                        send(
+                            HomeUiState().copy(
+                                isLoading = false,
+                                errorMessage = CustomException.GenericException(
+                                    exception.message ?: "Exception, didn't can remove data"
                                 )
                             )
-                        }
-                    )
-                }
+                        )
+                    }
+                )
+            }
         }
 }

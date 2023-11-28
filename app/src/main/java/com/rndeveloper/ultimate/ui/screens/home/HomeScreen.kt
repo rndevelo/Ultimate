@@ -24,6 +24,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -37,7 +38,9 @@ import com.rndeveloper.ultimate.ui.screens.home.components.AddPanelContent
 import com.rndeveloper.ultimate.ui.screens.home.components.BottomBarContent
 import com.rndeveloper.ultimate.ui.screens.home.components.MainContent
 import com.rndeveloper.ultimate.ui.screens.home.components.SheetContent
+import com.rndeveloper.ultimate.ui.theme.UltimateTheme
 import com.rndeveloper.ultimate.utils.Constants.SPOTS_TIMER
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -48,14 +51,18 @@ fun HomeScreen(
 ) {
 
     val uiHomeState by homeViewModel.uiHomeState.collectAsStateWithLifecycle()
+    val scope = rememberCoroutineScope()
+
     HomeContent(
         homeUiState = uiHomeState,
-        onGetSpots = homeViewModel::getSpots,
-        setSpot = homeViewModel::setSpot,
-        onRemoveSpot = homeViewModel::removeSpot,
-        onStartTimer = { homeViewModel.onSaveGetStartTimer(SPOTS_TIMER) },
+        scope = scope,
+        onGetSpots = homeViewModel::onGetSpots,
+        onSetSpot = homeViewModel::onSetSpot,
+        onRemoveSpot = homeViewModel::onRemoveSpot,
+        onStartTimer = { scope.launch { homeViewModel.onSaveGetStartTimer(SPOTS_TIMER) } },
         onSpotSelected = homeViewModel::onSpotSelected,
-        onSetMyCar = homeViewModel::setMyCar,
+        onSetMyCar = homeViewModel::onSetMyCar,
+        onGetAddressLine = homeViewModel::onGetAddressLine,
     )
 }
 
@@ -63,15 +70,16 @@ fun HomeScreen(
 @Composable
 private fun HomeContent(
     homeUiState: HomeUiState,
+    scope: CoroutineScope,
     onGetSpots: (LatLng) -> Unit,
-    setSpot: (LatLng) -> Unit,
+    onSetSpot: (LatLng) -> Unit,
     onRemoveSpot: (Spot) -> Unit,
     onStartTimer: () -> Unit,
     onSpotSelected: (String) -> Unit,
     onSetMyCar: (LatLng) -> Unit,
+    onGetAddressLine: (LatLng) -> Unit,
 ) {
 
-    val scope = rememberCoroutineScope()
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
@@ -91,7 +99,6 @@ private fun HomeContent(
     var isTilt by remember { mutableStateOf(false) }
     var isAddPanelState by remember { mutableStateOf(false) }
 
-
 //    animateCamera when launch on first time
     if (isFirstLaunch && homeUiState.loc != null) {
         LaunchedEffect(key1 = Unit) {
@@ -101,6 +108,12 @@ private fun HomeContent(
                 onGetSpots(homeUiState.loc)
                 isFirstLaunch = false
             }
+        }
+    }
+
+    if (!cameraPositionState.isMoving && isAddPanelState) {
+        LaunchedEffect(key1 = Unit) {
+            onGetAddressLine(cameraPositionState.position.target)
         }
     }
 
@@ -116,6 +129,12 @@ private fun HomeContent(
         }
     }
 
+    LaunchedEffect(key1 = homeUiState.elapsedTime > 0L) {
+        if (homeUiState.elapsedTime > 0L) {
+            bottomSheetScaffoldState.bottomSheetState.expand()
+        }
+    }
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -127,19 +146,23 @@ private fun HomeContent(
             bottomBar = {
                 BottomBarContent(
                     isAddPanelState = isAddPanelState,
-                    onAddPanelState = { isAddPanelState = !isAddPanelState },
+                    onAddPanelState = { bool ->
+                        if (homeUiState.elapsedTime < 1000L) isAddPanelState = bool
+                    },
+                    onSetSpot = { if (!cameraPositionState.isMoving) onSetSpot(cameraPositionState.position.target) }
                 )
             }
         ) { contentPadding ->
             Column(modifier = Modifier.padding(contentPadding)) {
 
                 AnimatedVisibility(visible = isAddPanelState) {
-                    AddPanelContent()
+                    AddPanelContent(addressLine = homeUiState.addressLine)
                 }
 
                 BottomSheetScaffold(
                     sheetContent = {
                         SheetContent(
+                            isAddPanelState = isAddPanelState,
                             homeUiState = homeUiState,
                             scrollState = scrollState,
                             onExpand = {},
@@ -152,13 +175,12 @@ private fun HomeContent(
                     sheetPeekHeight = if (isAddPanelState) 0.dp else 120.dp,
                     sheetShape = BottomSheetDefaults.HiddenShape,
                     sheetTonalElevation = 2.dp,
-                    sheetSwipeEnabled = !scrollState.isScrollInProgress
+//                    sheetSwipeEnabled = homeUiState.elapsedTime > 0L
                 ) {
                     MainContent(
                         homeUiState = homeUiState,
                         cameraPositionState = cameraPositionState,
                         onMapLoaded = { isMapLoaded = true },
-                        setSpot = setSpot,
                         onSetMyCar = onSetMyCar,
                         isAddPanelState = isAddPanelState,
                         onSpotSelected = onSpotSelected,
@@ -177,9 +199,6 @@ private fun HomeContent(
                                     tilt = if (isTilt) 90f else 0f
                                 )
                             }
-                        },
-                        onScreenState = {
-                            isAddPanelState = !isAddPanelState
                         },
                         onCameraLocation = {
                             if (homeUiState.loc != null) {
@@ -203,6 +222,14 @@ private fun HomeContent(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HomeContentPreview() {
+    UltimateTheme {
+        HomeScreen(navController = NavController(LocalContext.current))
     }
 }
 

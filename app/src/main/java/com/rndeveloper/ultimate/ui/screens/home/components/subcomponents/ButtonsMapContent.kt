@@ -22,7 +22,6 @@ import androidx.compose.material.icons.filled.PanoramaPhotosphere
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Slideshow
 import androidx.compose.material.icons.filled.Terrain
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -30,23 +29,25 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rndeveloper.ultimate.R
+import com.rndeveloper.ultimate.model.Car
+import com.rndeveloper.ultimate.ui.screens.home.HomeUiState
 import com.rndeveloper.ultimate.ui.theme.UltimateTheme
 
 @Composable
 fun ButtonsMapContent(
+    car: Car?,
     isShowReloadButton: Boolean,
     onOpenOrCloseDrawer: () -> Unit,
     onMapType: () -> Unit,
     onCameraTilt: () -> Unit,
     onCameraLocation: () -> Unit,
+    onGetSpots: () -> Unit,
     modifier: Modifier = Modifier,
-    onGetSpots: () -> Unit
 ) {
 
     val surfaceColor = MaterialTheme.colorScheme.surface
@@ -95,7 +96,7 @@ fun ButtonsMapContent(
             modifier = Modifier.align(Alignment.BottomStart),
 
 //            FIXME this -----------------
-            containerColor = Color.Magenta
+            containerColor = MaterialTheme.colorScheme.tertiary
 
         ) {
             Icon(
@@ -109,16 +110,15 @@ fun ButtonsMapContent(
             modifier = Modifier.align(Alignment.BottomCenter)
         ) {
 
-            ExtendedFloatingActionButton(
-                text = { Text(text = "Refresh") },
-                icon = {
-                    Icon(
-                        imageVector = Icons.Default.Refresh,
-                        contentDescription = null,
-                    )
-                },
+            FloatingActionButton(
+                modifier = modifier.size(40.dp),
                 onClick = onGetSpots
-            )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = Icons.Default.Refresh.toString(),
+                )
+            }
         }
 
 
@@ -141,8 +141,7 @@ fun ButtonsMapContent(
             Spacer(modifier = modifier.height(4.dp))
             Row {
                 FloatingCar(
-                    isCarLatLng = true,
-                    isCar = false,
+                    car = car,
                     onShowCarMarker = {},
                     onCameraCar = {},
                     deleteMyCar = {}
@@ -166,8 +165,7 @@ fun ButtonsMapContent(
 
 @Composable
 private fun FloatingCar(
-    isCarLatLng: Boolean,
-    isCar: Boolean?,
+    car: Car?,
     onShowCarMarker: () -> Unit,
     onCameraCar: () -> Unit,
     deleteMyCar: () -> Unit,
@@ -177,7 +175,7 @@ private fun FloatingCar(
     val surfaceColor = MaterialTheme.colorScheme.surface
 
 
-    AnimatedVisibility(visible = isCar == true) {
+    AnimatedVisibility(visible = car != null) {
         FloatingActionButton(
             modifier = modifier.height(40.dp),
             onClick = onShowCarMarker,
@@ -203,8 +201,8 @@ private fun FloatingCar(
 
     }
     FloatingActionButton(
-        modifier = if (isCar == true || !isCarLatLng) modifier.height(40.dp) else modifier.size(40.dp),
-        onClick = if (isCar == false) onCameraCar else if (isCar == true) deleteMyCar else onShowCarMarker,
+        modifier = if (car != null /*|| !isCarLatLng*/) modifier.height(40.dp) else modifier.size(40.dp),
+        onClick = if (car == null) onCameraCar else onShowCarMarker,
         containerColor = surfaceColor
     ) {
         Row(
@@ -218,10 +216,10 @@ private fun FloatingCar(
                 ),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            AnimatedVisibility(visible = isCar == true || !isCarLatLng) {
+            AnimatedVisibility(visible = car != null) {
                 Row {
                     Text(
-                        text = if (isCar == true) "¡Me voy!" else if (!isCarLatLng) "Ubicar vehículo" else "",
+                        text = if (car != null) "¡Me voy!"  else "",
                         style = MaterialTheme.typography.bodyMedium.copy(
                             fontWeight = FontWeight.Normal,
                         )
@@ -243,13 +241,12 @@ private fun FloatingCar(
 fun ButtonsMapContentPreview() {
     UltimateTheme {
         ButtonsMapContent(
+            car = HomeUiState().user?.car,
             isShowReloadButton = true,
             onOpenOrCloseDrawer = { /*TODO*/ },
             onMapType = { /*TODO*/ },
             onCameraTilt = { /*TODO*/ },
-            onCameraLocation = { /*TODO*/ }
-        ) {
-
-        }
+            onCameraLocation = { /*TODO*/ },
+            onGetSpots = { /*TODO*/ })
     }
 }

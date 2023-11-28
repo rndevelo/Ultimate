@@ -1,9 +1,11 @@
 package com.rndeveloper.ultimate.ui.screens.home
 
+import android.location.Geocoder
 import android.os.CountDownTimer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
+import com.rndeveloper.ultimate.extensions.getAddressList
 import com.rndeveloper.ultimate.model.Car
 import com.rndeveloper.ultimate.model.Position
 import com.rndeveloper.ultimate.model.Spot
@@ -18,6 +20,8 @@ import com.rndeveloper.ultimate.utils.Constants
 import com.rndeveloper.ultimate.utils.Constants.INTERVAL
 import com.rndeveloper.ultimate.utils.Utils.currentTime
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -35,6 +39,7 @@ class HomeViewModel @Inject constructor(
     private val spotsUseCases: SpotsUseCases,
     private val userUseCases: UserUseCases,
     private val userRepository: UserRepository,
+    private val geocoder: Geocoder,
 ) : ViewModel() {
 
     private val _uiHomeState = MutableStateFlow(HomeUiState())
@@ -47,108 +52,17 @@ class HomeViewModel @Inject constructor(
     init {
 
 //        TODO: Refactor this
-        getAndStartTimer()
-
         viewModelScope.launch {
-            _uiHomeState.update {
-                it.copy(isLoading = true)
-            }
-            locationClient.getLocationsRequest().collectLatest { userLocation ->
-                _uiHomeState.update {
-                    it.copy(isLoading = false, loc = userLocation)
-                }
-            }
-        }
-        getUserData()
-    }
-
-    fun onSaveGetStartTimer(timerId: String) = viewModelScope.launch {
-        val timer = Timer(
-            id = timerId,
-            endTime = currentTime() + Constants.TIMER
-        )
-        if (uiHomeState.value.elapsedTime <= 0L && uiHomeState.value.spots.isNotEmpty()) {
-            timerRepository.saveTimer(timer = timer)
-            getAndStartTimer()
-        }
-    }
-
-    private fun getUserData() = viewModelScope.launch {
-        userUseCases.getUserDataUseCase(Unit).collectLatest { newHomeUiState ->
-            _uiHomeState.update {
-                newHomeUiState
-            }
-        }
-    }
-
-
-    //    GET SPOTS
-    fun getSpots(camLatLng: LatLng) = viewModelScope.launch {
-        spotsUseCases.getSpotsUseCase(camLatLng to _uiHomeState.value)
-            .collectLatest { newHomeUiState ->
-                _uiHomeState.update {
-                    newHomeUiState
-                }
-            }
-    }
-
-
-    //    SET SPOT
-    fun setSpot(targetLatLng: LatLng) = viewModelScope.launch {
-
-        val spot = uiHomeState.value.user?.let {
-            Spot().copy(
-                timestamp = currentTime(),
-                type = SpotType.BLUE,
-                position = Position(targetLatLng.latitude, targetLatLng.longitude),
-                user = it
+            awaitAll(
+                async { onGetAndStartTimer() },
+                async { onGetUserData() },
+                async { onGetLocationData() },
             )
         }
-
-        if (spot != null) {
-            spotsUseCases.setSpotUseCase(spot).collectLatest { newHomeUiState ->
-                _uiHomeState.update {
-                    newHomeUiState.copy(spots = uiHomeState.value.spots)
-                }
-            }
-        }
     }
-
-    fun removeSpot(spot: Spot) = viewModelScope.launch {
-        spotsUseCases.removeSpotUseCase(spot).collectLatest { newHomeUiState ->
-            _uiHomeState.update {
-                newHomeUiState
-            }
-        }
-    }
-
-    fun setMyCar(latLng: LatLng) = viewModelScope.launch {
-
-        val car = Car(lat = latLng.latitude, lng = latLng.longitude)
-
-        userRepository.setUserCar(car).collectLatest { newHomeUiState ->
-            _uiHomeState.update {
-                it
-            }
-        }
-    }
-
-
-    //    SPOT SELECTED
-    fun onSpotSelected(spotTag: String) {
-
-        val spot = uiHomeState.value.spots.find {
-            it.tag == spotTag
-        } ?: uiHomeState.value.spots.firstOrNull()
-
-        _uiHomeState.update {
-            it.copy(selectedSpot = spot)
-        }
-    }
-
 
     //    TIMER
-    private fun getAndStartTimer() = viewModelScope.launch {
+    private fun onGetAndStartTimer() = viewModelScope.launch {
         uiHomeState.value.spots.firstOrNull()?.let { onSpotSelected(it.tag) }
         timerRepository.getTimer(Constants.SPOTS_TIMER).collectLatest { timer ->
             if (timer.endTime > currentTime()) {
@@ -168,6 +82,113 @@ class HomeViewModel @Inject constructor(
                         }
                     }
                 }.start()
+            }
+        }
+    }
+
+    suspend fun onSaveGetStartTimer(timerId: String) {
+        val timer = Timer(
+            id = timerId,
+            endTime = currentTime() + Constants.TIMER
+        )
+        if (uiHomeState.value.elapsedTime <= 0L && uiHomeState.value.spots.isNotEmpty()) {
+            timerRepository.saveTimer(timer = timer)
+            onGetAndStartTimer()
+        }
+    }
+
+    private suspend fun onGetUserData() {
+        userUseCases.getUserDataUseCase(Unit).collectLatest { newHomeUiState ->
+            _uiHomeState.update {
+                newHomeUiState
+            }
+        }
+    }
+
+    private suspend fun onGetLocationData() {
+        _uiHomeState.update {
+            it.copy(isLoading = true)
+        }
+        locationClient.getLocationsRequest().collectLatest { userLocation ->
+            _uiHomeState.update {
+                it.copy(isLoading = false, loc = userLocation)
+            }
+        }
+    }
+
+
+    //    GET SPOTS
+    fun onGetSpots(camLatLng: LatLng) = viewModelScope.launch {
+        spotsUseCases.getSpotsUseCase(camLatLng to _uiHomeState.value)
+            .collectLatest { newHomeUiState ->
+                _uiHomeState.update {
+                    newHomeUiState
+                }
+            }
+    }
+
+
+    //    SET SPOT
+    fun onSetSpot(targetLatLng: LatLng) = viewModelScope.launch {
+
+        val spot = uiHomeState.value.user?.let {
+            Spot().copy(
+                timestamp = currentTime(),
+                type = SpotType.BLUE,
+                position = Position(targetLatLng.latitude, targetLatLng.longitude),
+                user = it
+            )
+        }
+
+        if (spot != null) {
+            spotsUseCases.setSpotUseCase(spot).collectLatest { newHomeUiState ->
+                _uiHomeState.update {
+                    newHomeUiState.copy(spots = uiHomeState.value.spots)
+                }
+            }
+        }
+    }
+
+    fun onRemoveSpot(spot: Spot) = viewModelScope.launch {
+        spotsUseCases.removeSpotUseCase(spot).collectLatest { newHomeUiState ->
+            _uiHomeState.update {
+                newHomeUiState
+            }
+        }
+    }
+
+    fun onSetMyCar(latLng: LatLng) = viewModelScope.launch {
+
+        val car = Car(lat = latLng.latitude, lng = latLng.longitude)
+        _uiHomeState.value.user?.copy(car = car)?.let { user ->
+            userRepository.setUserCar(user).collectLatest { newHomeUiState ->
+                _uiHomeState.update {
+                    it
+                }
+            }
+        }
+    }
+
+
+    //    SPOT SELECTED
+    fun onSpotSelected(spotTag: String) {
+
+        val spot = uiHomeState.value.spots.find {
+            it.tag == spotTag
+        } ?: uiHomeState.value.spots.firstOrNull()
+
+        _uiHomeState.update {
+            it.copy(selectedSpot = spot)
+        }
+    }
+
+    fun onGetAddressLine(latLng: LatLng) {
+        latLng.getAddressList(geocoder) { address ->
+            _uiHomeState.update {
+                it.copy(
+                    addressLine = address.first().getAddressLine(0)
+                        .ifEmpty { "Ubicación desconocida" },
+                )
             }
         }
     }

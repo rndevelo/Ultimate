@@ -16,6 +16,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,69 +26,60 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.rndeveloper.ultimate.model.MenuItem
+import com.rndeveloper.ultimate.ui.theme.UltimateTheme
+import com.rndeveloper.ultimate.ui.theme.red_place_icon
 import com.rndeveloper.ultimate.utils.timeList
 import com.rndeveloper.ultimate.utils.typeList
 
 @Composable
-fun AddPanelContent(modifier: Modifier = Modifier) {
+fun AddPanelContent(
+    addressLine: String,
+    modifier: Modifier = Modifier
+) {
 
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-        Text(
-            text = "Agrega una plaza libre",
-            color = Color.DarkGray,
-            modifier = modifier.padding(6.dp, top = 12.dp),
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontWeight = FontWeight.SemiBold
-            ).copy(fontSize = 18.sp)
-        )
-        Spacer(modifier = modifier.height(15.dp))
-        Row(
+    Surface(tonalElevation = 2.dp) {
+        Column(
             modifier = modifier
                 .fillMaxWidth()
-                .height(50.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(16.dp)
         ) {
-            Icon(
-                imageVector = Icons.Outlined.Place,
-                contentDescription = Icons.Outlined.Place.toString()
+            Text(
+                text = "Agrega una plaza libre",
+                modifier = modifier.padding(12.dp),
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    fontWeight = FontWeight.SemiBold
+                )
             )
-            Spacer(modifier = modifier.width(10.dp))
-//                if (isLoading) {
-//                    CircularProgressIndicator(
-//                        modifier = modifier
-//                            .size(35.dp)
-//                            .padding(8.dp),
-//                        strokeWidth = 2.5.dp
-//                    )
-//                } else {
-//                    geoAddress?.let {
-//                        Text(
-//                            text = it,
-//                            style = MaterialTheme.typography.subtitle1
-//                        )
-//                    }
-//                }
+            Row(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Place,
+                    contentDescription = Icons.Outlined.Place.toString(),
+                    tint = red_place_icon
+                )
+                Spacer(modifier = modifier.width(10.dp))
+                Text(
+                    text = addressLine,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+            Spacer(modifier = modifier.height(15.dp))
+            Row(
+                modifier = modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                DropDownMenu(items = timeList)
+                DropDownMenu(items = typeList)
+            }
         }
-        Spacer(modifier = modifier.height(15.dp))
-        Row(
-            modifier = modifier
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            DropDownMenu(items = timeList)
-            Spacer(modifier = modifier.width(35.dp))
-            DropDownMenu(items = typeList)
-        }
-        Spacer(modifier = modifier.height(20.dp))
     }
 }
 
@@ -97,22 +89,20 @@ fun DropDownMenu(
     modifier: Modifier = Modifier
 ) {
     var isExpanded by remember { mutableStateOf(false) }
-    val index by remember { mutableIntStateOf(0) }
+    var index by remember { mutableIntStateOf(0) }
 
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(
             imageVector = items.first().icon,
             contentDescription = "Icono",
-            tint = animateColorAsState(items[index].color).value
+            tint = animateColorAsState(items[index].color, label = "").value
         )
         Spacer(modifier = modifier.width(10.dp))
 
-        Button(
-            onClick = { isExpanded = !isExpanded },
-            modifier = modifier.height(35.dp),
-        ) {
+        Button(onClick = { isExpanded = true }) {
             Text(
                 text = items[index].title,
+                style = MaterialTheme.typography.bodyMedium
             )
             Icon(
                 imageVector = Icons.Filled.ArrowDropDown,
@@ -133,11 +123,18 @@ fun DropDownMenu(
                     },
                     onClick = {
                         isExpanded = false
-//                        onIndex(items.indexOf(label))
+                        index = items.indexOf(label)
                     },
-                    modifier = modifier.height(35.dp)
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AddPanelContentPreview() {
+    UltimateTheme {
+        AddPanelContent(addressLine = "")
     }
 }

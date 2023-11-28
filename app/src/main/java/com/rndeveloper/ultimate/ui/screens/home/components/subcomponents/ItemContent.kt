@@ -1,5 +1,8 @@
 package com.rndeveloper.ultimate.ui.screens.home.components.subcomponents
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
@@ -27,7 +30,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import com.google.android.gms.maps.model.LatLng
 import com.rndeveloper.ultimate.extensions.getFormattedPrettyTime
 import com.rndeveloper.ultimate.model.Spot
 
@@ -46,8 +52,9 @@ fun ItemContent(
         label = "",
     )
 
-    var expandedItem by rememberSaveable { mutableStateOf(false) }
+    val context = LocalContext.current
 
+    var expandedItem by rememberSaveable { mutableStateOf(false) }
 
     Surface(
         modifier = modifier
@@ -86,6 +93,7 @@ fun ItemContent(
 //                FIXME: Hay que pone estas fun de ext en el snapshot del repo pa q se actualice automaticamente
                 Text(text = spot.timestamp.getFormattedPrettyTime())
 
+
                 Row(verticalAlignment = Alignment.CenterVertically) {
 
                     IconButton(onClick = { expandedItem = !expandedItem }) {
@@ -95,7 +103,7 @@ fun ItemContent(
                         )
                     }
 
-                    FloatingActionButton(onClick = onRemoveSpot) {
+                    FloatingActionButton(onClick = { goNavigate(latLng = LatLng(spot.position.lat, spot.position.lng), context = context) }) {
                         Icon(
                             imageVector = Icons.Filled.Navigation,
                             contentDescription = Icons.Filled.Navigation.toString(),
@@ -112,5 +120,16 @@ fun ItemContent(
                 Text(text = "por ${spot.user.username}",)
             }
         }
+    }
+}
+
+private fun goNavigate(latLng: LatLng?, context: Context) {
+    if (latLng != null) {
+        val navigationIntentUri =
+            Uri.parse("google.navigation:q=" + latLng.latitude + "," + latLng.longitude) //creating intent with latlng
+
+        val mapIntent = Intent(Intent.ACTION_VIEW, navigationIntentUri)
+        mapIntent.setPackage("com.google.android.apps.maps")
+        ContextCompat.startActivity(context, mapIntent, null)
     }
 }
