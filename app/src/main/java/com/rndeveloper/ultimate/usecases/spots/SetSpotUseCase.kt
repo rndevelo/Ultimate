@@ -3,7 +3,7 @@ package com.rndeveloper.ultimate.usecases.spots
 import com.rndeveloper.ultimate.exceptions.CustomException
 import com.rndeveloper.ultimate.model.Spot
 import com.rndeveloper.ultimate.repositories.SpotRepository
-import com.rndeveloper.ultimate.ui.screens.home.HomeUiState
+import com.rndeveloper.ultimate.ui.screens.home.SpotsUiState
 import com.rndeveloper.ultimate.usecases.BaseUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -13,22 +13,22 @@ import javax.inject.Inject
 
 class SetSpotUseCase @Inject constructor(
     private val repository: SpotRepository,
-) : BaseUseCase<Spot, Flow<HomeUiState>>() {
+) : BaseUseCase<Spot, Flow<SpotsUiState>>() {
 
-    override suspend fun execute(parameters: Spot): Flow<HomeUiState> =
+    override suspend fun execute(parameters: Spot): Flow<SpotsUiState> =
         channelFlow {
 
             // TODO: Validate fields: email restriction and empty fields validations
 
             // Loading
-            send(HomeUiState().copy(isLoading = true))
+            send(SpotsUiState().copy(isLoading = true))
 
             // Do login if fields are valid
 
             repository.setSpot(parameters)
                 .catch { exception ->
                     send(
-                        HomeUiState().copy(
+                        SpotsUiState().copy(
                             isLoading = false,
                             errorMessage = CustomException.GenericException(
                                 exception.message ?: "Error to get data"
@@ -39,11 +39,11 @@ class SetSpotUseCase @Inject constructor(
                 .collectLatest { result ->
                     result.fold(
                         onSuccess = {
-                            trySend(HomeUiState().copy(isLoading = false))
+                            trySend(SpotsUiState().copy(isLoading = false))
                         },
                         onFailure = { exception ->
                             send(
-                                HomeUiState().copy(
+                                SpotsUiState().copy(
                                     isLoading = false,
                                     errorMessage = CustomException.GenericException(
                                         exception.message ?: "Exception, didn't can get data"

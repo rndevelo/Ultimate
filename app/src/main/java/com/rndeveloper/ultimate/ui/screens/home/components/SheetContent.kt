@@ -13,15 +13,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rndeveloper.ultimate.model.Spot
-import com.rndeveloper.ultimate.ui.screens.home.HomeUiState
+import com.rndeveloper.ultimate.ui.screens.home.SpotsUiState
 import com.rndeveloper.ultimate.ui.screens.home.components.subcomponents.CountContent
 import com.rndeveloper.ultimate.ui.screens.home.components.subcomponents.ItemContent
 import com.rndeveloper.ultimate.ui.theme.UltimateTheme
 
 @Composable
 fun SheetContent(
-    isAddPanelState: Boolean,
-    homeUiState: HomeUiState,
+    uiSpotsState: SpotsUiState,
+    uiElapsedTimeState: Long,
+    uiAddressLineState: String,
     scrollState: LazyListState,
     onExpand: () -> Unit,
     onStartTimer: () -> Unit,
@@ -32,7 +33,9 @@ fun SheetContent(
 
     Column(modifier = modifier) {
         CountContent(
-            homeUiState = homeUiState,
+            uiSpotsState = uiSpotsState,
+            uiElapsedTimeState = uiElapsedTimeState,
+            uiAddressLineState = uiAddressLineState,
             onStartTimer = onStartTimer,
             onExpand = onExpand
         )
@@ -44,10 +47,10 @@ fun SheetContent(
                 .padding(vertical = 4.dp),
             state = scrollState
         ) {
-            items(items = homeUiState.spots, key = { i -> i.tag }) { spot ->
+            items(items = uiSpotsState.spots, key = { i -> i.tag }) { spot ->
                 ItemContent(
                     spot = spot,
-                    selectedSpot = homeUiState.selectedSpot,
+                    selectedSpot = uiSpotsState.selectedSpot,
                     onSpotSelected = { onSpotSelected(spot.tag) },
                     onRemoveSpot = { onRemoveSpot(spot) }
                 )
@@ -65,8 +68,9 @@ fun SheetContent(
 fun SheetContentPreview() {
     UltimateTheme {
         SheetContent(
-            isAddPanelState = true,
-            homeUiState = HomeUiState(),
+            uiSpotsState = SpotsUiState(),
+            uiElapsedTimeState = 0L,
+            uiAddressLineState = "Address",
             scrollState = LazyListState(),
             onExpand = { /*TODO*/ },
             onStartTimer = { /*TODO*/ },

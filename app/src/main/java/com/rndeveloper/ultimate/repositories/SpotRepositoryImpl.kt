@@ -6,6 +6,7 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.rndeveloper.ultimate.extensions.getAddressList
 import com.rndeveloper.ultimate.model.Directions
+import com.rndeveloper.ultimate.model.Position
 import com.rndeveloper.ultimate.model.Spot
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -17,13 +18,13 @@ class SpotRepositoryImpl @Inject constructor(
     private val fireStore: FirebaseFirestore
 ) : SpotRepository {
 
-    override fun getSpots(cameraLatLng: LatLng): Flow<Result<List<Spot>>> = callbackFlow {
+    override fun getSpots(position : Position): Flow<Result<List<Spot>>> = callbackFlow {
 
 //        FIXME: getAddressList? and getSpots?
 
         LatLng(
-            cameraLatLng.latitude,
-            cameraLatLng.longitude
+            position.lat,
+            position.lng
         ).getAddressList(geocoder) { addressList ->
             addressList.firstOrNull()?.let { address ->
                 fireStore
@@ -120,7 +121,7 @@ class SpotRepositoryImpl @Inject constructor(
 
 
 interface SpotRepository {
-    fun getSpots(cameraLatLng: LatLng): Flow<Result<List<Spot>>>
+    fun getSpots(position: Position): Flow<Result<List<Spot>>>
     fun setSpot(spot: Spot): Flow<Result<Boolean>>
     fun removeSpot(spot: Spot): Flow<Result<Boolean>>
 }

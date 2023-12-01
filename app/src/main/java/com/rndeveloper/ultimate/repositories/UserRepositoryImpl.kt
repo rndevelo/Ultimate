@@ -13,7 +13,7 @@ class UserRepositoryImpl @Inject constructor(
     private val fireStore: FirebaseFirestore,
 ) : UserRepository {
 
-    override fun getUserData(): Flow<Result<User?>> = callbackFlow {
+    override fun getUserData(): Flow<Result<User>> = callbackFlow {
 
         firebaseAuth.currentUser?.apply {
             val userAuthData = User().copy(
@@ -62,6 +62,6 @@ class UserRepositoryImpl @Inject constructor(
 
 
 interface UserRepository {
-    fun getUserData(): Flow<Result<User?>>
+    fun getUserData(): Flow<Result<User>>
     fun setUserCar(user: User): Flow<Result<Boolean?>>
 }

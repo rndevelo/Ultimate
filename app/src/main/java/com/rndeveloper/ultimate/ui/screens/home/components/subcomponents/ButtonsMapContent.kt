@@ -30,12 +30,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rndeveloper.ultimate.R
 import com.rndeveloper.ultimate.model.Car
-import com.rndeveloper.ultimate.ui.screens.home.HomeUiState
 import com.rndeveloper.ultimate.ui.theme.UltimateTheme
 
 @Composable
@@ -44,8 +44,10 @@ fun ButtonsMapContent(
     isShowReloadButton: Boolean,
     onOpenOrCloseDrawer: () -> Unit,
     onMapType: () -> Unit,
+    onParkMyCarState: () -> Unit,
     onCameraTilt: () -> Unit,
     onCameraLocation: () -> Unit,
+    onCameraMyCar: () -> Unit,
     onGetSpots: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -140,12 +142,31 @@ fun ButtonsMapContent(
             }
             Spacer(modifier = modifier.height(4.dp))
             Row {
-                FloatingCar(
-                    car = car,
-                    onShowCarMarker = {},
-                    onCameraCar = {},
-                    deleteMyCar = {}
-                )
+//                FloatingCar(
+//                    car = car,
+//                    onShowCarMarker = {},
+//                    onCameraCar = {},
+//                    deleteMyCar = {}
+//                )
+                FloatingActionButton(
+                    modifier = modifier.size(40.dp),
+                    onClick = if (car != null) onCameraMyCar else onParkMyCarState,
+                    containerColor = surfaceColor
+
+                ) {
+                    Row {
+                        AnimatedVisibility(visible = car == null) {
+                            Text(
+                                text = stringResource(R.string.home_text_not_park_car),
+                                modifier = Modifier.padding(horizontal = 2.dp)
+                            )
+                        }
+                        Icon(
+                            imageVector = Icons.Default.DirectionsCar,
+                            contentDescription = Icons.Default.DirectionsCar.toString(),
+                        )
+                    }
+                }
                 Spacer(modifier = modifier.width(8.dp))
                 FloatingActionButton(
                     modifier = modifier.size(40.dp),
@@ -219,7 +240,7 @@ private fun FloatingCar(
             AnimatedVisibility(visible = car != null) {
                 Row {
                     Text(
-                        text = if (car != null) "¡Me voy!"  else "",
+                        text = if (car != null) "¡Me voy!" else "",
                         style = MaterialTheme.typography.bodyMedium.copy(
                             fontWeight = FontWeight.Normal,
                         )
@@ -241,12 +262,15 @@ private fun FloatingCar(
 fun ButtonsMapContentPreview() {
     UltimateTheme {
         ButtonsMapContent(
-            car = HomeUiState().user?.car,
+            car = Car(),
             isShowReloadButton = true,
             onOpenOrCloseDrawer = { /*TODO*/ },
             onMapType = { /*TODO*/ },
+            onParkMyCarState = {},
             onCameraTilt = { /*TODO*/ },
             onCameraLocation = { /*TODO*/ },
-            onGetSpots = { /*TODO*/ })
+            onCameraMyCar = {},
+            onGetSpots = { /*TODO*/ }
+        )
     }
 }

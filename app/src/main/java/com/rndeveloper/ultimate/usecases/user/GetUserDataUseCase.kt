@@ -2,7 +2,7 @@ package com.rndeveloper.ultimate.usecases.user
 
 import com.rndeveloper.ultimate.exceptions.CustomException
 import com.rndeveloper.ultimate.repositories.UserRepository
-import com.rndeveloper.ultimate.ui.screens.home.HomeUiState
+import com.rndeveloper.ultimate.ui.screens.home.UserUiState
 import com.rndeveloper.ultimate.usecases.BaseUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -12,18 +12,18 @@ import javax.inject.Inject
 
 class GetUserDataUseCase @Inject constructor(
     private val repository: UserRepository,
-) : BaseUseCase<Unit, Flow<HomeUiState>>() {
+) : BaseUseCase<Unit, Flow<UserUiState>>() {
 
-    override suspend fun execute(parameters: Unit): Flow<HomeUiState> =
+    override suspend fun execute(parameters: Unit): Flow<UserUiState> =
         channelFlow {
 
             // Loading
-            send(HomeUiState().copy(isLoading = true))
+            send(UserUiState().copy(isLoading = true))
 
             repository.getUserData()
                 .catch { exception ->
                     send(
-                        HomeUiState().copy(
+                        UserUiState().copy(
                             isLoading = false,
                             errorMessage = CustomException.GenericException(
                                 exception.message ?: "Register Error"
@@ -35,7 +35,7 @@ class GetUserDataUseCase @Inject constructor(
                     result.fold(
                         onSuccess = { userData ->
                             send(
-                                HomeUiState().copy(
+                                UserUiState().copy(
                                     user = userData,
                                     isLoading = false
                                 )
@@ -43,7 +43,7 @@ class GetUserDataUseCase @Inject constructor(
                         },
                         onFailure = { exception ->
                             send(
-                                HomeUiState().copy(
+                                UserUiState().copy(
                                     isLoading = false,
                                     errorMessage = CustomException.GenericException(
                                         exception.message ?: "Register Failure"

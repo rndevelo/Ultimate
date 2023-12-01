@@ -6,7 +6,9 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
@@ -19,15 +21,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.rndeveloper.ultimate.R
 import com.rndeveloper.ultimate.extensions.toTime
-import com.rndeveloper.ultimate.ui.screens.home.HomeUiState
+import com.rndeveloper.ultimate.ui.screens.home.SpotsUiState
+import com.rndeveloper.ultimate.utils.Constants.DEFAULT_ELAPSED_TIME
 
 @Composable
 fun CountContent(
-    homeUiState: HomeUiState,
+    uiSpotsState: SpotsUiState,
+    uiElapsedTimeState: Long,
+    uiAddressLineState: String,
     onStartTimer: () -> Unit,
     onExpand: () -> Unit,
     modifier: Modifier = Modifier
@@ -45,16 +52,17 @@ fun CountContent(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Column {
-            AnimatedVisibility(homeUiState.spots.isNotEmpty()) {
+            AnimatedVisibility(uiSpotsState.spots.isNotEmpty()) {
                 Text(
-                    text = "${homeUiState.spots.size} spots in this zone",
+                    text = "${uiSpotsState.spots.size} spots in this zone",
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                 )
             }
+            Spacer(modifier = modifier.height(1.dp))
             Text(
-                text = if (homeUiState.spots.isNotEmpty())
-                    homeUiState.addressLine
-                else "Without spots in this zone",
+                text = if (uiSpotsState.spots.isNotEmpty())
+                    uiAddressLineState.ifEmpty { stringResource(R.string.home_text_unknow_location) }
+                else stringResource(R.string.home_text_without_spots),
                 style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Light),
             )
         }
@@ -63,13 +71,13 @@ fun CountContent(
             onClick = onStartTimer,
             elevation = FloatingActionButtonDefaults.elevation(1.dp)
         ) {
-            if (homeUiState.elapsedTime <= 0L) {
+            if (uiElapsedTimeState <= DEFAULT_ELAPSED_TIME) {
                 Icon(
                     imageVector = Icons.Default.Visibility,
                     contentDescription = Icons.Default.Visibility.toString()
                 )
             } else {
-                Text(text = homeUiState.elapsedTime.toTime())
+                Text(text = uiElapsedTimeState.toTime())
             }
         }
     }
@@ -79,7 +87,9 @@ fun CountContent(
 @Composable
 fun CountContentPreview() {
     CountContent(
-        homeUiState = HomeUiState(),
+        uiSpotsState = SpotsUiState(),
+        uiElapsedTimeState = 0L,
+        uiAddressLineState = "Address",
         onStartTimer = {},
         onExpand = {}
     )

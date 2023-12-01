@@ -1,6 +1,5 @@
 package com.rndeveloper.ultimate.ui.screens.home.components
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -8,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddLocationAlt
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
@@ -24,9 +24,12 @@ import com.rndeveloper.ultimate.ui.theme.UltimateTheme
 
 @Composable
 fun BottomBarContent(
-    isAddPanelState: Boolean,
+    isAddSpotPanelState: Boolean,
+    isParkMyCarPanelState: Boolean,
     onAddPanelState: (Boolean) -> Unit,
+    onParkMyCarState: (Boolean) -> Unit,
     onSetSpot: () -> Unit,
+    onSetMyCar: () -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -35,27 +38,48 @@ fun BottomBarContent(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            AnimatedVisibility(isAddPanelState) {
-                FloatingActionButton(
-                    onClick = { onAddPanelState(false) },
-                    modifier = Modifier.padding(start = 12.dp),
-                    elevation = FloatingActionButtonDefaults.elevation(1.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = Icons.Default.ArrowBack.toString(),
-                    )
-                }
+            FloatingActionButton(
+                onClick = {
+                    if (isAddSpotPanelState) {
+                        onAddPanelState(false)
+                    } else if (isParkMyCarPanelState) {
+                        onParkMyCarState(false)
+                    } else {
+                        onParkMyCarState(true)
+                    }
+                },
+                modifier = Modifier.padding(start = 12.dp),
+                elevation = FloatingActionButtonDefaults.elevation(1.dp)
+            ) {
+                Icon(
+                    imageVector = if (isAddSpotPanelState || isParkMyCarPanelState) Icons.Default.ArrowBack else Icons.Default.DirectionsCar,
+                    contentDescription = Icons.Default.ArrowBack.toString(),
+                )
             }
             ExtendedFloatingActionButton(
-                text = { Text(text = if (isAddPanelState) "Send spot" else "Add spot") },
+                text = { Text(text = if (isAddSpotPanelState) "Send spot" else if (isParkMyCarPanelState) "Park may car" else "Add spot") },
                 icon = {
                     Icon(
-                        imageVector = if (isAddPanelState) Icons.Default.Send else Icons.Default.AddLocationAlt,
-                        contentDescription = if (isAddPanelState) Icons.Default.Send.toString() else Icons.Default.AddLocationAlt.toString(),
+                        imageVector = if (isAddSpotPanelState || isParkMyCarPanelState)
+                            Icons.Default.Send
+                        else Icons.Default.AddLocationAlt,
+
+                        contentDescription = if (isAddSpotPanelState || isParkMyCarPanelState)
+                            Icons.Default.Send.toString()
+                        else Icons.Default.AddLocationAlt.toString(),
                     )
                 },
-                onClick = { if (isAddPanelState) onSetSpot() else onAddPanelState(true) },
+                onClick = {
+                    if (isAddSpotPanelState) {
+                        onSetSpot()
+                        onAddPanelState(false)
+                    } else if (isParkMyCarPanelState) {
+                        onSetMyCar()
+                        onParkMyCarState(false)
+                    } else {
+                        onAddPanelState(true)
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(12.dp),
@@ -69,6 +93,13 @@ fun BottomBarContent(
 @Composable
 fun BottomBarContentPreview() {
     UltimateTheme {
-        BottomBarContent(isAddPanelState = true, onAddPanelState = {}, onSetSpot = { /*TODO*/ })
+        BottomBarContent(
+            isAddSpotPanelState = false,
+            isParkMyCarPanelState = false,
+            onAddPanelState = {},
+            onParkMyCarState = {},
+            onSetSpot = { /*TODO*/ },
+            onSetMyCar = { /*TODO*/ }
+        )
     }
 }

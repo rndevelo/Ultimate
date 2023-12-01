@@ -7,7 +7,7 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.Priority
-import com.google.android.gms.maps.model.LatLng
+import com.rndeveloper.ultimate.model.Position
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -19,13 +19,13 @@ class LocationClientImpl @Inject constructor(
 ) : LocationClient {
 
     @SuppressLint("MissingPermission")
-    override fun getLocationsRequest(): Flow<LatLng?> = callbackFlow {
+    override fun getLocationsRequest(): Flow<Position> = callbackFlow {
 
         val locationCallback = object : LocationCallback() {
             override fun onLocationResult(result: LocationResult) {
                 super.onLocationResult(result)
                 result.locations.lastOrNull()?.let { location ->
-                    launch { send(LatLng(location.latitude, location.longitude)) }
+                    launch { send(Position(location.latitude, location.longitude)) }
                 }
             }
         }
@@ -46,5 +46,5 @@ class LocationClientImpl @Inject constructor(
 }
 
 interface LocationClient {
-    fun getLocationsRequest(): Flow<LatLng?>
+    fun getLocationsRequest(): Flow<Position>
 }

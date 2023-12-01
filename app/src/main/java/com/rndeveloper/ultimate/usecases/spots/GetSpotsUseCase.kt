@@ -3,10 +3,10 @@ package com.rndeveloper.ultimate.usecases.spots
 import android.location.Location
 import com.firebase.geofire.GeoFireUtils
 import com.firebase.geofire.GeoLocation
-import com.google.android.gms.maps.model.LatLng
 import com.rndeveloper.ultimate.exceptions.CustomException
+import com.rndeveloper.ultimate.model.Position
 import com.rndeveloper.ultimate.repositories.SpotRepository
-import com.rndeveloper.ultimate.ui.screens.home.HomeUiState
+import com.rndeveloper.ultimate.ui.screens.home.SpotsUiState
 import com.rndeveloper.ultimate.usecases.BaseUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -16,23 +16,23 @@ import javax.inject.Inject
 
 class GetSpotsUseCase @Inject constructor(
     private val repository: SpotRepository,
-) : BaseUseCase<Pair<LatLng, HomeUiState>, Flow<HomeUiState>>() {
+) : BaseUseCase<Pair<Position, Position>, Flow<SpotsUiState>>() {
 
-    override suspend fun execute(parameters: Pair<LatLng, HomeUiState>): Flow<HomeUiState> =
+    override suspend fun execute(parameters: Pair<Position, Position>): Flow<SpotsUiState> =
         channelFlow {
 
             // TODO: Validate fields: email restriction and empty fields validations
 
             // Loading
-            send(HomeUiState().copy(isLoading = true))
+            send(SpotsUiState().copy(isLoading = true))
 
             // Do login if fields are valid
-            val (camLatLng, uiHomeState) = parameters
+            val (camLatLng, locLatLng) = parameters
 
             repository.getSpots(camLatLng)
                 .catch { exception ->
                     send(
-                        HomeUiState().copy(
+                        SpotsUiState().copy(
                             isLoading = false,
                             errorMessage = CustomException.GenericException(
                                 exception.message ?: "Error to get data"
@@ -48,15 +48,12 @@ class GetSpotsUseCase @Inject constructor(
                             spots.filter { spot ->
                                 GeoFireUtils.getDistanceBetween(
                                     GeoLocation(spot.position.lat, spot.position.lng),
-                                    GeoLocation(camLatLng.latitude, camLatLng.longitude)
+                                    GeoLocation(camLatLng.lat, camLatLng.lng)
                                 ) <= 1000.0
                             }.sortedWith { d1, d2 ->
                                 val currentLoc = Location("currentLoc")
-
-                                uiHomeState.loc?.let {
-                                    currentLoc.latitude = uiHomeState.loc.latitude
-                                    currentLoc.longitude = uiHomeState.loc.longitude
-                                }
+                                currentLoc.latitude = locLatLng.lat
+                                currentLoc.longitude = locLatLng.lng
 
                                 val targets1 = Location("target")
                                 targets1.latitude = d1.position.lat
@@ -71,27 +68,18 @@ class GetSpotsUseCase @Inject constructor(
 
                                 distanceOne.compareTo(distanceTwo)
                             }.take(12).let { sortedSpots ->
-                                if (uiHomeState.loc != null) {
-                                    trySend(
-                                        uiHomeState.copy(
-                                            spots = sortedSpots,
-                                            selectedSpot = sortedSpots.firstOrNull(),
-                                            isLoading = false
-                                        )
+                                trySend(
+                                    SpotsUiState().copy(
+                                        spots = sortedSpots,
+                                        selectedSpot = sortedSpots.firstOrNull(),
+                                        isLoading = false
                                     )
-                                }else{
-                                    trySend(
-                                        HomeUiState().copy(
-                                            spots = sortedSpots,
-                                            isLoading = false
-                                        )
-                                    )
-                                }
+                                )
                             }
                         },
                         onFailure = { exception ->
                             send(
-                                HomeUiState().copy(
+                                SpotsUiState().copy(
                                     isLoading = false,
                                     errorMessage = CustomException.GenericException(
                                         exception.message ?: "Exception, didn't can get data"
