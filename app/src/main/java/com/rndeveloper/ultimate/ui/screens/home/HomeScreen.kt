@@ -54,7 +54,6 @@ fun HomeScreen(
         uiSpotsState = uiSpotsState,
         uiElapsedTimeState = uiElapsedTimeState,
         uiDirectionsState = uiDirectionsState,
-        onGetSpots = homeViewModel::onGetSpots,
         onSet = homeViewModel::onSet,
         onRemoveSpot = homeViewModel::onRemoveSpot,
         onStartTimer = { homeViewModel.onSaveGetStartTimer(SPOTS_TIMER) },
@@ -72,7 +71,6 @@ private fun HomeContent(
     uiSpotsState: SpotsUiState,
     uiElapsedTimeState: Long,
     uiDirectionsState: DirectionsUiState,
-    onGetSpots: (Position) -> Unit,
     onSet: (Position, ScreenState) -> Unit,
     onRemoveSpot: (Spot) -> Unit,
     onStartTimer: () -> Unit,
@@ -93,7 +91,7 @@ private fun HomeContent(
         }
     }
 
-    if (!rememberHomeUiContainerState.camPosState.isMoving) {
+    if (!rememberHomeUiContainerState.camPosState.isMoving && rememberHomeUiContainerState.camPosState.position.zoom > 12f) {
         LaunchedEffect(!rememberHomeUiContainerState.camPosState.isMoving) {
             onGetAddressLine(
                 Position(
@@ -170,18 +168,16 @@ private fun HomeContent(
                         SheetContent(
                             screenState = rememberHomeUiContainerState.screenState,
                             uiSpotsState = uiSpotsState,
-                            uiElapsedTimeState = uiElapsedTimeState,
                             uiDirectionsState = uiDirectionsState,
                             scrollState = rememberHomeUiContainerState.scrollState,
                             onExpand = {},
-                            onStartTimer = onStartTimer,
                             onSpotSelected = onSpotSelected,
                             onRemoveSpot = onRemoveSpot
                         )
                     },
                     modifier = Modifier.padding(contentPadding),
                     scaffoldState = rememberHomeUiContainerState.bsScaffoldState,
-                    sheetPeekHeight = /*if (rememberHomeUiContainerState.isSetState) 0.dp else */116.dp,
+                    sheetPeekHeight = if (rememberHomeUiContainerState.isSetState) 125.dp else 110.dp,
                     sheetShape = BottomSheetDefaults.HiddenShape,
                     sheetTonalElevation = 2.dp,
 //                    sheetSwipeEnabled = homeUiState.elapsedTime > 0L

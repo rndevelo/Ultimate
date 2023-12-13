@@ -23,11 +23,9 @@ import com.rndeveloper.ultimate.ui.theme.UltimateTheme
 fun SheetContent(
     screenState: ScreenState,
     uiSpotsState: SpotsUiState,
-    uiElapsedTimeState: Long,
     uiDirectionsState: DirectionsUiState,
     scrollState: LazyListState,
     onExpand: () -> Unit,
-    onStartTimer: () -> Unit,
     onSpotSelected: (String) -> Unit,
     onRemoveSpot: (Spot) -> Unit,
     modifier: Modifier = Modifier
@@ -37,9 +35,7 @@ fun SheetContent(
         CountContent(
             screenState = screenState,
             uiSpotsState = uiSpotsState,
-            uiElapsedTimeState = uiElapsedTimeState,
             uiDirectionsState = uiDirectionsState,
-            onStartTimer = onStartTimer,
             onExpand = onExpand
         )
         Divider()
@@ -47,7 +43,6 @@ fun SheetContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(max = 200.dp),
-//                .padding(vertical = 4.dp),
             state = scrollState
         ) {
             items(items = uiSpotsState.spots, key = { i -> i.tag }) { spot ->
@@ -73,11 +68,9 @@ fun SheetContentPreview() {
         SheetContent(
             screenState = ScreenState.MAIN,
             uiSpotsState = SpotsUiState(),
-            uiElapsedTimeState = 0L,
             uiDirectionsState = DirectionsUiState(),
             scrollState = LazyListState(),
             onExpand = { /*TODO*/ },
-            onStartTimer = { /*TODO*/ },
             onSpotSelected = {},
             onRemoveSpot = {}
         )

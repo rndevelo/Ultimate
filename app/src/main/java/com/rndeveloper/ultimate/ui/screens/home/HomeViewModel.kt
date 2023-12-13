@@ -170,16 +170,16 @@ class HomeViewModel @Inject constructor(
 
 
     //    GET SPOTS
-    fun onGetSpots(
+    private fun onGetSpots(
         position: Position,
         directions: Directions = _directionsState.value.directions
     ) = viewModelScope.launch {
 
-        _locationState.value.let { locPosition ->
+        _locationState.value.location?.let { locPosition ->
             spotsUseCases.getSpotsUseCase(
                 Triple(
                     position,
-                    locPosition.location!!,
+                    locPosition,
                     directions
                 )
             ).collectLatest { newSpotsUiState ->

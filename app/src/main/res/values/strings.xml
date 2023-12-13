@@ -25,6 +25,9 @@
     <string name="home_text_unknow_location">Ubicación desconocida</string>
     <string name="home_text_your_parked_car">Your parked car</string>
     <string name="home_text_not_park_car">Not park car</string>
+    <string name="home_text_add_spot">Add spot</string>
+    <string name="home_text_show_spots">Show spots</string>
+    <string name="home_text_park_your_car">Park your car</string>
 
 
 </resources>

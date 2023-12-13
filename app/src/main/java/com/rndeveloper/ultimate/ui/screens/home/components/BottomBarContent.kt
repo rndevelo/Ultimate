@@ -12,13 +12,16 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.rndeveloper.ultimate.R
 import com.rndeveloper.ultimate.extensions.toTime
 import com.rndeveloper.ultimate.ui.screens.home.HomeUiContainerState
 import com.rndeveloper.ultimate.ui.screens.home.ScreenState
@@ -37,37 +40,43 @@ fun BottomBarContent(
 
     Surface(tonalElevation = 2.dp) {
         Row(
-            modifier = modifier.fillMaxWidth().padding(10.dp),
-            horizontalArrangement = Arrangement.SpaceAround,
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(7.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             ExtendedFloatingActionButton(
-                text = { Text(text = "Park your car") },
+                text = { Text(text = stringResource(R.string.home_text_add_spot)) },
                 icon = {
                     Icon(
-                        imageVector = Icons.Default.DirectionsCar,
-                        contentDescription = Icons.Default.DirectionsCar.toString(),
+                        imageVector = Icons.Default.AddLocationAlt,
+                        contentDescription = Icons.Default.AddLocationAlt.toString(),
                     )
                 },
                 onClick = {
                     when (rememberHomeUiContainerState.screenState) {
-                        ScreenState.PARKMYCAR -> {
+                        ScreenState.ADDSPOT -> {
                             onSet()
                             rememberHomeUiContainerState.onScreenState(ScreenState.MAIN)
                         }
 
                         else -> {
-                            rememberHomeUiContainerState.onScreenState(ScreenState.PARKMYCAR)
+                            rememberHomeUiContainerState.onScreenState(ScreenState.ADDSPOT)
                         }
                     }
                 },
-                expanded = rememberHomeUiContainerState.screenState == ScreenState.PARKMYCAR,
+                modifier = if (rememberHomeUiContainerState.screenState == ScreenState.ADDSPOT) modifier.weight(1f) else modifier,
+                expanded = rememberHomeUiContainerState.screenState == ScreenState.ADDSPOT,
+                containerColor = when (rememberHomeUiContainerState.screenState) {
+                    ScreenState.ADDSPOT -> MaterialTheme.colorScheme.tertiaryContainer
+                    else -> MaterialTheme.colorScheme.primaryContainer
+                },
                 elevation = FloatingActionButtonDefaults.elevation(1.dp)
             )
 
-
             ExtendedFloatingActionButton(
-                text = { Text(text = "Show spots") },
+                text = { Text(text = stringResource(R.string.home_text_show_spots)) },
                 icon = {
                     if (uiElapsedTimeState <= Constants.DEFAULT_ELAPSED_TIME) {
                         Icon(
@@ -89,33 +98,46 @@ fun BottomBarContent(
                         }
                     }
                 },
+                modifier = if (rememberHomeUiContainerState.screenState == ScreenState.MAIN && Constants.DEFAULT_ELAPSED_TIME <= uiElapsedTimeState) modifier
+                    .padding(7.dp)
+                    .weight(1f) else modifier.padding(7.dp),
                 expanded = rememberHomeUiContainerState.screenState == ScreenState.MAIN && uiElapsedTimeState <= Constants.DEFAULT_ELAPSED_TIME,
+                containerColor = when (rememberHomeUiContainerState.screenState) {
+                    ScreenState.MAIN -> MaterialTheme.colorScheme.tertiaryContainer
+                    else -> MaterialTheme.colorScheme.primaryContainer
+                },
                 elevation = FloatingActionButtonDefaults.elevation(1.dp)
             )
 
             ExtendedFloatingActionButton(
-                text = { Text(text = "Add spot") },
+                text = { Text(text = stringResource(R.string.home_text_park_your_car)) },
                 icon = {
                     Icon(
-                        imageVector = Icons.Default.AddLocationAlt,
-                        contentDescription = Icons.Default.AddLocationAlt.toString(),
+                        imageVector = Icons.Default.DirectionsCar,
+                        contentDescription = Icons.Default.DirectionsCar.toString(),
                     )
                 },
                 onClick = {
                     when (rememberHomeUiContainerState.screenState) {
-                        ScreenState.ADDSPOT -> {
+                        ScreenState.PARKMYCAR -> {
                             onSet()
                             rememberHomeUiContainerState.onScreenState(ScreenState.MAIN)
                         }
 
                         else -> {
-                            rememberHomeUiContainerState.onScreenState(ScreenState.ADDSPOT)
+                            rememberHomeUiContainerState.onScreenState(ScreenState.PARKMYCAR)
                         }
                     }
                 },
-                expanded = rememberHomeUiContainerState.screenState == ScreenState.ADDSPOT,
+                modifier = if (rememberHomeUiContainerState.screenState == ScreenState.PARKMYCAR) modifier.weight(1f) else modifier,
+                expanded = rememberHomeUiContainerState.screenState == ScreenState.PARKMYCAR,
+                containerColor = when (rememberHomeUiContainerState.screenState) {
+                    ScreenState.PARKMYCAR -> MaterialTheme.colorScheme.tertiaryContainer
+                    else -> MaterialTheme.colorScheme.primaryContainer
+                },
                 elevation = FloatingActionButtonDefaults.elevation(1.dp)
             )
+
         }
     }
 }
