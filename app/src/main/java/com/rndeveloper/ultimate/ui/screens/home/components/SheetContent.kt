@@ -3,7 +3,6 @@ package com.rndeveloper.ultimate.ui.screens.home.components
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -13,6 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rndeveloper.ultimate.model.Spot
+import com.rndeveloper.ultimate.ui.screens.home.DirectionsUiState
+import com.rndeveloper.ultimate.ui.screens.home.ScreenState
 import com.rndeveloper.ultimate.ui.screens.home.SpotsUiState
 import com.rndeveloper.ultimate.ui.screens.home.components.subcomponents.CountContent
 import com.rndeveloper.ultimate.ui.screens.home.components.subcomponents.ItemContent
@@ -20,9 +21,10 @@ import com.rndeveloper.ultimate.ui.theme.UltimateTheme
 
 @Composable
 fun SheetContent(
+    screenState: ScreenState,
     uiSpotsState: SpotsUiState,
     uiElapsedTimeState: Long,
-    uiAddressLineState: String,
+    uiDirectionsState: DirectionsUiState,
     scrollState: LazyListState,
     onExpand: () -> Unit,
     onStartTimer: () -> Unit,
@@ -31,11 +33,12 @@ fun SheetContent(
     modifier: Modifier = Modifier
 ) {
 
-    Column(modifier = modifier) {
+    Column {
         CountContent(
+            screenState = screenState,
             uiSpotsState = uiSpotsState,
             uiElapsedTimeState = uiElapsedTimeState,
-            uiAddressLineState = uiAddressLineState,
+            uiDirectionsState = uiDirectionsState,
             onStartTimer = onStartTimer,
             onExpand = onExpand
         )
@@ -43,8 +46,8 @@ fun SheetContent(
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(max = 200.dp)
-                .padding(vertical = 4.dp),
+                .heightIn(max = 200.dp),
+//                .padding(vertical = 4.dp),
             state = scrollState
         ) {
             items(items = uiSpotsState.spots, key = { i -> i.tag }) { spot ->
@@ -68,9 +71,10 @@ fun SheetContent(
 fun SheetContentPreview() {
     UltimateTheme {
         SheetContent(
+            screenState = ScreenState.MAIN,
             uiSpotsState = SpotsUiState(),
             uiElapsedTimeState = 0L,
-            uiAddressLineState = "Address",
+            uiDirectionsState = DirectionsUiState(),
             scrollState = LazyListState(),
             onExpand = { /*TODO*/ },
             onStartTimer = { /*TODO*/ },

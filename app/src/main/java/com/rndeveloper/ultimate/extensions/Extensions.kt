@@ -5,27 +5,11 @@ import android.location.Address
 import android.location.Geocoder
 import android.os.Build
 import android.text.format.DateUtils
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.CameraPositionState
 import org.ocpsoft.prettytime.PrettyTime
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-
-suspend fun CameraPositionState.onCamera(
-    target: LatLng = this.position.target,
-    zoom: Float = this.position.zoom,
-    tilt: Float = this.position.tilt,
-    bearing: Float = this.position.bearing,
-) {
-    this.animate(
-        CameraUpdateFactory.newCameraPosition(
-            CameraPosition(target, zoom, tilt, 0f)
-        )
-    )
-}
 
 fun Long.toTime(): String = DateUtils.formatElapsedTime(this.div(1000))
 

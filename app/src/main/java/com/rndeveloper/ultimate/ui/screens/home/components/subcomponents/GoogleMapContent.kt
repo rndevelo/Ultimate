@@ -1,5 +1,6 @@
 package com.rndeveloper.ultimate.ui.screens.home.components.subcomponents
 
+import android.util.Log
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -17,25 +18,23 @@ import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.rememberCameraPositionState
 import com.rndeveloper.ultimate.R
-import com.rndeveloper.ultimate.model.Car
-import com.rndeveloper.ultimate.ui.screens.home.SpotsUiState
-import com.rndeveloper.ultimate.ui.screens.home.UserUiState
+import com.rndeveloper.ultimate.model.Position
+import com.rndeveloper.ultimate.model.Spot
 import com.rndeveloper.ultimate.ui.theme.UltimateTheme
 import com.rndeveloper.ultimate.utils.BitmapHelper
 import com.rndeveloper.ultimate.utils.MapStyle
 
 @Composable
 fun GoogleMapContent(
-    uiUserState: UserUiState,
-    uiSpotsState: SpotsUiState,
+    cameraPos: CameraPositionState,
+    isSetState: Boolean,
+    car: Position?,
+    spots: List<Spot>,
     isElapsedTime: Boolean,
-    cameraPositionState: CameraPositionState,
-    isAddOrParkState: Boolean,
-    mapLoaded: () -> Unit,
     mapType: MapType,
     onSpotSelected: (String) -> Unit,
-    onSetMyCar: (Car) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -47,9 +46,12 @@ fun GoogleMapContent(
         MapStyleOptions(MapStyle.jsonWithoutPoi)
     }
 
+    Log.d("BUCLEMIO", "GoogleMapContent: FUERAAAAA")
+
+
     GoogleMap(
         modifier = modifier.clip(RoundedCornerShape(bottomStartPercent = 5, bottomEndPercent = 5)),
-        cameraPositionState = cameraPositionState,
+        cameraPositionState = cameraPos,
         properties = MapProperties(
             isMyLocationEnabled = true,
             mapType = mapType,
@@ -61,14 +63,14 @@ fun GoogleMapContent(
             myLocationButtonEnabled = false,
             zoomControlsEnabled = false,
         ),
-        onMapLoaded = mapLoaded,
-        onMapLongClick = { onSetMyCar(Car(it.latitude, it.longitude)) }
+        onMapLoaded = {},
     ) {
 
-        uiUserState.user.car?.let {
+
+        if (car != null) {
             Marker(
-                state = MarkerState(position = LatLng(it.lat, it.lng)),
-                alpha = if (isAddOrParkState || isElapsedTime) 0.4f else 1.0f,
+                state = MarkerState(position = LatLng(car.lat, car.lng)),
+                alpha = if (isSetState) 0.4f else 1.0f,
                 icon = BitmapHelper.vectorToBitmap(
                     context = context,
                     id = R.drawable.ic_park_my_car_shadow
@@ -77,7 +79,9 @@ fun GoogleMapContent(
             )
         }
 
-        uiSpotsState.spots.forEach { spot ->
+        Log.d("BUCLEMIO", "GoogleMapContent -------------------: ")
+
+        spots.forEach { spot ->
             Marker(
                 state = MarkerState(position = LatLng(spot.position.lat, spot.position.lng)),
                 tag = spot.tag,
@@ -100,15 +104,13 @@ fun GoogleMapContent(
 fun GoogleMapContentPreview() {
     UltimateTheme {
         GoogleMapContent(
-            uiUserState = UserUiState(),
-            uiSpotsState = SpotsUiState(),
+            cameraPos = rememberCameraPositionState(),
+            isSetState = false,
+            car = Position(),
+            spots = emptyList(),
             isElapsedTime = false,
-            cameraPositionState = CameraPositionState(),
-            isAddOrParkState = false,
-            mapLoaded = { /*TODO*/ },
             mapType = MapType.NORMAL,
             onSpotSelected = {},
-            onSetMyCar = {}
         )
     }
 }

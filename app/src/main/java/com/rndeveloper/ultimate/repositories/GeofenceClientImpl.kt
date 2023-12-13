@@ -8,7 +8,6 @@ import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
 import com.rndeveloper.ultimate.model.Spot
-import com.rndeveloper.ultimate.utils.Constants.RADIUS_IS_NEAR_SPOT
 import com.rndeveloper.ultimate.utils.Constants.REQUEST_CODE
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -34,11 +33,11 @@ class GeofenceClientImpl @Inject constructor(
 
             val geofence = Geofence.Builder()
                 .setRequestId(spot.tag)
-                .setCircularRegion(
-                    spot.position.lat,
-                    spot.position.lng,
-                    RADIUS_IS_NEAR_SPOT
-                )
+//                .setCircularRegion(
+//                    spot.position.lat,
+//                    spot.position.lng,
+//                    RADIUS_IS_NEAR_SPOT
+//                )
                 .setExpirationDuration(Geofence.NEVER_EXPIRE)
                 .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT)
                 .build()

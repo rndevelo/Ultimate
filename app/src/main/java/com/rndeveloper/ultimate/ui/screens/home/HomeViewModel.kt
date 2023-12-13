@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import com.rndeveloper.ultimate.extensions.getAddressList
-import com.rndeveloper.ultimate.model.Car
+import com.rndeveloper.ultimate.model.Directions
 import com.rndeveloper.ultimate.model.Position
 import com.rndeveloper.ultimate.model.Spot
 import com.rndeveloper.ultimate.model.SpotType
@@ -17,6 +17,7 @@ import com.rndeveloper.ultimate.repositories.UserRepository
 import com.rndeveloper.ultimate.usecases.spots.SpotsUseCases
 import com.rndeveloper.ultimate.usecases.user.UserUseCases
 import com.rndeveloper.ultimate.utils.Constants
+import com.rndeveloper.ultimate.utils.Constants.DEFAULT_ELAPSED_TIME
 import com.rndeveloper.ultimate.utils.Constants.INTERVAL
 import com.rndeveloper.ultimate.utils.Utils.currentTime
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -39,8 +40,16 @@ class HomeViewModel @Inject constructor(
     private val spotsUseCases: SpotsUseCases,
     private val userUseCases: UserUseCases,
     private val userRepository: UserRepository,
+//    private val geofenceClient: GeofenceClient,
     private val geocoder: Geocoder,
 ) : ViewModel() {
+
+    private val _locationState = MutableStateFlow(LocationUiState())
+    val uiLocationState: StateFlow<LocationUiState> = _locationState.asStateFlow().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = LocationUiState()
+    )
 
     private val _userState = MutableStateFlow(UserUiState())
     val uiUserState: StateFlow<UserUiState> = _userState.asStateFlow().stateIn(
@@ -63,29 +72,29 @@ class HomeViewModel @Inject constructor(
         initialValue = 0L,
     )
 
-    private val _addressLineState = MutableStateFlow("Sin coincidencias")
-    val uiAddressLineState: StateFlow<String> = _addressLineState.asStateFlow().stateIn(
+    private val _directionsState = MutableStateFlow(DirectionsUiState())
+    val uiDirectionsState: StateFlow<DirectionsUiState> = _directionsState.asStateFlow().stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
-        initialValue = "Sin coincidencias",
+        initialValue = DirectionsUiState(),
     )
 
     init {
-
+        onGetAndStartTimer()
 //        TODO: Refactor this
         viewModelScope.launch {
             awaitAll(
-                async { onGetAndStartTimer() },
-                async { onGetUserData() },
                 async { onGetLocationData() },
+                async { onGetUserData() },
             )
         }
     }
 
     //    TIMER
     private fun onGetAndStartTimer() = viewModelScope.launch {
-        _spotsState.value.spots.firstOrNull()?.let { onSpotSelected(it.tag) }
+//        _spotsState.value.spots.firstOrNull()?.let { onSpotSelected(it.tag) }
         timerRepository.getTimer(Constants.SPOTS_TIMER).collectLatest { timer ->
+
             if (timer.endTime > currentTime()) {
                 object : CountDownTimer(
                     timer.endTime - currentTime(),
@@ -99,7 +108,7 @@ class HomeViewModel @Inject constructor(
 
                     override fun onFinish() {
                         _elapsedTimeState.update {
-                            0L
+                            DEFAULT_ELAPSED_TIME
                         }
                     }
                 }.start()
@@ -107,13 +116,15 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    suspend fun onSaveGetStartTimer(timerId: String) {
+    fun onSaveGetStartTimer(timerId: String) {
         val timer = Timer(
             id = timerId,
             endTime = currentTime() + Constants.TIMER
         )
         if (_elapsedTimeState.value <= 0L && _spotsState.value.spots.isNotEmpty()) {
-            timerRepository.saveTimer(timer = timer)
+            viewModelScope.launch {
+                timerRepository.saveTimer(timer = timer)
+            }
             onGetAndStartTimer()
         }
     }
@@ -127,47 +138,91 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun onGetLocationData() {
-        _userState.update {
+//        _locationState.update {
+//            it.copy(isLoading = true)
+//        }
+        locationClient.getLocationsRequest().collectLatest { newLocation ->
+            _locationState.update {
+                it.copy(location = newLocation)
+            }
+        }
+    }
+
+    fun onGetAddressLine(position: Position) {
+        _spotsState.update {
             it.copy(isLoading = true)
         }
-        locationClient.getLocationsRequest().collectLatest { userLocation ->
-            _userState.update {
-                it.copy(
-//                    isLoading = false,
-                    user = it.user.copy(loc = Position(userLocation.lat, userLocation.lng))
-                )
+        LatLng(position.lat, position.lng).getAddressList(geocoder) { address ->
+
+            Directions(
+                addressLine = address.first().getAddressLine(0),
+                locality = address.first().locality,
+                area = address.first().subAdminArea,
+                country = address.first().countryName
+            ).let { directions ->
+                _directionsState.update {
+                    it.copy(directions = directions)
+                }
+                onGetSpots(position)
             }
         }
     }
 
 
     //    GET SPOTS
-    fun onGetSpots(camPosition: Position) = viewModelScope.launch {
-        _userState.value.user.loc?.let { locPosition ->
-            spotsUseCases.getSpotsUseCase(camPosition to locPosition)
-                .collectLatest { newSpotsUiState ->
-                    _spotsState.update {
-                        newSpotsUiState
-                    }
+    fun onGetSpots(
+        position: Position,
+        directions: Directions = _directionsState.value.directions
+    ) = viewModelScope.launch {
+
+        _locationState.value.let { locPosition ->
+            spotsUseCases.getSpotsUseCase(
+                Triple(
+                    position,
+                    locPosition.location!!,
+                    directions
+                )
+            ).collectLatest { newSpotsUiState ->
+                _spotsState.update {
+                    newSpotsUiState
                 }
+            }
         }
     }
 
 
     //    SET SPOT
-    fun onSetSpot(position: Position) = viewModelScope.launch {
-
-        val spot = Spot().copy(
-            timestamp = currentTime(),
-            type = SpotType.BLUE,
-            position = position,
-            user = _userState.value.user
-        )
-
-        spotsUseCases.setSpotUseCase(spot).collectLatest { newHomeUiState ->
-            _spotsState.update {
-                it
+    fun onSet(position: Position, screenState: ScreenState) = viewModelScope.launch {
+        when (screenState) {
+            ScreenState.ADDSPOT -> {
+                Spot().copy(
+                    timestamp = currentTime(),
+                    type = SpotType.BLUE,
+                    directions = _directionsState.value.directions,
+                    position = position,
+                    user = _userState.value.user
+                ).let { spot ->
+                    spotsUseCases.setSpotUseCase(spot)
+                }
+                    .collectLatest { newHomeUiState ->
+                        _spotsState.update {
+                            it
+                        }
+                    }
             }
+
+            ScreenState.PARKMYCAR -> {
+                _userState.value.user.copy(car = position).let { user ->
+                    userRepository.setUserCar(user)
+                }
+                    .collectLatest { newHomeUiState ->
+                        _userState.update {
+                            it
+                        }
+                    }
+            }
+
+            else -> {}
         }
     }
 
@@ -179,16 +234,16 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun onSetMyCar(car: Car) = viewModelScope.launch {
-        _userState.value.user.copy(car = car).let { user ->
-            userRepository.setUserCar(user).collectLatest { newUserUiState ->
-                _userState.update {
-                    //                    it.copy(isLoading = newHomeUiState.isSuccess)
-                    it
-                }
-            }
-        }
-    }
+//    fun onSetMyCar(position: Position) = viewModelScope.launch {
+//        _userState.value.user.copy(car = position).let { user ->
+//            userRepository.setUserCar(user).collectLatest { newUserUiState ->
+//                _userState.update {
+//                    //                    it.copy(isLoading = newHomeUiState.isSuccess)
+//                    it
+//                }
+//            }
+//        }
+//    }
 
 
     //    SPOT SELECTED
@@ -203,11 +258,4 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun onGetAddressLine(latLng: LatLng) {
-        latLng.getAddressList(geocoder) { address ->
-            _addressLineState.update {
-                address.first().locality + ", " + address.first().subAdminArea
-            }
-        }
-    }
 }

@@ -1,12 +1,9 @@
 package com.rndeveloper.ultimate.repositories
 
 import android.location.Geocoder
-import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.rndeveloper.ultimate.extensions.getAddressList
 import com.rndeveloper.ultimate.model.Directions
-import com.rndeveloper.ultimate.model.Position
 import com.rndeveloper.ultimate.model.Spot
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -18,30 +15,22 @@ class SpotRepositoryImpl @Inject constructor(
     private val fireStore: FirebaseFirestore
 ) : SpotRepository {
 
-    override fun getSpots(position : Position): Flow<Result<List<Spot>>> = callbackFlow {
+    override fun getSpots(directions: Directions): Flow<Result<List<Spot>>> = callbackFlow {
 
 //        FIXME: getAddressList? and getSpots?
-
-        LatLng(
-            position.lat,
-            position.lng
-        ).getAddressList(geocoder) { addressList ->
-            addressList.firstOrNull()?.let { address ->
-                fireStore
-                    .collection("ITEMS")
-                    .document(address.countryName)
-                    .collection(address.subAdminArea).addSnapshotListener { snapshot, e ->
-                        val items = snapshot?.toObjects(Spot::class.java)
-                        if (items != null) {
-                            trySend(Result.success(items))
-                        } else {
-                            if (e != null) {
-                                trySend(Result.failure(e.fillInStackTrace()))
-                            }
-                        }
+        fireStore
+            .collection("ITEMS")
+            .document(directions.country)
+            .collection(directions.area).addSnapshotListener { snapshot, e ->
+                val items = snapshot?.toObjects(Spot::class.java)
+                if (items != null) {
+                    trySend(Result.success(items))
+                } else {
+                    if (e != null) {
+                        trySend(Result.failure(e.fillInStackTrace()))
                     }
+                }
             }
-        }
         awaitClose()
     }
 
@@ -49,39 +38,17 @@ class SpotRepositoryImpl @Inject constructor(
 
         val tag = fireStore.collection("ITEMS").document().id
 
-        LatLng(
-            spot.position.lat,
-            spot.position.lng
-        ).getAddressList(geocoder) { addressList ->
-
-            addressList.firstOrNull()?.let {
-
-                val directions = Directions(
-                    addressLine = it.getAddressLine(0),
-                    locality = it.locality,
-                    area = it.subAdminArea,
-                    country = it.countryName,
-                )
-
-                fireStore.collection("ITEMS")
-                    .document(it.countryName)
-                    .collection(it.subAdminArea)
-                    .document(tag)
-                    .set(
-                        spot.copy(
-                            tag = tag,
-                            directions = directions
-                        )
-                    )
-                    .addOnSuccessListener { _ ->
-                        trySend(Result.success(true))
-                    }
-                    .addOnFailureListener { error ->
-                        trySend(Result.failure(error))
-                    }
-
+        fireStore.collection("ITEMS")
+            .document(spot.directions.country)
+            .collection(spot.directions.area)
+            .document(tag)
+            .set(spot.copy(tag = tag))
+            .addOnSuccessListener { _ ->
+                trySend(Result.success(true))
             }
-        }
+            .addOnFailureListener { error ->
+                trySend(Result.failure(error))
+            }
         awaitClose()
     }
 
@@ -121,7 +88,7 @@ class SpotRepositoryImpl @Inject constructor(
 
 
 interface SpotRepository {
-    fun getSpots(position: Position): Flow<Result<List<Spot>>>
+    fun getSpots(directions: Directions): Flow<Result<List<Spot>>>
     fun setSpot(spot: Spot): Flow<Result<Boolean>>
     fun removeSpot(spot: Spot): Flow<Result<Boolean>>
 }

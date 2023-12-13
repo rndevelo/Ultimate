@@ -1,9 +1,11 @@
 package com.rndeveloper.ultimate.usecases.spots
 
 import android.location.Location
+import android.util.Log
 import com.firebase.geofire.GeoFireUtils
 import com.firebase.geofire.GeoLocation
 import com.rndeveloper.ultimate.exceptions.CustomException
+import com.rndeveloper.ultimate.model.Directions
 import com.rndeveloper.ultimate.model.Position
 import com.rndeveloper.ultimate.repositories.SpotRepository
 import com.rndeveloper.ultimate.ui.screens.home.SpotsUiState
@@ -16,9 +18,9 @@ import javax.inject.Inject
 
 class GetSpotsUseCase @Inject constructor(
     private val repository: SpotRepository,
-) : BaseUseCase<Pair<Position, Position>, Flow<SpotsUiState>>() {
+) : BaseUseCase<Triple<Position, Position, Directions>, Flow<SpotsUiState>>() {
 
-    override suspend fun execute(parameters: Pair<Position, Position>): Flow<SpotsUiState> =
+    override suspend fun execute(parameters: Triple<Position, Position, Directions>): Flow<SpotsUiState> =
         channelFlow {
 
             // TODO: Validate fields: email restriction and empty fields validations
@@ -27,9 +29,9 @@ class GetSpotsUseCase @Inject constructor(
             send(SpotsUiState().copy(isLoading = true))
 
             // Do login if fields are valid
-            val (camLatLng, locLatLng) = parameters
+            val (camLatLng, locLatLng, directions) = parameters
 
-            repository.getSpots(camLatLng)
+            repository.getSpots(directions)
                 .catch { exception ->
                     send(
                         SpotsUiState().copy(
@@ -43,6 +45,7 @@ class GetSpotsUseCase @Inject constructor(
                 .collectLatest { result ->
                     result.fold(
                         onSuccess = { spots ->
+                            Log.d("BUCLEMIO", "GetSpotsUseCase: spots ${spots.size}")
 
 //                            TODO : METER TODA ESTA FUNCIÓN EN UNA LAMBDA
                             spots.filter { spot ->
@@ -54,6 +57,7 @@ class GetSpotsUseCase @Inject constructor(
                                 val currentLoc = Location("currentLoc")
                                 currentLoc.latitude = locLatLng.lat
                                 currentLoc.longitude = locLatLng.lng
+//                                Log.d("BUCLEMIO", "GetSpotsUseCase: sortedWith ")
 
                                 val targets1 = Location("target")
                                 targets1.latitude = d1.position.lat
@@ -68,6 +72,7 @@ class GetSpotsUseCase @Inject constructor(
 
                                 distanceOne.compareTo(distanceTwo)
                             }.take(12).let { sortedSpots ->
+                                Log.d("BUCLEMIO", "GetSpotsUseCase: sortedSpots ${sortedSpots.size}")
                                 trySend(
                                     SpotsUiState().copy(
                                         spots = sortedSpots,

@@ -19,9 +19,9 @@ import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.GpsFixed
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PanoramaPhotosphere
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Slideshow
 import androidx.compose.material.icons.filled.Terrain
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -35,12 +35,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rndeveloper.ultimate.R
-import com.rndeveloper.ultimate.model.Car
+import com.rndeveloper.ultimate.model.Position
 import com.rndeveloper.ultimate.ui.theme.UltimateTheme
 
 @Composable
 fun ButtonsMapContent(
-    car: Car?,
+    car: Position?,
     isShowReloadButton: Boolean,
     onOpenOrCloseDrawer: () -> Unit,
     onMapType: () -> Unit,
@@ -48,7 +48,6 @@ fun ButtonsMapContent(
     onCameraTilt: () -> Unit,
     onCameraLocation: () -> Unit,
     onCameraMyCar: () -> Unit,
-    onGetSpots: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
 
@@ -97,7 +96,7 @@ fun ButtonsMapContent(
             onClick = {},
             modifier = Modifier.align(Alignment.BottomStart),
 
-//            FIXME this -----------------
+//            FIXME: this -----------------
             containerColor = MaterialTheme.colorScheme.tertiary
 
         ) {
@@ -106,23 +105,6 @@ fun ButtonsMapContent(
                 contentDescription = Icons.Default.Slideshow.toString(),
             )
         }
-
-        AnimatedVisibility(
-            visible = isShowReloadButton,
-            modifier = Modifier.align(Alignment.BottomCenter)
-        ) {
-
-            FloatingActionButton(
-                modifier = modifier.size(40.dp),
-                onClick = onGetSpots
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Refresh,
-                    contentDescription = Icons.Default.Refresh.toString(),
-                )
-            }
-        }
-
 
         //        FIXME: CarLoc FloatingButtons
         Column(
@@ -186,7 +168,7 @@ fun ButtonsMapContent(
 
 @Composable
 private fun FloatingCar(
-    car: Car?,
+    car: Position?,
     onShowCarMarker: () -> Unit,
     onCameraCar: () -> Unit,
     deleteMyCar: () -> Unit,
@@ -221,7 +203,7 @@ private fun FloatingCar(
         Spacer(modifier = modifier.width(8.dp))
 
     }
-    FloatingActionButton(
+    ExtendedFloatingActionButton(
         modifier = if (car != null /*|| !isCarLatLng*/) modifier.height(40.dp) else modifier.size(40.dp),
         onClick = if (car == null) onCameraCar else onShowCarMarker,
         containerColor = surfaceColor
@@ -262,7 +244,7 @@ private fun FloatingCar(
 fun ButtonsMapContentPreview() {
     UltimateTheme {
         ButtonsMapContent(
-            car = Car(),
+            car = Position(),
             isShowReloadButton = true,
             onOpenOrCloseDrawer = { /*TODO*/ },
             onMapType = { /*TODO*/ },
@@ -270,7 +252,6 @@ fun ButtonsMapContentPreview() {
             onCameraTilt = { /*TODO*/ },
             onCameraLocation = { /*TODO*/ },
             onCameraMyCar = {},
-            onGetSpots = { /*TODO*/ }
         )
     }
 }

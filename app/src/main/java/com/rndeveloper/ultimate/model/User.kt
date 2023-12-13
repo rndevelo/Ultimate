@@ -2,7 +2,6 @@ package com.rndeveloper.ultimate.model
 
 data class User(
     val isLogged: Boolean,
-    val loc: Position?,
     val email: String,
     val pass: String,
     val username: String,
@@ -10,14 +9,13 @@ data class User(
     val photo: String,
     val token: String,
     val points: Int,
-    val car: Car?,
+    val car: Position?,
     val createdAt: String,
     val usertoken: String,
     val userpoints: Int,
 ) {
     constructor() : this(
         isLogged = false,
-        loc = null,
         email = "",
         pass = "",
         username = "",

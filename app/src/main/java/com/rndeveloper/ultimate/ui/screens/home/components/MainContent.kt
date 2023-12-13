@@ -10,54 +10,48 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.MapType
 import com.rndeveloper.ultimate.R
-import com.rndeveloper.ultimate.model.Car
+import com.rndeveloper.ultimate.ui.screens.home.HomeUiContainerState
+import com.rndeveloper.ultimate.ui.screens.home.LocationUiState
+import com.rndeveloper.ultimate.ui.screens.home.ScreenState
 import com.rndeveloper.ultimate.ui.screens.home.SpotsUiState
 import com.rndeveloper.ultimate.ui.screens.home.UserUiState
 import com.rndeveloper.ultimate.ui.screens.home.components.subcomponents.ButtonsMapContent
 import com.rndeveloper.ultimate.ui.screens.home.components.subcomponents.GoogleMapContent
+import com.rndeveloper.ultimate.ui.screens.home.rememberHomeUiContainerState
 import com.rndeveloper.ultimate.ui.theme.UltimateTheme
 import com.rndeveloper.ultimate.utils.Constants.DEFAULT_ELAPSED_TIME
 
 @Composable
 fun MainContent(
+    rememberHomeUiContainerState: HomeUiContainerState,
+    uiLocState: LocationUiState,
     uiUserState: UserUiState,
     uiSpotsState: SpotsUiState,
     uiElapsedTimeState: Long,
-    cameraPositionState: CameraPositionState,
-    isAddPanelState: Boolean,
-    isParkMyCarState: Boolean,
-    onMapLoaded: () -> Unit,
-    onParkMyCarState: () -> Unit,
-    onSetMyCar: (Car) -> Unit,
     onSpotSelected: (String) -> Unit,
-    onOpenOrCloseDrawer: () -> Unit,
-    onCameraTilt: () -> Unit,
-    onCameraLocation: () -> Unit,
-    onCameraMyCar: () -> Unit,
-    onGetSpots: () -> Unit,
     modifier: Modifier = Modifier
 ) {
 
-    var mapType by remember { mutableStateOf(MapType.NORMAL) }
+    var mapType by rememberSaveable { mutableStateOf(MapType.NORMAL) }
 
     val extraPadding by animateDpAsState(
-        if (!cameraPositionState.isMoving) 60.dp else 85.dp,
+        if (!rememberHomeUiContainerState.camPosState.isMoving) 60.dp else 85.dp,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessLow
@@ -72,30 +66,41 @@ fun MainContent(
         ) {
 
             GoogleMapContent(
-                uiUserState = uiUserState,
-                uiSpotsState = uiSpotsState,
+                cameraPos = rememberHomeUiContainerState.camPosState,
+                isSetState = rememberHomeUiContainerState.isSetState,
+                car = uiUserState.user.car,
+                spots = uiSpotsState.spots,
                 isElapsedTime = uiElapsedTimeState > DEFAULT_ELAPSED_TIME,
-                cameraPositionState = cameraPositionState,
-                isAddOrParkState = isAddPanelState || isParkMyCarState,
-                mapLoaded = onMapLoaded,
                 mapType = mapType,
                 onSpotSelected = onSpotSelected,
-                onSetMyCar = onSetMyCar
             )
 
             ButtonsMapContent(
                 car = uiUserState.user.car,
-                isShowReloadButton = !cameraPositionState.isMoving && !uiSpotsState.isLoading,
-                onOpenOrCloseDrawer = onOpenOrCloseDrawer,
+                isShowReloadButton = !rememberHomeUiContainerState.camPosState.isMoving && !uiSpotsState.isLoading && uiElapsedTimeState > DEFAULT_ELAPSED_TIME,
+                onOpenOrCloseDrawer = { rememberHomeUiContainerState.onOpenDrawer() },
                 onMapType = {
                     mapType =
                         if (mapType == MapType.NORMAL) MapType.SATELLITE else MapType.NORMAL
                 },
-                onParkMyCarState = onParkMyCarState,
-                onCameraTilt = onCameraTilt,
-                onCameraLocation = onCameraLocation,
-                onCameraMyCar = onCameraMyCar,
-                onGetSpots = onGetSpots
+                onParkMyCarState = { rememberHomeUiContainerState.onScreenState(ScreenState.PARKMYCAR) },
+                onCameraTilt = { rememberHomeUiContainerState.onCameraTilt() },
+                onCameraLocation = {
+                    rememberHomeUiContainerState.onCamera(
+                        target = uiLocState.location,
+                        zoom = 16f,
+                        tilt = 0f,
+                        bearing = 0f
+                    )
+                },
+                onCameraMyCar = {
+                    rememberHomeUiContainerState.onCamera(
+                        target = uiUserState.user.car,
+                        zoom = 16f,
+                        tilt = 0f,
+                        bearing = 0f
+                    )
+                },
             )
 
 
@@ -105,9 +110,8 @@ fun MainContent(
                 CircularProgressIndicator()
             }
 //
-
             AnimatedVisibility(
-                visible = uiElapsedTimeState > DEFAULT_ELAPSED_TIME && !cameraPositionState.isMoving,
+                visible = uiElapsedTimeState > DEFAULT_ELAPSED_TIME && !rememberHomeUiContainerState.camPosState.isMoving,
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {
@@ -119,11 +123,11 @@ fun MainContent(
                 )
             }
 
-            AnimatedVisibility(visible = isAddPanelState || isParkMyCarState) {
+            AnimatedVisibility(visible = rememberHomeUiContainerState.isSetState) {
 
                 Image(
-                    painter = painterResource(id = if (isAddPanelState) R.drawable.ic_add_spot else R.drawable.ic_park_my_car),
-                    contentDescription = if (isAddPanelState) R.drawable.ic_add_spot.toString() else R.drawable.ic_park_my_car.toString(),
+                    painter = painterResource(id = if (rememberHomeUiContainerState.screenState == ScreenState.ADDSPOT) R.drawable.ic_add_spot else R.drawable.ic_park_my_car),
+                    contentDescription = if (rememberHomeUiContainerState.screenState == ScreenState.ADDSPOT) R.drawable.ic_add_spot.toString() else R.drawable.ic_park_my_car.toString(),
                     modifier = modifier
                         .padding(bottom = extraPadding),
                 )
@@ -140,25 +144,18 @@ fun MainContent(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
 fun MainContentPreview() {
     UltimateTheme {
         MainContent(
+            rememberHomeUiContainerState = rememberHomeUiContainerState(),
+            uiLocState = LocationUiState(),
             uiUserState = UserUiState(),
             uiSpotsState = SpotsUiState(),
             uiElapsedTimeState = 0L,
-            cameraPositionState = CameraPositionState(),
-            isAddPanelState = false,
-            isParkMyCarState = false,
-            onMapLoaded = { /*TODO*/ },
-            onParkMyCarState = { },
-            onSetMyCar = {},
             onSpotSelected = {},
-            onOpenOrCloseDrawer = { /*TODO*/ },
-            onCameraTilt = { /*TODO*/ },
-            onCameraLocation = { /*TODO*/ },
-            onCameraMyCar = {},
-            onGetSpots = { /*TODO*/ })
+        )
     }
 }

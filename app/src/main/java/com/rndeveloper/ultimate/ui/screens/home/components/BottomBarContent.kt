@@ -6,11 +6,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddLocationAlt
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.DirectionsCar
-import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
@@ -20,86 +19,116 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.rndeveloper.ultimate.extensions.toTime
+import com.rndeveloper.ultimate.ui.screens.home.HomeUiContainerState
+import com.rndeveloper.ultimate.ui.screens.home.ScreenState
+import com.rndeveloper.ultimate.ui.screens.home.rememberHomeUiContainerState
 import com.rndeveloper.ultimate.ui.theme.UltimateTheme
+import com.rndeveloper.ultimate.utils.Constants
 
 @Composable
 fun BottomBarContent(
-    isAddSpotPanelState: Boolean,
-    isParkMyCarPanelState: Boolean,
-    onAddPanelState: (Boolean) -> Unit,
-    onParkMyCarState: (Boolean) -> Unit,
-    onSetSpot: () -> Unit,
-    onSetMyCar: () -> Unit,
+    rememberHomeUiContainerState: HomeUiContainerState,
+    uiElapsedTimeState: Long,
+    onStartTimer: () -> Unit,
+    onSet: () -> Unit,
     modifier: Modifier = Modifier
 ) {
 
     Surface(tonalElevation = 2.dp) {
         Row(
-            horizontalArrangement = Arrangement.Center,
+            modifier = modifier.fillMaxWidth().padding(10.dp),
+            horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            FloatingActionButton(
-                onClick = {
-                    if (isAddSpotPanelState) {
-                        onAddPanelState(false)
-                    } else if (isParkMyCarPanelState) {
-                        onParkMyCarState(false)
-                    } else {
-                        onParkMyCarState(true)
-                    }
-                },
-                modifier = Modifier.padding(start = 12.dp),
-                elevation = FloatingActionButtonDefaults.elevation(1.dp)
-            ) {
-                Icon(
-                    imageVector = if (isAddSpotPanelState || isParkMyCarPanelState) Icons.Default.ArrowBack else Icons.Default.DirectionsCar,
-                    contentDescription = Icons.Default.ArrowBack.toString(),
-                )
-            }
             ExtendedFloatingActionButton(
-                text = { Text(text = if (isAddSpotPanelState) "Send spot" else if (isParkMyCarPanelState) "Park may car" else "Add spot") },
+                text = { Text(text = "Park your car") },
                 icon = {
                     Icon(
-                        imageVector = if (isAddSpotPanelState || isParkMyCarPanelState)
-                            Icons.Default.Send
-                        else Icons.Default.AddLocationAlt,
-
-                        contentDescription = if (isAddSpotPanelState || isParkMyCarPanelState)
-                            Icons.Default.Send.toString()
-                        else Icons.Default.AddLocationAlt.toString(),
+                        imageVector = Icons.Default.DirectionsCar,
+                        contentDescription = Icons.Default.DirectionsCar.toString(),
                     )
                 },
                 onClick = {
-                    if (isAddSpotPanelState) {
-                        onSetSpot()
-                        onAddPanelState(false)
-                    } else if (isParkMyCarPanelState) {
-                        onSetMyCar()
-                        onParkMyCarState(false)
-                    } else {
-                        onAddPanelState(true)
+                    when (rememberHomeUiContainerState.screenState) {
+                        ScreenState.PARKMYCAR -> {
+                            onSet()
+                            rememberHomeUiContainerState.onScreenState(ScreenState.MAIN)
+                        }
+
+                        else -> {
+                            rememberHomeUiContainerState.onScreenState(ScreenState.PARKMYCAR)
+                        }
                     }
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(12.dp),
+                expanded = rememberHomeUiContainerState.screenState == ScreenState.PARKMYCAR,
+                elevation = FloatingActionButtonDefaults.elevation(1.dp)
+            )
+
+
+            ExtendedFloatingActionButton(
+                text = { Text(text = "Show spots") },
+                icon = {
+                    if (uiElapsedTimeState <= Constants.DEFAULT_ELAPSED_TIME) {
+                        Icon(
+                            imageVector = Icons.Default.Visibility,
+                            contentDescription = Icons.Default.Visibility.toString()
+                        )
+                    } else {
+                        Text(text = uiElapsedTimeState.toTime())
+                    }
+                },
+                onClick = {
+                    when (rememberHomeUiContainerState.screenState) {
+                        ScreenState.MAIN -> {
+                            onStartTimer()
+                        }
+
+                        else -> {
+                            rememberHomeUiContainerState.onScreenState(ScreenState.MAIN)
+                        }
+                    }
+                },
+                expanded = rememberHomeUiContainerState.screenState == ScreenState.MAIN && uiElapsedTimeState <= Constants.DEFAULT_ELAPSED_TIME,
+                elevation = FloatingActionButtonDefaults.elevation(1.dp)
+            )
+
+            ExtendedFloatingActionButton(
+                text = { Text(text = "Add spot") },
+                icon = {
+                    Icon(
+                        imageVector = Icons.Default.AddLocationAlt,
+                        contentDescription = Icons.Default.AddLocationAlt.toString(),
+                    )
+                },
+                onClick = {
+                    when (rememberHomeUiContainerState.screenState) {
+                        ScreenState.ADDSPOT -> {
+                            onSet()
+                            rememberHomeUiContainerState.onScreenState(ScreenState.MAIN)
+                        }
+
+                        else -> {
+                            rememberHomeUiContainerState.onScreenState(ScreenState.ADDSPOT)
+                        }
+                    }
+                },
+                expanded = rememberHomeUiContainerState.screenState == ScreenState.ADDSPOT,
                 elevation = FloatingActionButtonDefaults.elevation(1.dp)
             )
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
 fun BottomBarContentPreview() {
     UltimateTheme {
         BottomBarContent(
-            isAddSpotPanelState = false,
-            isParkMyCarPanelState = false,
-            onAddPanelState = {},
-            onParkMyCarState = {},
-            onSetSpot = { /*TODO*/ },
-            onSetMyCar = { /*TODO*/ }
-        )
+            rememberHomeUiContainerState = rememberHomeUiContainerState(),
+            uiElapsedTimeState = 0L,
+            onStartTimer = { /*TODO*/ },
+            onSet = { /*TODO*/ })
     }
 }
