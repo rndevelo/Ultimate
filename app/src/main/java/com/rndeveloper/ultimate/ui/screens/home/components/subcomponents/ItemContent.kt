@@ -14,7 +14,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -62,9 +62,9 @@ fun ItemContent(
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .clickable { onSpotSelected() }
-            .padding(2.dp),
-        shape = RoundedCornerShape(25.dp),
+            .padding(2.dp)
+            .clickable { onSpotSelected() },
+        shape = CircleShape,
         color = surfaceColor,
         border = BorderStroke(color = surfaceColor, width = 0.7.dp),
     ) {

@@ -103,7 +103,6 @@ fun MainContent(
                 },
             )
 
-
 //            FIXME THIS
 
             AnimatedVisibility(visible = uiSpotsState.isLoading || uiUserState.isLoading) {
@@ -126,10 +125,19 @@ fun MainContent(
             AnimatedVisibility(visible = rememberHomeUiContainerState.isSetState) {
 
                 Image(
-                    painter = painterResource(id = if (rememberHomeUiContainerState.screenState == ScreenState.ADDSPOT) R.drawable.ic_add_spot else R.drawable.ic_park_my_car),
-                    contentDescription = if (rememberHomeUiContainerState.screenState == ScreenState.ADDSPOT) R.drawable.ic_add_spot.toString() else R.drawable.ic_park_my_car.toString(),
-                    modifier = modifier
-                        .padding(bottom = extraPadding),
+                    painter = painterResource(
+                        id = when (rememberHomeUiContainerState.screenState) {
+                            ScreenState.ADDSPOT -> R.drawable.ic_add_spot
+                            ScreenState.PARKMYCAR -> R.drawable.ic_park_my_car
+                            ScreenState.MAIN -> R.drawable.ic_nothing
+                        }
+                    ),
+                    contentDescription = when (rememberHomeUiContainerState.screenState) {
+                        ScreenState.ADDSPOT -> R.drawable.ic_add_spot.toString()
+                        ScreenState.PARKMYCAR -> R.drawable.ic_park_my_car.toString()
+                        ScreenState.MAIN -> R.drawable.ic_nothing.toString()
+                    },
+                    modifier = modifier.padding(bottom = extraPadding),
                 )
 
                 Image(

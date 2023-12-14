@@ -138,12 +138,12 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun onGetLocationData() {
-//        _locationState.update {
-//            it.copy(isLoading = true)
-//        }
+        _locationState.update {
+            it.copy(isLoading = true)
+        }
         locationClient.getLocationsRequest().collectLatest { newLocation ->
             _locationState.update {
-                it.copy(location = newLocation)
+                it.copy(location = newLocation, isLoading = false)
             }
         }
     }
@@ -153,17 +153,21 @@ class HomeViewModel @Inject constructor(
             it.copy(isLoading = true)
         }
         LatLng(position.lat, position.lng).getAddressList(geocoder) { address ->
-
-            Directions(
-                addressLine = address.first().getAddressLine(0),
-                locality = address.first().locality,
-                area = address.first().subAdminArea,
-                country = address.first().countryName
-            ).let { directions ->
-                _directionsState.update {
-                    it.copy(directions = directions)
+            if (address.isNotEmpty()){
+                Directions(
+                    addressLine = address.first().getAddressLine(0),
+                    locality = address.first().locality,
+                    area = address.first().subAdminArea,
+                    country = address.first().countryName
+                ).let { directions ->
+                    onGetSpots(position = position, directions = directions)
+                    _directionsState.update {
+                        it.copy(directions = directions)
+                    }
                 }
-                onGetSpots(position)
+            }
+            _spotsState.update {
+                it.copy(isLoading = false)
             }
         }
     }
@@ -172,7 +176,7 @@ class HomeViewModel @Inject constructor(
     //    GET SPOTS
     private fun onGetSpots(
         position: Position,
-        directions: Directions = _directionsState.value.directions
+        directions: Directions
     ) = viewModelScope.launch {
 
         _locationState.value.location?.let { locPosition ->

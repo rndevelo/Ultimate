@@ -66,11 +66,14 @@ fun BottomBarContent(
                         }
                     }
                 },
-                modifier = if (rememberHomeUiContainerState.screenState == ScreenState.ADDSPOT) modifier.weight(1f) else modifier,
+                modifier = when (rememberHomeUiContainerState.screenState) {
+                    ScreenState.ADDSPOT -> modifier.weight(1f)
+                    else -> modifier
+                },
                 expanded = rememberHomeUiContainerState.screenState == ScreenState.ADDSPOT,
                 containerColor = when (rememberHomeUiContainerState.screenState) {
-                    ScreenState.ADDSPOT -> MaterialTheme.colorScheme.tertiaryContainer
-                    else -> MaterialTheme.colorScheme.primaryContainer
+                    ScreenState.ADDSPOT -> MaterialTheme.colorScheme.primaryContainer
+                    else -> MaterialTheme.colorScheme.secondaryContainer
                 },
                 elevation = FloatingActionButtonDefaults.elevation(1.dp)
             )
@@ -98,13 +101,17 @@ fun BottomBarContent(
                         }
                     }
                 },
-                modifier = if (rememberHomeUiContainerState.screenState == ScreenState.MAIN && Constants.DEFAULT_ELAPSED_TIME <= uiElapsedTimeState) modifier
-                    .padding(7.dp)
-                    .weight(1f) else modifier.padding(7.dp),
+                modifier = when {
+                    rememberHomeUiContainerState.screenState == ScreenState.MAIN && Constants.DEFAULT_ELAPSED_TIME <= uiElapsedTimeState -> modifier
+                        .padding(7.dp)
+                        .weight(1f)
+
+                    else -> modifier.padding(7.dp)
+                },
                 expanded = rememberHomeUiContainerState.screenState == ScreenState.MAIN && uiElapsedTimeState <= Constants.DEFAULT_ELAPSED_TIME,
                 containerColor = when (rememberHomeUiContainerState.screenState) {
-                    ScreenState.MAIN -> MaterialTheme.colorScheme.tertiaryContainer
-                    else -> MaterialTheme.colorScheme.primaryContainer
+                    ScreenState.MAIN -> MaterialTheme.colorScheme.primaryContainer
+                    else -> MaterialTheme.colorScheme.secondaryContainer
                 },
                 elevation = FloatingActionButtonDefaults.elevation(1.dp)
             )
@@ -129,15 +136,16 @@ fun BottomBarContent(
                         }
                     }
                 },
-                modifier = if (rememberHomeUiContainerState.screenState == ScreenState.PARKMYCAR) modifier.weight(1f) else modifier,
+                modifier = if (rememberHomeUiContainerState.screenState == ScreenState.PARKMYCAR) modifier.weight(
+                    1f
+                ) else modifier,
                 expanded = rememberHomeUiContainerState.screenState == ScreenState.PARKMYCAR,
                 containerColor = when (rememberHomeUiContainerState.screenState) {
-                    ScreenState.PARKMYCAR -> MaterialTheme.colorScheme.tertiaryContainer
-                    else -> MaterialTheme.colorScheme.primaryContainer
+                    ScreenState.PARKMYCAR -> MaterialTheme.colorScheme.primaryContainer
+                    else -> MaterialTheme.colorScheme.secondaryContainer
                 },
                 elevation = FloatingActionButtonDefaults.elevation(1.dp)
             )
-
         }
     }
 }

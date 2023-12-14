@@ -14,9 +14,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.rndeveloper.ultimate.R
 import com.rndeveloper.ultimate.ui.screens.home.DirectionsUiState
 import com.rndeveloper.ultimate.ui.screens.home.ScreenState
 import com.rndeveloper.ultimate.ui.screens.home.SpotsUiState
@@ -43,7 +45,7 @@ fun CountContent(
         AnimatedVisibility(uiSpotsState.spots.isEmpty()) {
             Text(
                 text = "Without spots in this zone",
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
+                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
             )
         }
         AnimatedVisibility(uiSpotsState.spots.isNotEmpty()) {
@@ -51,7 +53,7 @@ fun CountContent(
                 text = when (screenState) {
                     ScreenState.MAIN -> "${uiSpotsState.spots.size} spots in this zone"
                     ScreenState.ADDSPOT -> "Add a new spot"
-                    else -> "Park your car"
+                    ScreenState.PARKMYCAR -> "Park your car"
                 },
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
             )
@@ -60,7 +62,9 @@ fun CountContent(
         Spacer(modifier = modifier.height(2.dp))
         Text(
             text = when (screenState) {
-                ScreenState.MAIN -> uiDirectionsState.directions.locality + ", " + uiDirectionsState.directions.area
+                ScreenState.MAIN -> "${uiDirectionsState.directions.locality}, ${uiDirectionsState.directions.area}".ifEmpty {
+                    stringResource(R.string.home_text_unknown_location)
+                }
                 else -> uiDirectionsState.directions.addressLine
             },
 

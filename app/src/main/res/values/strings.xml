@@ -22,7 +22,7 @@
     <string name="home_text_to_see">To see</string>
     <string name="home_text_seen">Seen</string>
     <string name="home_text_without_spots">Without spots in this zone</string>
-    <string name="home_text_unknow_location">Ubicación desconocida</string>
+    <string name="home_text_unknown_location">Ubicación desconocida</string>
     <string name="home_text_your_parked_car">Your parked car</string>
     <string name="home_text_not_park_car">Not park car</string>
     <string name="home_text_add_spot">Add spot</string>
