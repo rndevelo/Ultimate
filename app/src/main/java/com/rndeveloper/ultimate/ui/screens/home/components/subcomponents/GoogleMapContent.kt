@@ -1,6 +1,5 @@
 package com.rndeveloper.ultimate.ui.screens.home.components.subcomponents
 
-import android.util.Log
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -38,8 +37,6 @@ fun GoogleMapContent(
     modifier: Modifier = Modifier
 ) {
 
-    Log.d("MY CAR", "GoogleMapContent: ")
-
     val context = LocalContext.current
 
     val mapStyle = if (isSystemInDarkTheme()) {
@@ -47,9 +44,6 @@ fun GoogleMapContent(
     } else {
         MapStyleOptions(MapStyle.jsonWithoutPoi)
     }
-
-    Log.d("BUCLEMIO", "car: $car")
-
 
     GoogleMap(
         modifier = modifier.clip(RoundedCornerShape(bottomStartPercent = 5, bottomEndPercent = 5)),
@@ -80,8 +74,6 @@ fun GoogleMapContent(
                 title = stringResource(R.string.home_text_your_parked_car)
             )
         }
-
-        Log.d("BUCLEMIO", "GoogleMapContent -------------------: ")
 
         spots.forEach { spot ->
             Marker(

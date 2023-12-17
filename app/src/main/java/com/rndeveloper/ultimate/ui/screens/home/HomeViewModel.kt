@@ -2,7 +2,6 @@ package com.rndeveloper.ultimate.ui.screens.home
 
 import android.location.Geocoder
 import android.os.CountDownTimer
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
@@ -137,8 +136,6 @@ class HomeViewModel @Inject constructor(
         userUseCases.getUserDataUseCase(Unit).collectLatest { newUserUiState ->
             _userState.update {
                 activityTransitionClient.startActivityTransition(user = newUserUiState.user)
-                Log.d("BUCLEMIO", "car VM: ${newUserUiState.user.car}")
-
                 newUserUiState
             }
         }
