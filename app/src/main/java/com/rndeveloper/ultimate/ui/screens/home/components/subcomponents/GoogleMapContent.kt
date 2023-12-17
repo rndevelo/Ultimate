@@ -38,6 +38,8 @@ fun GoogleMapContent(
     modifier: Modifier = Modifier
 ) {
 
+    Log.d("MY CAR", "GoogleMapContent: ")
+
     val context = LocalContext.current
 
     val mapStyle = if (isSystemInDarkTheme()) {
@@ -46,7 +48,7 @@ fun GoogleMapContent(
         MapStyleOptions(MapStyle.jsonWithoutPoi)
     }
 
-    Log.d("BUCLEMIO", "GoogleMapContent: FUERAAAAA")
+    Log.d("BUCLEMIO", "car: $car")
 
 
     GoogleMap(
@@ -89,7 +91,7 @@ fun GoogleMapContent(
                     context = context,
                     id = R.drawable.ic_spot_marker
                 ),
-                visible = isElapsedTime,
+//                visible = isElapsedTime,
                 onClick = { marker ->
                     onSpotSelected(marker.tag as String)
                     true

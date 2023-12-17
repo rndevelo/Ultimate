@@ -1,5 +1,7 @@
 package com.rndeveloper.ultimate.model
 
+import java.io.Serializable
+
 enum class SpotType {
     GREEN,
     BLUE,
@@ -11,7 +13,7 @@ enum class SpotType {
 data class Position(
     val lat: Double,
     val lng: Double,
-) {
+) : Serializable {
     constructor() : this(lat = 0.0, lng = 0.0)
 }
 

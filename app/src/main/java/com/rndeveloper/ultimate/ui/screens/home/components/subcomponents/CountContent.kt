@@ -55,7 +55,7 @@ fun CountContent(
                     ScreenState.ADDSPOT -> "Add a new spot"
                     ScreenState.PARKMYCAR -> "Park your car"
                 },
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
             )
         }
 

@@ -1,6 +1,7 @@
 package com.rndeveloper.ultimate.extensions
 
 import android.annotation.SuppressLint
+import android.app.PendingIntent
 import android.location.Address
 import android.location.Geocoder
 import android.os.Build
@@ -10,6 +11,14 @@ import org.ocpsoft.prettytime.PrettyTime
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+
+fun Int.fixApi31(): Int {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        this or PendingIntent.FLAG_MUTABLE
+    } else {
+        this
+    }
+}
 
 fun Long.toTime(): String = DateUtils.formatElapsedTime(this.div(1000))
 

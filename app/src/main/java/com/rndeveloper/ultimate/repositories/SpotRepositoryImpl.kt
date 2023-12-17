@@ -1,6 +1,5 @@
 package com.rndeveloper.ultimate.repositories
 
-import android.location.Geocoder
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.rndeveloper.ultimate.model.Directions
@@ -11,7 +10,6 @@ import kotlinx.coroutines.flow.callbackFlow
 import javax.inject.Inject
 
 class SpotRepositoryImpl @Inject constructor(
-    private val geocoder: Geocoder,
     private val fireStore: FirebaseFirestore
 ) : SpotRepository {
 
@@ -83,6 +81,10 @@ class SpotRepositoryImpl @Inject constructor(
             .addOnFailureListener { error ->
                 trySend(Result.failure(error))
             }
+
+        awaitClose()
+
+
     }
 }
 

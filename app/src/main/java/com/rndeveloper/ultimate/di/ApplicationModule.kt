@@ -3,13 +3,14 @@ package com.rndeveloper.ultimate.di
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.location.Geocoder
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.GeofencingClient
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.rndeveloper.ultimate.repositories.ActivityTransitionClient
+import com.rndeveloper.ultimate.repositories.ActivityTransitionClientImpl
 import com.rndeveloper.ultimate.repositories.GeofenceClient
 import com.rndeveloper.ultimate.repositories.GeofenceClientImpl
 import com.rndeveloper.ultimate.repositories.LocationClient
@@ -72,9 +73,20 @@ object ApplicationModule {
     @Singleton
     @Provides
     fun provideSpotsRepository(
-        fireStore: FirebaseFirestore,
-        geocoder: Geocoder
-    ): SpotRepository = SpotRepositoryImpl(geocoder = geocoder, fireStore = fireStore)
+        fireStore: FirebaseFirestore
+    ): SpotRepository = SpotRepositoryImpl(fireStore = fireStore)
+
+    @Singleton
+    @Provides
+    fun provideActivityRecognitionClient(
+        @ApplicationContext appContext: Context,
+    ): ActivityTransitionClient = ActivityTransitionClientImpl(appContext = appContext)
+
+
+//    @Singleton
+//    @Provides
+//    fun provideGeocoderRepository(geocoder: Geocoder): GeocoderRepository =
+//        GeocoderRepositoryImpl(geocoder = geocoder)
 
     @Singleton
     @Provides
@@ -86,8 +98,6 @@ object ApplicationModule {
     ): GeofenceClient = GeofenceClientImpl(
         appContext = appContext,
         geofencingClient = geofencingClient,
-        geofenceIntent = geofenceIntent,
-        geofencePendingIntent = geofencePendingIntent
     )
 
 

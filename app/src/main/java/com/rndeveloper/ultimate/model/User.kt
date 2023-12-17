@@ -1,5 +1,7 @@
 package com.rndeveloper.ultimate.model
 
+import java.io.Serializable
+
 data class User(
     val isLogged: Boolean,
     val email: String,
@@ -13,7 +15,7 @@ data class User(
     val createdAt: String,
     val usertoken: String,
     val userpoints: Int,
-) {
+): Serializable {
     constructor() : this(
         isLogged = false,
         email = "",

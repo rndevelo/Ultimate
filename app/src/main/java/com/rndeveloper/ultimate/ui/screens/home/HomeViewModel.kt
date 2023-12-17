@@ -2,6 +2,7 @@ package com.rndeveloper.ultimate.ui.screens.home
 
 import android.location.Geocoder
 import android.os.CountDownTimer
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
@@ -11,6 +12,7 @@ import com.rndeveloper.ultimate.model.Position
 import com.rndeveloper.ultimate.model.Spot
 import com.rndeveloper.ultimate.model.SpotType
 import com.rndeveloper.ultimate.model.Timer
+import com.rndeveloper.ultimate.repositories.ActivityTransitionClient
 import com.rndeveloper.ultimate.repositories.LocationClient
 import com.rndeveloper.ultimate.repositories.TimerRepository
 import com.rndeveloper.ultimate.repositories.UserRepository
@@ -40,6 +42,7 @@ class HomeViewModel @Inject constructor(
     private val spotsUseCases: SpotsUseCases,
     private val userUseCases: UserUseCases,
     private val userRepository: UserRepository,
+    private val activityTransitionClient: ActivityTransitionClient,
 //    private val geofenceClient: GeofenceClient,
     private val geocoder: Geocoder,
 ) : ViewModel() {
@@ -80,6 +83,7 @@ class HomeViewModel @Inject constructor(
     )
 
     init {
+
         onGetAndStartTimer()
 //        TODO: Refactor this
         viewModelScope.launch {
@@ -132,6 +136,9 @@ class HomeViewModel @Inject constructor(
     private suspend fun onGetUserData() {
         userUseCases.getUserDataUseCase(Unit).collectLatest { newUserUiState ->
             _userState.update {
+                activityTransitionClient.startActivityTransition(user = newUserUiState.user)
+                Log.d("BUCLEMIO", "car VM: ${newUserUiState.user.car}")
+
                 newUserUiState
             }
         }
@@ -148,7 +155,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun onGetAddressLine(position: Position) {
+    fun onGetAddressLine(position: Position)  {
         _spotsState.update {
             it.copy(isLoading = true)
         }
@@ -238,17 +245,6 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-//    fun onSetMyCar(position: Position) = viewModelScope.launch {
-//        _userState.value.user.copy(car = position).let { user ->
-//            userRepository.setUserCar(user).collectLatest { newUserUiState ->
-//                _userState.update {
-//                    //                    it.copy(isLoading = newHomeUiState.isSuccess)
-//                    it
-//                }
-//            }
-//        }
-//    }
-
 
     //    SPOT SELECTED
     fun onSpotSelected(spotTag: String) {
@@ -261,5 +257,4 @@ class HomeViewModel @Inject constructor(
             it.copy(selectedSpot = spot)
         }
     }
-
 }
