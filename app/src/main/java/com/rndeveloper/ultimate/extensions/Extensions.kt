@@ -2,11 +2,8 @@ package com.rndeveloper.ultimate.extensions
 
 import android.annotation.SuppressLint
 import android.app.PendingIntent
-import android.location.Address
-import android.location.Geocoder
 import android.os.Build
 import android.text.format.DateUtils
-import com.google.android.gms.maps.model.LatLng
 import org.ocpsoft.prettytime.PrettyTime
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -19,6 +16,8 @@ fun Int.fixApi31(): Int {
         this
     }
 }
+
+//FIXME: THIS
 
 fun Long.toTime(): String = DateUtils.formatElapsedTime(this.div(1000))
 
@@ -33,21 +32,4 @@ fun Long.getFormattedPrettyTime(): String {
     val date: Date? = inputFormat.parse(this.getFormattedTime())
     val prettyTime = PrettyTime(Locale.getDefault())
     return prettyTime.format(date)
-}
-
-fun LatLng.getAddressList(geocoder: Geocoder?, callback: (MutableList<Address>) -> Unit) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        geocoder?.getFromLocation(
-            this.latitude,
-            this.longitude,
-            1
-        ) { addressList ->
-            callback(addressList)
-        }
-    } else {
-        geocoder?.getFromLocation(this.latitude, this.longitude, 1)
-            ?.let { addressList ->
-                callback(addressList)
-            }
-    }
 }

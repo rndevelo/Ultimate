@@ -1,17 +1,16 @@
 package com.rndeveloper.ultimate.ui.screens.home
 
-import android.location.Geocoder
 import android.os.CountDownTimer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
-import com.rndeveloper.ultimate.extensions.getAddressList
 import com.rndeveloper.ultimate.model.Directions
 import com.rndeveloper.ultimate.model.Position
 import com.rndeveloper.ultimate.model.Spot
 import com.rndeveloper.ultimate.model.SpotType
 import com.rndeveloper.ultimate.model.Timer
-import com.rndeveloper.ultimate.repositories.ActivityTransitionClient
+import com.rndeveloper.ultimate.repositories.ActivityTransitionRepo
+import com.rndeveloper.ultimate.repositories.GeocoderRepository
 import com.rndeveloper.ultimate.repositories.LocationClient
 import com.rndeveloper.ultimate.repositories.TimerRepository
 import com.rndeveloper.ultimate.repositories.UserRepository
@@ -41,9 +40,9 @@ class HomeViewModel @Inject constructor(
     private val spotsUseCases: SpotsUseCases,
     private val userUseCases: UserUseCases,
     private val userRepository: UserRepository,
-    private val activityTransitionClient: ActivityTransitionClient,
+    private val activityTransitionClient: ActivityTransitionRepo,
+    private val geocoderRepository: GeocoderRepository,
 //    private val geofenceClient: GeofenceClient,
-    private val geocoder: Geocoder,
 ) : ViewModel() {
 
     private val _locationState = MutableStateFlow(LocationUiState())
@@ -134,8 +133,9 @@ class HomeViewModel @Inject constructor(
 
     private suspend fun onGetUserData() {
         userUseCases.getUserDataUseCase(Unit).collectLatest { newUserUiState ->
+
+            activityTransitionClient.startActivityTransition(user = newUserUiState.user)
             _userState.update {
-                activityTransitionClient.startActivityTransition(user = newUserUiState.user)
                 newUserUiState
             }
         }
@@ -152,26 +152,14 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun onGetAddressLine(position: Position)  {
+    fun onGetAddressLine(position: Position) = viewModelScope.launch {
         _spotsState.update {
             it.copy(isLoading = true)
         }
-        LatLng(position.lat, position.lng).getAddressList(geocoder) { address ->
-            if (address.isNotEmpty()){
-                Directions(
-                    addressLine = address.first().getAddressLine(0),
-                    locality = address.first().locality,
-                    area = address.first().subAdminArea,
-                    country = address.first().countryName
-                ).let { directions ->
-                    onGetSpots(position = position, directions = directions)
-                    _directionsState.update {
-                        it.copy(directions = directions)
-                    }
-                }
-            }
-            _spotsState.update {
-                it.copy(isLoading = false)
+        geocoderRepository.getAddressList(LatLng(position.lat, position.lng)) { directions ->
+            onGetSpots(position = position, directions = directions)
+            _directionsState.update {
+                it.copy(directions = directions)
             }
         }
     }

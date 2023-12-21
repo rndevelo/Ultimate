@@ -6,7 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
-import com.google.android.gms.location.ActivityRecognition
+import com.google.android.gms.location.ActivityRecognitionClient
 import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.ActivityTransitionRequest
 import com.google.android.gms.location.DetectedActivity
@@ -15,8 +15,10 @@ import com.rndeveloper.ultimate.model.User
 import com.rndeveloper.ultimate.receivers.ActivityTransitionReceiver
 import javax.inject.Inject
 
-class ActivityTransitionClientImpl @Inject constructor(private val appContext: Context) :
-    ActivityTransitionClient {
+class ActivityTransitionRepoImpl @Inject constructor(
+    private val activityRecognitionClient: ActivityRecognitionClient,
+    private val appContext: Context
+) : ActivityTransitionRepo {
     @SuppressLint("MissingPermission")
     override fun startActivityTransition(user: User) {
 
@@ -72,7 +74,7 @@ class ActivityTransitionClientImpl @Inject constructor(private val appContext: C
 
         val request = ActivityTransitionRequest(transitions)
 
-        val task = ActivityRecognition.getClient(appContext)
+        val task = activityRecognitionClient
             .requestActivityTransitionUpdates(request, activityTransitionPendingIntent(user))
 
         task.addOnSuccessListener {
@@ -102,6 +104,6 @@ class ActivityTransitionClientImpl @Inject constructor(private val appContext: C
     }
 }
 
-interface ActivityTransitionClient {
+interface ActivityTransitionRepo {
     fun startActivityTransition(user: User)
 }

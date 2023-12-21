@@ -14,11 +14,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.rndeveloper.ultimate.R
 import com.rndeveloper.ultimate.ui.screens.home.DirectionsUiState
 import com.rndeveloper.ultimate.ui.screens.home.ScreenState
 import com.rndeveloper.ultimate.ui.screens.home.SpotsUiState
@@ -51,7 +49,7 @@ fun CountContent(
         AnimatedVisibility(uiSpotsState.spots.isNotEmpty()) {
             Text(
                 text = when (screenState) {
-                    ScreenState.MAIN -> "${uiSpotsState.spots.size} spots in this zone"
+                    ScreenState.MAIN -> "${uiSpotsState.spots.size} spots nearby"
                     ScreenState.ADDSPOT -> "Add a new spot"
                     ScreenState.PARKMYCAR -> "Park your car"
                 },
@@ -61,12 +59,7 @@ fun CountContent(
 
         Spacer(modifier = modifier.height(2.dp))
         Text(
-            text = when (screenState) {
-                ScreenState.MAIN -> "${uiDirectionsState.directions.locality}, ${uiDirectionsState.directions.area}".ifEmpty {
-                    stringResource(R.string.home_text_unknown_location)
-                }
-                else -> uiDirectionsState.directions.addressLine
-            },
+            text = uiDirectionsState.directions.addressLine,
 
 //                text = if (uiSpotsState.spots.isNotEmpty())
 //                    uiDirectionsState.ifEmpty { stringResource(R.string.home_text_unknow_location) }

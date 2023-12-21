@@ -10,6 +10,7 @@ import com.rndeveloper.ultimate.model.Position
 import com.rndeveloper.ultimate.repositories.SpotRepository
 import com.rndeveloper.ultimate.ui.screens.home.SpotsUiState
 import com.rndeveloper.ultimate.usecases.BaseUseCase
+import com.rndeveloper.ultimate.utils.Constants.SPOTS_RADIUS_TARGET
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow
@@ -52,7 +53,7 @@ class GetSpotsUseCase @Inject constructor(
                                 GeoFireUtils.getDistanceBetween(
                                     GeoLocation(spot.position.lat, spot.position.lng),
                                     GeoLocation(camLatLng.lat, camLatLng.lng)
-                                ) <= 1000.0
+                                ) <= SPOTS_RADIUS_TARGET
                             }.sortedWith { d1, d2 ->
                                 val currentLoc = Location("currentLoc")
                                 currentLoc.latitude = locLatLng.lat

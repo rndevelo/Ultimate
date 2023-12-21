@@ -1,5 +1,6 @@
 package com.rndeveloper.ultimate.ui.screens.home.components.subcomponents
 
+import android.util.Log
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -31,6 +32,7 @@ fun GoogleMapContent(
     isSetState: Boolean,
     car: Position?,
     spots: List<Spot>,
+    onMapLoaded: () -> Unit,
     isElapsedTime: Boolean,
     mapType: MapType,
     onSpotSelected: (String) -> Unit,
@@ -44,6 +46,10 @@ fun GoogleMapContent(
     } else {
         MapStyleOptions(MapStyle.jsonWithoutPoi)
     }
+
+//    val spotsList by remember { mutableStateOf(spots) }
+
+    Log.d("DEBUG MAP", "GoogleMapContent: ${cameraPos.projection?.visibleRegion?.latLngBounds}")
 
     GoogleMap(
         modifier = modifier.clip(RoundedCornerShape(bottomStartPercent = 5, bottomEndPercent = 5)),
@@ -59,9 +65,8 @@ fun GoogleMapContent(
             myLocationButtonEnabled = false,
             zoomControlsEnabled = false,
         ),
-        onMapLoaded = {},
+        onMapLoaded = onMapLoaded,
     ) {
-
 
         if (car != null) {
             Marker(
@@ -102,6 +107,7 @@ fun GoogleMapContentPreview() {
             isSetState = false,
             car = Position(),
             spots = emptyList(),
+            onMapLoaded = {},
             isElapsedTime = false,
             mapType = MapType.NORMAL,
             onSpotSelected = {},

@@ -4,24 +4,27 @@ import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.location.Geocoder
 import android.os.Build
 import android.os.Bundle
 import androidx.annotation.CallSuper
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.ActivityTransitionEvent
 import com.google.android.gms.location.ActivityTransitionResult
 import com.google.android.gms.location.DetectedActivity
 import com.google.android.gms.maps.model.LatLng
-import com.rndeveloper.ultimate.extensions.getAddressList
-import com.rndeveloper.ultimate.model.Directions
+import com.rndeveloper.ultimate.R
 import com.rndeveloper.ultimate.model.Spot
 import com.rndeveloper.ultimate.model.SpotType
 import com.rndeveloper.ultimate.model.User
+import com.rndeveloper.ultimate.repositories.GeocoderRepository
 import com.rndeveloper.ultimate.repositories.LocationClient
 import com.rndeveloper.ultimate.repositories.UserRepository
 import com.rndeveloper.ultimate.usecases.spots.SetSpotUseCase
 import com.rndeveloper.ultimate.usecases.user.GetUserDataUseCase
+import com.rndeveloper.ultimate.utils.Constants.ACT_CHANNEL_ID
+import com.rndeveloper.ultimate.utils.Constants.NOTIFICATION_ID
 import com.rndeveloper.ultimate.utils.Utils
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -35,7 +38,8 @@ import javax.inject.Inject
 
 abstract class HiltActivityTransitionReceiver : BroadcastReceiver() {
     @CallSuper
-    override fun onReceive(context: Context, intent: Intent) {}
+    override fun onReceive(context: Context, intent: Intent) {
+    }
 }
 
 @AndroidEntryPoint
@@ -54,10 +58,7 @@ class ActivityTransitionReceiver : HiltActivityTransitionReceiver() {
     lateinit var userRepository: UserRepository
 
     @Inject
-    lateinit var geocoder: Geocoder
-
-//    @Inject
-//    lateinit var getDirectionsUseCase: GetDirectionsUseCase
+    lateinit var geocoderRepository: GeocoderRepository
 
     @OptIn(DelicateCoroutinesApi::class)
     @SuppressLint("MissingPermission")
@@ -70,48 +71,101 @@ class ActivityTransitionReceiver : HiltActivityTransitionReceiver() {
 
             val result = ActivityTransitionResult.extractResult(intent)
             result?.transitionEvents?.forEach { event ->
+
+                if (user != null) {
+                    sendNotification(
+                        context,
+                        "Actividad actual de ${user.username}",
+                        getInfo(event),
+                        NOTIFICATION_ID
+                    )
+                }
+
                 when {
                     event.activityType == DetectedActivity.IN_VEHICLE && event.transitionType == ActivityTransition.ACTIVITY_TRANSITION_EXIT -> {
-                        locationClient.getLastLocation { locationData ->
-                            GlobalScope.launch {
-                                user?.copy(car = locationData)?.let { user ->
-                                    userRepository.setUserCar(user).collectLatest {
-//                                        TODO: Send Notification
-                                    }
-                                }
-                            }
-                        }
+                        setMyCarData(context, user)
                     }
 
                     event.activityType == DetectedActivity.IN_VEHICLE && event.transitionType == ActivityTransition.ACTIVITY_TRANSITION_ENTER -> {
-                        locationClient.getLastLocation { locationData ->
-                            LatLng(
-                                locationData.lat,
-                                locationData.lng
-                            ).getAddressList(geocoder) { addressList ->
-                                Directions(
-                                    addressLine = addressList.first().getAddressLine(0),
-                                    locality = addressList.first().locality,
-                                    area = addressList.first().subAdminArea,
-                                    country = addressList.first().countryName
-                                ).let { directions ->
-                                    user?.let { user ->
-                                        Spot().copy(
-                                            timestamp = Utils.currentTime(),
-                                            type = SpotType.BLUE,
-                                            directions = directions,
-                                            position = locationData,
-                                            user = user
-                                        ).let { spot ->
-                                            GlobalScope.launch {
-                                                setSpotsUseCase(spot).collectLatest {
-//                                        TODO: Send Notification
+                        setSpotData(context, user)
+                    }
+                }
+            }
+        }
+    }
 
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
+    @SuppressLint("MissingPermission")
+    private fun sendNotification(
+        context: Context,
+        contentTitle: String,
+        contentText: String,
+        notificationId: Int
+    ) {
+        val builder = NotificationCompat.Builder(context, ACT_CHANNEL_ID)
+            .setSmallIcon(R.mipmap.ic_ultimate)
+            .setContentTitle(contentTitle)
+            .setContentText(contentText)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setOngoing(true)
+
+        with(NotificationManagerCompat.from(context)) {
+            // notificationId is a unique int for each notification that you must define.
+            notify(notificationId, builder.build())
+        }
+    }
+
+
+    @OptIn(DelicateCoroutinesApi::class)
+    private fun setMyCarData(
+        context: Context,
+        user: User?,
+    ) {
+        locationClient.getLastLocation { locationData ->
+            user?.copy(car = locationData)?.let { user ->
+                GlobalScope.launch {
+                    userRepository.setUserCar(user).collectLatest {
+                        //                                        TODO: Send Notification
+                        sendNotification(
+                            context = context,
+                            contentTitle = "¿Has aparcado?",
+                            contentText = "Toca aquí si quieres corregir tu aparcamiento",
+                            notificationId = 32
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    @OptIn(DelicateCoroutinesApi::class)
+    private fun setSpotData(
+        context: Context,
+        user: User?,
+    ) {
+        locationClient.getLastLocation { locationData ->
+            geocoderRepository.getAddressList(
+                LatLng(
+                    locationData.lat,
+                    locationData.lng
+                )
+            ) { directions ->
+                user?.let { user ->
+                    Spot().copy(
+                        timestamp = Utils.currentTime(),
+                        type = SpotType.BLUE,
+                        directions = directions,
+                        position = locationData,
+                        user = user
+                    ).let { spot ->
+                        GlobalScope.launch {
+                            setSpotsUseCase(spot).collectLatest {
+                                //                                        TODO: Send Notification
+                                sendNotification(
+                                    context = context,
+                                    contentTitle = "¡Enhorabuena, ${user.username}!",
+                                    contentText = "Has agregado una plaza libre.",
+                                    notificationId = 32
+                                )
                             }
                         }
                     }
@@ -152,5 +206,3 @@ class ActivityTransitionReceiver : HiltActivityTransitionReceiver() {
         }
     }
 }
-
-private const val TAG = "RecognitionReceiver"

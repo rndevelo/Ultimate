@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Ultimate</string>
+    <string name="app_name">Paparcar</string>
 
     <!-- LOGIN-->
     <string name="login_text_field_email">Enter your email</string>

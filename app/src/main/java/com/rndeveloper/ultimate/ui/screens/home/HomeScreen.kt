@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.google.maps.android.compose.CameraMoveStartedReason
 import com.rndeveloper.ultimate.model.Position
 import com.rndeveloper.ultimate.model.Spot
 import com.rndeveloper.ultimate.ui.screens.home.components.BottomBarContent
@@ -78,21 +79,13 @@ private fun HomeContent(
     onGetAddressLine: (Position) -> Unit,
 ) {
 
+
 //    animateCamera when launch on first time
     var isFirstLaunch by rememberSaveable { mutableStateOf(true) }
 
-    if (isFirstLaunch && uiLocState.location != null) {
-        LaunchedEffect(key1 = Unit) {
-            rememberHomeUiContainerState.onCamera(
-                target = uiLocState.location,
-                zoom = 16f
-            )
-            isFirstLaunch = false
-        }
-    }
-
-    if (!rememberHomeUiContainerState.camPosState.isMoving && rememberHomeUiContainerState.camPosState.position.zoom > 12f) {
-        LaunchedEffect(!rememberHomeUiContainerState.camPosState.isMoving) {
+    LaunchedEffect(!rememberHomeUiContainerState.camPosState.isMoving) {
+        if (!rememberHomeUiContainerState.camPosState.isMoving && rememberHomeUiContainerState.camPosState.cameraMoveStartedReason == CameraMoveStartedReason.GESTURE) {
+            // Do your work here, it will be done only when the map starts moving from a drag gesture.
             onGetAddressLine(
                 Position(
                     rememberHomeUiContainerState.camPosState.position.target.latitude,
@@ -177,7 +170,7 @@ private fun HomeContent(
                     },
                     modifier = Modifier.padding(contentPadding),
                     scaffoldState = rememberHomeUiContainerState.bsScaffoldState,
-                    sheetPeekHeight = if (rememberHomeUiContainerState.isSetState) 125.dp else 110.dp,
+                    sheetPeekHeight = 125.dp,
                     sheetShape = BottomSheetDefaults.HiddenShape,
                     sheetTonalElevation = 2.dp,
 //                    sheetSwipeEnabled = homeUiState.elapsedTime > 0L
@@ -188,6 +181,14 @@ private fun HomeContent(
                         uiUserState = uiUserState,
                         uiSpotsState = uiSpotsState,
                         uiElapsedTimeState = uiElapsedTimeState,
+                        onMapLoaded = {
+                            if (uiLocState.location != null) {
+                                rememberHomeUiContainerState.onCamera(
+                                    target = uiLocState.location,
+                                    zoom = 16f
+                                )
+                            }
+                        },
                         onSpotSelected = onSpotSelected,
                         modifier = Modifier.height(
                             (rememberHomeUiContainerState.bsScaffoldState.bottomSheetState.requireOffset() / LocalContext.current.resources.displayMetrics.density).dp

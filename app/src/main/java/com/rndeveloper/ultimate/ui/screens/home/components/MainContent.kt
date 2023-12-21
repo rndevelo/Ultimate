@@ -44,6 +44,7 @@ fun MainContent(
     uiUserState: UserUiState,
     uiSpotsState: SpotsUiState,
     uiElapsedTimeState: Long,
+    onMapLoaded: () -> Unit,
     onSpotSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -70,6 +71,7 @@ fun MainContent(
                 isSetState = rememberHomeUiContainerState.isSetState,
                 car = uiUserState.user.car,
                 spots = uiSpotsState.spots,
+                onMapLoaded = onMapLoaded,
                 isElapsedTime = uiElapsedTimeState > DEFAULT_ELAPSED_TIME,
                 mapType = mapType,
                 onSpotSelected = onSpotSelected,
@@ -163,6 +165,7 @@ fun MainContentPreview() {
             uiUserState = UserUiState(),
             uiSpotsState = SpotsUiState(),
             uiElapsedTimeState = 0L,
+            onMapLoaded = {},
             onSpotSelected = {},
         )
     }

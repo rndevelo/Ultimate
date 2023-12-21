@@ -2,6 +2,8 @@ package com.rndeveloper.ultimate.di
 
 import android.content.Context
 import android.location.Geocoder
+import com.google.android.gms.location.ActivityRecognition
+import com.google.android.gms.location.ActivityRecognitionClient
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.LocationServices
@@ -20,8 +22,14 @@ object ProvidersModule {
     //    Location
     @Singleton
     @Provides
-    fun provideLocationProviderClient(@ApplicationContext appContext: Context): FusedLocationProviderClient =
+    fun provideLocationClient(@ApplicationContext appContext: Context): FusedLocationProviderClient =
         LocationServices.getFusedLocationProviderClient(appContext)
+
+//    Activity Recognition
+    @Singleton
+    @Provides
+    fun provideActivityRecognitionClient(@ApplicationContext appContext: Context): ActivityRecognitionClient =
+    ActivityRecognition.getClient(appContext)
 
 
     //    Geocoder
