@@ -6,12 +6,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.CameraPositionState
+import com.google.maps.android.compose.Circle
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
@@ -23,6 +25,7 @@ import com.rndeveloper.ultimate.R
 import com.rndeveloper.ultimate.model.Position
 import com.rndeveloper.ultimate.model.Spot
 import com.rndeveloper.ultimate.ui.theme.UltimateTheme
+import com.rndeveloper.ultimate.ui.theme.circle_green
 import com.rndeveloper.ultimate.utils.BitmapHelper
 import com.rndeveloper.ultimate.utils.MapStyle
 
@@ -49,7 +52,12 @@ fun GoogleMapContent(
 
 //    val spotsList by remember { mutableStateOf(spots) }
 
-    Log.d("DEBUG MAP", "GoogleMapContent: ${cameraPos.projection?.visibleRegion?.latLngBounds}")
+    val aa = cameraPos.projection?.toScreenLocation(cameraPos.position.target)
+
+    Log.d(
+        "DEBUG MAP",
+        "GoogleMapContent: ${cameraPos.projection?.toScreenLocation(cameraPos.position.target)}"
+    )
 
     GoogleMap(
         modifier = modifier.clip(RoundedCornerShape(bottomStartPercent = 5, bottomEndPercent = 5)),
@@ -81,19 +89,32 @@ fun GoogleMapContent(
         }
 
         spots.forEach { spot ->
-            Marker(
-                state = MarkerState(position = LatLng(spot.position.lat, spot.position.lng)),
+
+            Circle(
+                center = LatLng(spot.position.lat, spot.position.lng),
+                clickable = true,
+                fillColor = circle_green,
+                radius = 75.0,
+                strokeColor = Color.Transparent,
                 tag = spot.tag,
-                icon = BitmapHelper.vectorToBitmap(
-                    context = context,
-                    id = R.drawable.ic_spot_marker
-                ),
-//                visible = isElapsedTime,
-                onClick = { marker ->
-                    onSpotSelected(marker.tag as String)
-                    true
+                onClick = { circle ->
+                    onSpotSelected(circle.tag as String)
                 }
             )
+
+//            Marker(
+//                state = MarkerState(position = LatLng(spot.position.lat, spot.position.lng)),
+//                tag = spot.tag,
+//                icon = BitmapHelper.vectorToBitmap(
+//                    context = context,
+//                    id = R.drawable.ic_spot_marker
+//                ),
+////                visible = isElapsedTime,
+//                onClick = { marker ->
+//                    onSpotSelected(marker.tag as String)
+//                    true
+//                }
+//            )
         }
     }
 }

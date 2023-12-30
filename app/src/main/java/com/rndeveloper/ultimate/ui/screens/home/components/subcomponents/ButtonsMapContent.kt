@@ -41,7 +41,7 @@ import com.rndeveloper.ultimate.ui.theme.UltimateTheme
 @Composable
 fun ButtonsMapContent(
     car: Position?,
-    isShowReloadButton: Boolean,
+    isShowLoading: Boolean,
     onOpenOrCloseDrawer: () -> Unit,
     onMapType: () -> Unit,
     onParkMyCarState: () -> Unit,
@@ -69,6 +69,14 @@ fun ButtonsMapContent(
                 contentDescription = Icons.Default.Menu.toString(),
             )
         }
+
+        AnimatedVisibility(
+            visible = isShowLoading,
+            modifier = modifier.align(Alignment.TopCenter),
+        ) {
+            LoadingAnimation()
+        }
+
 
         Column(modifier = modifier.align(Alignment.TopEnd)) {
             FloatingActionButton(
@@ -245,7 +253,7 @@ fun ButtonsMapContentPreview() {
     UltimateTheme {
         ButtonsMapContent(
             car = Position(),
-            isShowReloadButton = true,
+            isShowLoading = true,
             onOpenOrCloseDrawer = { /*TODO*/ },
             onMapType = { /*TODO*/ },
             onParkMyCarState = {},

@@ -66,6 +66,7 @@ val md_theme_dark_scrim = Color(0xFF000000)
 
 
 val seed = Color(0xFF006591)
+val circle_green = Color(0x4D00FF19)
 
 // Time colors
 val green_time_spot = Color(0xFF31D672)

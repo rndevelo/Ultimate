@@ -9,7 +9,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -79,7 +78,7 @@ fun MainContent(
 
             ButtonsMapContent(
                 car = uiUserState.user.car,
-                isShowReloadButton = !rememberHomeUiContainerState.camPosState.isMoving && !uiSpotsState.isLoading && uiElapsedTimeState > DEFAULT_ELAPSED_TIME,
+                isShowLoading = uiSpotsState.isLoading || uiUserState.isLoading,
                 onOpenOrCloseDrawer = { rememberHomeUiContainerState.onOpenDrawer() },
                 onMapType = {
                     mapType =
@@ -107,9 +106,13 @@ fun MainContent(
 
 //            FIXME THIS
 
-            AnimatedVisibility(visible = uiSpotsState.isLoading || uiUserState.isLoading) {
-                CircularProgressIndicator()
-            }
+//            AnimatedVisibility(visible = uiSpotsState.isLoading || uiUserState.isLoading) {
+//                LinearProgressIndicator(
+//                    modifier = Modifier
+//                        .wrapContentSize(),
+//                    color = MaterialTheme.colorScheme.onPrimary
+//                )
+//            }
 //
             AnimatedVisibility(
                 visible = uiElapsedTimeState > DEFAULT_ELAPSED_TIME && !rememberHomeUiContainerState.camPosState.isMoving,
