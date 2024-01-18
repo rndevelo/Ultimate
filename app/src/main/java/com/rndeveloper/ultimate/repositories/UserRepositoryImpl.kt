@@ -1,5 +1,6 @@
 package com.rndeveloper.ultimate.repositories
 
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.rndeveloper.ultimate.model.User
@@ -22,6 +23,7 @@ class UserRepositoryImpl @Inject constructor(
                 uid = uid,
                 photo = photoUrl.toString(),
             )
+
             fireStore.collection("USERS").document(uid)
                 .addSnapshotListener { snapshot, e ->
                     val user = snapshot?.toObject(User::class.java)

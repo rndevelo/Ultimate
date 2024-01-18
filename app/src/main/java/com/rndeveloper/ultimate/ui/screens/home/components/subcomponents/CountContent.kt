@@ -60,10 +60,6 @@ fun CountContent(
         Spacer(modifier = modifier.height(2.dp))
         Text(
             text = uiDirectionsState.directions.addressLine,
-
-//                text = if (uiSpotsState.spots.isNotEmpty())
-//                    uiDirectionsState.ifEmpty { stringResource(R.string.home_text_unknow_location) }
-//                else stringResource(R.string.home_text_without_spots),
             style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Light),
         )
     }

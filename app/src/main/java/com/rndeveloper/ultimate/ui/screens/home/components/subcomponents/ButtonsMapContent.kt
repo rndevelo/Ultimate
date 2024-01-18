@@ -77,7 +77,6 @@ fun ButtonsMapContent(
             LoadingAnimation()
         }
 
-
         Column(modifier = modifier.align(Alignment.TopEnd)) {
             FloatingActionButton(
                 onClick = onMapType,
@@ -121,7 +120,7 @@ fun ButtonsMapContent(
         ) {
             FloatingActionButton(
                 modifier = modifier.size(40.dp),
-                onClick = { },
+                onClick = onCameraMyCar,
                 containerColor = surfaceColor
 
             ) {
@@ -140,7 +139,7 @@ fun ButtonsMapContent(
 //                )
                 FloatingActionButton(
                     modifier = modifier.size(40.dp),
-                    onClick = if (car != null) onCameraMyCar else onParkMyCarState,
+                    onClick = onCameraMyCar,
                     containerColor = surfaceColor
 
                 ) {

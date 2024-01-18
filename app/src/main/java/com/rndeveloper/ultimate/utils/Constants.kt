@@ -16,7 +16,7 @@ object Constants {
     const val ACCOUNT_SCREEN = "account_screen"
 
     //    Spots
-    const val SPOTS_RADIUS_TARGET = 500.0
+    const val SPOTS_RADIUS_TARGET = 1000.0
 
     //    Timer
     const val REQUEST_CODE = 0

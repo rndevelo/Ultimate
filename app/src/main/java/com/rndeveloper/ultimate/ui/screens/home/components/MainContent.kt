@@ -4,14 +4,10 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -23,10 +19,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.MapType
 import com.rndeveloper.ultimate.R
 import com.rndeveloper.ultimate.ui.screens.home.HomeUiContainerState
-import com.rndeveloper.ultimate.ui.screens.home.LocationUiState
 import com.rndeveloper.ultimate.ui.screens.home.ScreenState
 import com.rndeveloper.ultimate.ui.screens.home.SpotsUiState
 import com.rndeveloper.ultimate.ui.screens.home.UserUiState
@@ -39,11 +35,12 @@ import com.rndeveloper.ultimate.utils.Constants.DEFAULT_ELAPSED_TIME
 @Composable
 fun MainContent(
     rememberHomeUiContainerState: HomeUiContainerState,
-    uiLocState: LocationUiState,
+    camPosState: CameraPositionState,
     uiUserState: UserUiState,
     uiSpotsState: SpotsUiState,
     uiElapsedTimeState: Long,
-    onMapLoaded: () -> Unit,
+    onCameraLoc: () -> Unit,
+    onCameraCar: () -> Unit,
     onSpotSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -51,7 +48,7 @@ fun MainContent(
     var mapType by rememberSaveable { mutableStateOf(MapType.NORMAL) }
 
     val extraPadding by animateDpAsState(
-        if (!rememberHomeUiContainerState.camPosState.isMoving) 60.dp else 85.dp,
+        if (!camPosState.isMoving) 60.dp else 85.dp,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessLow
@@ -66,11 +63,11 @@ fun MainContent(
         ) {
 
             GoogleMapContent(
-                cameraPos = rememberHomeUiContainerState.camPosState,
-                isSetState = rememberHomeUiContainerState.isSetState,
+                rememberHomeUiContainerState = rememberHomeUiContainerState,
+                camPosState = camPosState,
                 car = uiUserState.user.car,
                 spots = uiSpotsState.spots,
-                onMapLoaded = onMapLoaded,
+                onMapLoaded = onCameraLoc,
                 isElapsedTime = uiElapsedTimeState > DEFAULT_ELAPSED_TIME,
                 mapType = mapType,
                 onSpotSelected = onSpotSelected,
@@ -86,46 +83,22 @@ fun MainContent(
                 },
                 onParkMyCarState = { rememberHomeUiContainerState.onScreenState(ScreenState.PARKMYCAR) },
                 onCameraTilt = { rememberHomeUiContainerState.onCameraTilt() },
-                onCameraLocation = {
-                    rememberHomeUiContainerState.onCamera(
-                        target = uiLocState.location,
-                        zoom = 16f,
-                        tilt = 0f,
-                        bearing = 0f
-                    )
-                },
-                onCameraMyCar = {
-                    rememberHomeUiContainerState.onCamera(
-                        target = uiUserState.user.car,
-                        zoom = 16f,
-                        tilt = 0f,
-                        bearing = 0f
-                    )
-                },
+                onCameraLocation = onCameraLoc,
+                onCameraMyCar = onCameraCar,
             )
 
-//            FIXME THIS
-
-//            AnimatedVisibility(visible = uiSpotsState.isLoading || uiUserState.isLoading) {
-//                LinearProgressIndicator(
-//                    modifier = Modifier
-//                        .wrapContentSize(),
-//                    color = MaterialTheme.colorScheme.onPrimary
+//            AnimatedVisibility(
+//                visible = uiElapsedTimeState > DEFAULT_ELAPSED_TIME && !rememberHomeUiContainerState.camPosState.isMoving,
+//                enter = fadeIn(),
+//                exit = fadeOut()
+//            ) {
+//                Icon(
+//                    painter = painterResource(id = R.drawable.ic_spot_marker_stroke),
+//                    contentDescription = R.drawable.ic_spot_marker_stroke.toString(),
+//                    modifier = Modifier.padding(bottom = 38.dp),
+//                    tint = MaterialTheme.colorScheme.inversePrimary
 //                )
 //            }
-//
-            AnimatedVisibility(
-                visible = uiElapsedTimeState > DEFAULT_ELAPSED_TIME && !rememberHomeUiContainerState.camPosState.isMoving,
-                enter = fadeIn(),
-                exit = fadeOut()
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_spot_marker_stroke),
-                    contentDescription = R.drawable.ic_spot_marker_stroke.toString(),
-                    modifier = Modifier.padding(bottom = 38.dp),
-                    tint = MaterialTheme.colorScheme.inversePrimary
-                )
-            }
 
             AnimatedVisibility(visible = rememberHomeUiContainerState.isSetState) {
 
@@ -164,11 +137,12 @@ fun MainContentPreview() {
     UltimateTheme {
         MainContent(
             rememberHomeUiContainerState = rememberHomeUiContainerState(),
-            uiLocState = LocationUiState(),
+            camPosState = CameraPositionState(),
             uiUserState = UserUiState(),
             uiSpotsState = SpotsUiState(),
             uiElapsedTimeState = 0L,
-            onMapLoaded = {},
+            onCameraLoc = {},
+            onCameraCar = {},
             onSpotSelected = {},
         )
     }

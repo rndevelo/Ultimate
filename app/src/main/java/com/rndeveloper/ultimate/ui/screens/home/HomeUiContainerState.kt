@@ -17,19 +17,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.CameraPositionState
-import com.google.maps.android.compose.rememberCameraPositionState
-import com.rndeveloper.ultimate.model.Position
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun rememberHomeUiContainerState(
-    camPosState: CameraPositionState = rememberCameraPositionState(),
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
     bsScaffoldState: BottomSheetScaffoldState = rememberBottomSheetScaffoldState(),
     scrollState: LazyListState = rememberLazyListState(),
@@ -37,7 +30,7 @@ fun rememberHomeUiContainerState(
     navController: NavHostController = rememberNavController(),
 ): HomeUiContainerState = remember {
     HomeUiContainerState(
-        camPosState,
+//        camPosState,
         drawerState,
         bsScaffoldState,
         scrollState,
@@ -48,7 +41,7 @@ fun rememberHomeUiContainerState(
 
 @Stable
 class HomeUiContainerState @OptIn(ExperimentalMaterial3Api::class) constructor(
-    val camPosState: CameraPositionState,
+//    val camPosState: CameraPositionState,
     val drawerState: DrawerState,
     val bsScaffoldState: BottomSheetScaffoldState,
     val scrollState: LazyListState,
@@ -69,7 +62,7 @@ class HomeUiContainerState @OptIn(ExperimentalMaterial3Api::class) constructor(
     fun onCameraTilt() {
 //      FIXME:  Handle this correctly
         isTilt = !isTilt
-        onCamera(tilt = if (isTilt) 90f else 0f)
+//        onCamera(tilt = if (isTilt) 90f else 0f)
     }
 
     fun onOpenDrawer() {
@@ -78,26 +71,6 @@ class HomeUiContainerState @OptIn(ExperimentalMaterial3Api::class) constructor(
 
     fun onScreenState(newScreenState: ScreenState) {
         screenState = newScreenState
-    }
-
-    fun onCamera(
-        target: Position? = Position(
-            camPosState.position.target.latitude,
-            camPosState.position.target.longitude
-        ),
-        zoom: Float = camPosState.position.zoom,
-        tilt: Float = camPosState.position.tilt,
-        bearing: Float = camPosState.position.bearing,
-    ) {
-        target?.let { position ->
-            scope.launch {
-                camPosState.animate(
-                    CameraUpdateFactory.newCameraPosition(
-                        CameraPosition(LatLng(position.lat, position.lng), zoom, tilt, bearing)
-                    )
-                )
-            }
-        }
     }
 }
 
