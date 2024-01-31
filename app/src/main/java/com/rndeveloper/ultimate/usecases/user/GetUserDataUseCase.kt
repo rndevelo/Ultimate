@@ -2,7 +2,7 @@ package com.rndeveloper.ultimate.usecases.user
 
 import com.rndeveloper.ultimate.exceptions.CustomException
 import com.rndeveloper.ultimate.repositories.UserRepository
-import com.rndeveloper.ultimate.ui.screens.home.UserUiState
+import com.rndeveloper.ultimate.ui.screens.home.uistates.UserUiState
 import com.rndeveloper.ultimate.usecases.BaseUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch

@@ -17,9 +17,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.rndeveloper.ultimate.ui.screens.home.DirectionsUiState
+import com.rndeveloper.ultimate.ui.screens.home.uistates.DirectionsUiState
 import com.rndeveloper.ultimate.ui.screens.home.ScreenState
-import com.rndeveloper.ultimate.ui.screens.home.SpotsUiState
+import com.rndeveloper.ultimate.ui.screens.home.uistates.SpotsUiState
 
 @Composable
 fun CountContent(

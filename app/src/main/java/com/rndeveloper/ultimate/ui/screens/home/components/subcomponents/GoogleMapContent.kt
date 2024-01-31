@@ -40,7 +40,7 @@ fun GoogleMapContent(
     onMapLoaded: () -> Unit,
     isElapsedTime: Boolean,
     mapType: MapType,
-    onSpotSelected: (String) -> Unit,
+    onSpot: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -99,23 +99,23 @@ fun GoogleMapContent(
                 strokeColor = Color.Transparent,
                 tag = spot.tag,
                 onClick = { circle ->
-                    onSpotSelected(circle.tag as String)
+                    onSpot(circle.tag as String)
                 }
             )
 
-//            Marker(
-//                state = MarkerState(position = LatLng(spot.position.lat, spot.position.lng)),
-//                tag = spot.tag,
-//                icon = BitmapHelper.vectorToBitmap(
-//                    context = context,
-//                    id = R.drawable.ic_spot_marker
-//                ),
-////                visible = isElapsedTime,
-//                onClick = { marker ->
+            Marker(
+                state = MarkerState(position = LatLng(spot.position.lat, spot.position.lng)),
+                tag = spot.tag,
+                icon = BitmapHelper.vectorToBitmap(
+                    context = context,
+                    id = R.drawable.ic_spot_marker
+                ),
+//                visible = isElapsedTime,
+                onClick = { marker ->
 //                    onSpotSelected(marker.tag as String)
-//                    true
-//                }
-//            )
+                    true
+                }
+            )
         }
     }
 }
@@ -133,7 +133,7 @@ fun GoogleMapContentPreview() {
             onMapLoaded = {},
             isElapsedTime = false,
             mapType = MapType.NORMAL,
-            onSpotSelected = {},
+            onSpot = {},
         )
     }
 }

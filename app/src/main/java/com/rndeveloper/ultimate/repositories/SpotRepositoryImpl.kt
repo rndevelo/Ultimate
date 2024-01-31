@@ -13,11 +13,11 @@ class SpotRepositoryImpl @Inject constructor(
     private val fireStore: FirebaseFirestore
 ) : SpotRepository {
 
-    override fun getSpots(directions: Directions): Flow<Result<List<Spot>>> = callbackFlow {
+    override fun getSpots(collectionRef: String, directions: Directions): Flow<Result<List<Spot>>> = callbackFlow {
 
 //        FIXME: getAddressList? and getSpots?
         fireStore
-            .collection("ITEMS")
+            .collection(collectionRef)
             .document(directions.country)
             .collection(directions.area).addSnapshotListener { snapshot, e ->
                 val items = snapshot?.toObjects(Spot::class.java)
@@ -32,15 +32,15 @@ class SpotRepositoryImpl @Inject constructor(
         awaitClose()
     }
 
-    override fun setSpot(spot: Spot): Flow<Result<Boolean>> = callbackFlow {
+    override fun setSpot(pair: Pair<String, Spot>): Flow<Result<Boolean>> = callbackFlow {
 
-        val tag = fireStore.collection("ITEMS").document().id
+        val tag = fireStore.collection(pair.first).document().id
 
-        fireStore.collection("ITEMS")
-            .document(spot.directions.country)
-            .collection(spot.directions.area)
+        fireStore.collection(pair.first)
+            .document(pair.second.directions.country)
+            .collection(pair.second.directions.area)
             .document(tag)
-            .set(spot.copy(tag = tag))
+            .set(pair.second.copy(tag = tag))
             .addOnSuccessListener { _ ->
                 trySend(Result.success(true))
             }
@@ -90,7 +90,7 @@ class SpotRepositoryImpl @Inject constructor(
 
 
 interface SpotRepository {
-    fun getSpots(directions: Directions): Flow<Result<List<Spot>>>
-    fun setSpot(spot: Spot): Flow<Result<Boolean>>
+    fun getSpots(collectionRef: String, directions: Directions): Flow<Result<List<Spot>>>
+    fun setSpot(pair: Pair<String, Spot>): Flow<Result<Boolean>>
     fun removeSpot(spot: Spot): Flow<Result<Boolean>>
 }

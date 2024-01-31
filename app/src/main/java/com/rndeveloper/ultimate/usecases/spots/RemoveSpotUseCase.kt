@@ -3,7 +3,7 @@ package com.rndeveloper.ultimate.usecases.spots
 import com.rndeveloper.ultimate.exceptions.CustomException
 import com.rndeveloper.ultimate.model.Spot
 import com.rndeveloper.ultimate.repositories.SpotRepository
-import com.rndeveloper.ultimate.ui.screens.home.SpotsUiState
+import com.rndeveloper.ultimate.ui.screens.home.uistates.SpotsUiState
 import com.rndeveloper.ultimate.usecases.BaseUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch

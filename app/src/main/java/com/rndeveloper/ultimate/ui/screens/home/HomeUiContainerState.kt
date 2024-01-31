@@ -57,13 +57,6 @@ class HomeUiContainerState @OptIn(ExperimentalMaterial3Api::class) constructor(
     val isSetState: Boolean
         get() = screenState == ScreenState.ADDSPOT || screenState == ScreenState.PARKMYCAR
 
-    private var isTilt: Boolean = false
-
-    fun onCameraTilt() {
-//      FIXME:  Handle this correctly
-        isTilt = !isTilt
-//        onCamera(tilt = if (isTilt) 90f else 0f)
-    }
 
     fun onOpenDrawer() {
         scope.launch { drawerState.open() }

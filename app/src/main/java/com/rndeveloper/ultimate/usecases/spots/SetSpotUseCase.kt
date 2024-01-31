@@ -3,7 +3,7 @@ package com.rndeveloper.ultimate.usecases.spots
 import com.rndeveloper.ultimate.exceptions.CustomException
 import com.rndeveloper.ultimate.model.Spot
 import com.rndeveloper.ultimate.repositories.SpotRepository
-import com.rndeveloper.ultimate.ui.screens.home.SpotsUiState
+import com.rndeveloper.ultimate.ui.screens.home.uistates.SpotsUiState
 import com.rndeveloper.ultimate.usecases.BaseUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -13,9 +13,9 @@ import javax.inject.Inject
 
 class SetSpotUseCase @Inject constructor(
     private val repository: SpotRepository,
-) : BaseUseCase<Spot, Flow<SpotsUiState>>() {
+) : BaseUseCase<Pair<String, Spot>, Flow<SpotsUiState>>() {
 
-    override suspend fun execute(parameters: Spot): Flow<SpotsUiState> =
+    override suspend fun execute(parameters: Pair<String, Spot>): Flow<SpotsUiState> =
         channelFlow {
 
             // TODO: Validate fields: email restriction and empty fields validations

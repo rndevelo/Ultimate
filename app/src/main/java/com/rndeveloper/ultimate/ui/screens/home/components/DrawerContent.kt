@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.rndeveloper.ultimate.model.MenuItem
-import com.rndeveloper.ultimate.ui.screens.home.UserUiState
+import com.rndeveloper.ultimate.ui.screens.home.uistates.UserUiState
 
 @Composable
 fun DrawerHeaderContent(uiUserState: UserUiState, modifier: Modifier = Modifier) {

@@ -18,6 +18,15 @@
     <string name="login_text_recover_password_cancel">Cancel</string>
 
 
+    <!-- PERMISSIONS-->
+    <string name="permissions_text_title">Find parking spots in real-time!</string>
+    <string name="permissions_text_main_description">For the operation of this app we will need to have your permission.\n
+        Accept the permissions power to continue. Otherwise, you will have to do it manually from the configuration.</string>
+    <string name="permissions_text_background_description">In order to fulfill the full functionality of this application.\n
+        We need you to set the location permission to "Always Allow". </string>
+    <string name="permissions_text_activate">Activate</string>
+
+
     <!-- HOME-->
     <string name="home_text_to_see">To see</string>
     <string name="home_text_seen">Seen</string>

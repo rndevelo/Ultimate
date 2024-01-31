@@ -24,11 +24,11 @@ import com.google.maps.android.compose.MapType
 import com.rndeveloper.ultimate.R
 import com.rndeveloper.ultimate.ui.screens.home.HomeUiContainerState
 import com.rndeveloper.ultimate.ui.screens.home.ScreenState
-import com.rndeveloper.ultimate.ui.screens.home.SpotsUiState
-import com.rndeveloper.ultimate.ui.screens.home.UserUiState
 import com.rndeveloper.ultimate.ui.screens.home.components.subcomponents.ButtonsMapContent
 import com.rndeveloper.ultimate.ui.screens.home.components.subcomponents.GoogleMapContent
 import com.rndeveloper.ultimate.ui.screens.home.rememberHomeUiContainerState
+import com.rndeveloper.ultimate.ui.screens.home.uistates.SpotsUiState
+import com.rndeveloper.ultimate.ui.screens.home.uistates.UserUiState
 import com.rndeveloper.ultimate.ui.theme.UltimateTheme
 import com.rndeveloper.ultimate.utils.Constants.DEFAULT_ELAPSED_TIME
 
@@ -41,14 +41,18 @@ fun MainContent(
     uiElapsedTimeState: Long,
     onCameraLoc: () -> Unit,
     onCameraCar: () -> Unit,
-    onSpotSelected: (String) -> Unit,
+    onCameraCarLoc: () -> Unit,
+    onCameraTilt: () -> Unit,
+    onSpot: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
     var mapType by rememberSaveable { mutableStateOf(MapType.NORMAL) }
 
     val extraPadding by animateDpAsState(
-        if (!camPosState.isMoving) 60.dp else 85.dp,
+        if (rememberHomeUiContainerState.screenState == ScreenState.ADDSPOT && !camPosState.isMoving
+            || rememberHomeUiContainerState.screenState == ScreenState.PARKMYCAR && !camPosState.isMoving
+        ) 60.dp else 85.dp,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessLow
@@ -70,7 +74,7 @@ fun MainContent(
                 onMapLoaded = onCameraLoc,
                 isElapsedTime = uiElapsedTimeState > DEFAULT_ELAPSED_TIME,
                 mapType = mapType,
-                onSpotSelected = onSpotSelected,
+                onSpot = onSpot,
             )
 
             ButtonsMapContent(
@@ -82,9 +86,10 @@ fun MainContent(
                         if (mapType == MapType.NORMAL) MapType.SATELLITE else MapType.NORMAL
                 },
                 onParkMyCarState = { rememberHomeUiContainerState.onScreenState(ScreenState.PARKMYCAR) },
-                onCameraTilt = { rememberHomeUiContainerState.onCameraTilt() },
+                onCameraTilt = onCameraTilt,
                 onCameraLocation = onCameraLoc,
                 onCameraMyCar = onCameraCar,
+                onCameraCarLoc = onCameraCarLoc,
             )
 
 //            AnimatedVisibility(
@@ -143,7 +148,9 @@ fun MainContentPreview() {
             uiElapsedTimeState = 0L,
             onCameraLoc = {},
             onCameraCar = {},
-            onSpotSelected = {},
+            onCameraCarLoc = {},
+            onCameraTilt = {},
+            onSpot = {},
         )
     }
 }

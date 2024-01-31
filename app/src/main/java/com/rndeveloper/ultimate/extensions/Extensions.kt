@@ -2,8 +2,10 @@ package com.rndeveloper.ultimate.extensions
 
 import android.annotation.SuppressLint
 import android.app.PendingIntent
+import android.content.Context
+import android.content.ContextWrapper
 import android.os.Build
-import android.text.format.DateUtils
+import androidx.activity.ComponentActivity
 import org.ocpsoft.prettytime.PrettyTime
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -17,19 +19,20 @@ fun Int.fixApi31(): Int {
     }
 }
 
+fun Context.findActivity(): ComponentActivity? = when (this) {
+    is ComponentActivity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
+}
+
+
+
+
 //FIXME: THIS
-
-fun Long.toTime(): String = DateUtils.formatElapsedTime(this.div(1000))
-
-
-fun Long.getFormattedTime(): String =
-    SimpleDateFormat("HH:mm:ss\ndd-MM-yyyy", Locale.getDefault()).format(this)
-
 @SuppressLint("SimpleDateFormat")
 fun Long.getFormattedPrettyTime(): String {
-
-    val inputFormat = SimpleDateFormat("HH:mm:ss\ndd-MM-yyyy")
-    val date: Date? = inputFormat.parse(this.getFormattedTime())
+    val format = SimpleDateFormat("HH:mm:ss\ndd-MM-yyyy", Locale.getDefault())
+    val date: Date? = format.parse(format.format(this))
     val prettyTime = PrettyTime(Locale.getDefault())
     return prettyTime.format(date)
 }

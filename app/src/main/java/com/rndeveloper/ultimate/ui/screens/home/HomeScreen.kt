@@ -10,11 +10,17 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -24,15 +30,22 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.rndeveloper.ultimate.model.Position
 import com.rndeveloper.ultimate.model.Spot
 import com.rndeveloper.ultimate.ui.screens.home.components.BottomBarContent
 import com.rndeveloper.ultimate.ui.screens.home.components.DrawerHeaderContent
 import com.rndeveloper.ultimate.ui.screens.home.components.MainContent
 import com.rndeveloper.ultimate.ui.screens.home.components.SheetContent
+import com.rndeveloper.ultimate.ui.screens.home.uistates.DirectionsUiState
+import com.rndeveloper.ultimate.ui.screens.home.uistates.SpotsUiState
+import com.rndeveloper.ultimate.ui.screens.home.uistates.UserUiState
 import com.rndeveloper.ultimate.ui.theme.UltimateTheme
+import com.rndeveloper.ultimate.utils.Constants.DEFAULT_ELAPSED_TIME
 import com.rndeveloper.ultimate.utils.Constants.SPOTS_TIMER
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,18 +65,20 @@ fun HomeScreen(
         uiSpotsState = uiSpotsState,
         uiElapsedTimeState = uiElapsedTimeState,
         uiDirectionsState = uiDirectionsState,
+//        onGetLocationData = homeViewModel::onGetLocationData,
         onSet = homeViewModel::onSet,
         onRemoveSpot = homeViewModel::onRemoveSpot,
         onStartTimer = { homeViewModel.onSaveGetStartTimer(SPOTS_TIMER) },
-        onSpotSelected = homeViewModel::onSpotSelected,
         onGetAddressLine = homeViewModel::onGetAddressLine,
         onCameraLoc = homeViewModel::onCameraLoc,
         onCameraCar = homeViewModel::onCameraCar,
+        onCameraCarLoc = homeViewModel::onCameraCarLoc,
+        onCameraTilt = homeViewModel::onCameraTilt,
         onCameraSpot = homeViewModel::onCameraSpot,
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 private fun HomeContent(
     rememberHomeUiContainerState: HomeUiContainerState,
@@ -71,51 +86,81 @@ private fun HomeContent(
     uiSpotsState: SpotsUiState,
     uiElapsedTimeState: Long,
     uiDirectionsState: DirectionsUiState,
+//    onGetLocationData: suspend (CameraPositionState) -> Unit,
     onSet: (CameraPositionState, ScreenState) -> Unit,
     onRemoveSpot: (Spot) -> Unit,
     onStartTimer: () -> Unit,
-    onSpotSelected: (String) -> Unit,
-    onGetAddressLine: (CameraPositionState) -> Unit,
+    onGetAddressLine: (CameraPositionState, ScreenState, Boolean, Boolean, () -> Unit) -> Unit,
     onCameraLoc: (CameraPositionState) -> Unit,
     onCameraCar: (CameraPositionState) -> Unit,
-    onCameraSpot: (CameraPositionState, () -> Unit) -> Unit,
+    onCameraCarLoc: (CameraPositionState) -> Unit,
+    onCameraTilt: (CameraPositionState) -> Unit,
+    onCameraSpot: (CameraPositionState, Position) -> Unit,
 ) {
 
 //    animateCamera when launch on first time
-//    var isFirstLaunch by rememberSaveable { mutableStateOf(true) }
 
     val camPosState: CameraPositionState = rememberCameraPositionState()
-    val isMoving by remember { derivedStateOf { camPosState.isMoving } }
+    var isFirstLaunch by rememberSaveable { mutableStateOf(true) }
+    val scope = rememberCoroutineScope()
+    val snackBarHostState = remember { SnackbarHostState() }
+
+    var isLocationPermissionGranted by rememberSaveable { mutableStateOf(true) }
+
+//    val launcher =
+//        rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission(), onResult = { isGranted ->
+//            if (isGranted) {
+//                isLocationPermissionGranted = true
+//            }
+//        })
+//
+
+    var spotSelected by rememberSaveable { mutableStateOf(uiSpotsState.spots.firstOrNull()) }
+
 
     LaunchedEffect(Unit) {
-        snapshotFlow { !isMoving }.collect { _ ->
-            onGetAddressLine(camPosState)
+        snapshotFlow {
+            !camPosState.isMoving/* && camPosState.cameraMoveStartedReason == CameraMoveStartedReason.GESTURE*/ || isFirstLaunch
+        }.collect { doLoad ->
+            onGetAddressLine(camPosState, rememberHomeUiContainerState.screenState, doLoad, isFirstLaunch) {
+                isFirstLaunch = false
+            }
         }
     }
 
-//    LaunchedEffect(uiSpotsState.selectedSpot) {
-//        if (/*uiElapsedTimeState > DEFAULT_ELAPSED_TIME && */uiSpotsState.selectedSpot != null) {
-//
-//            onCameraSpot(camPosState) {
-//                rememberHomeUiContainerState.scrollState.animateScrollToItem(
-//                    index = uiSpotsState.spots.indexOf(uiSpotsState.selectedSpot)
-//                )
-//            }
-//        }
-//    }
-//
-//    LaunchedEffect(key1 = uiElapsedTimeState > DEFAULT_ELAPSED_TIME) {
-//        if (uiElapsedTimeState > DEFAULT_ELAPSED_TIME) {
-//            rememberHomeUiContainerState.bsScaffoldState.bottomSheetState.expand()
-//        }
-//    }
+    if (!uiUserState.errorMessage?.error.isNullOrBlank()) {
+        LaunchedEffect(uiUserState.errorMessage) {
+            snackBarHostState.showSnackbar(
+                uiSpotsState.errorMessage!!.error,
+                "Close",
+                true,
+                SnackbarDuration.Long,
+            )
+        }
+    }
 
+    if (!uiSpotsState.errorMessage?.error.isNullOrBlank()) {
+        LaunchedEffect(uiSpotsState.errorMessage) {
+            snackBarHostState.showSnackbar(
+                uiSpotsState.errorMessage!!.error,
+                "Close",
+                true,
+                SnackbarDuration.Long,
+            )
+        }
+    }
+
+    LaunchedEffect(key1 = uiElapsedTimeState > DEFAULT_ELAPSED_TIME) {
+        if (uiElapsedTimeState > DEFAULT_ELAPSED_TIME) {
+            rememberHomeUiContainerState.bsScaffoldState.bottomSheetState.expand()
+        }
+    }
 
     ModalNavigationDrawer(
         drawerState = rememberHomeUiContainerState.drawerState,
         modifier = Modifier.alpha(
             when (uiUserState.isLoading) {
-                true -> 0.4f
+                true -> 0.7f
                 false -> 1f
             },
         ),
@@ -134,7 +179,8 @@ private fun HomeContent(
                     onStartTimer = onStartTimer,
                     onSet = { onSet(camPosState, rememberHomeUiContainerState.screenState) }
                 )
-            }
+            },
+            snackbarHost = { SnackbarHost(snackBarHostState) }
         ) { contentPadding ->
             Box(modifier = Modifier.padding(contentPadding)) {
                 BottomSheetScaffold(
@@ -143,8 +189,14 @@ private fun HomeContent(
                             rememberHomeUiContainerState = rememberHomeUiContainerState,
                             uiSpotsState = uiSpotsState,
                             uiDirectionsState = uiDirectionsState,
+                            spotDefault = spotSelected,
                             onExpand = {},
-                            onSpotSelected = onSpotSelected,
+                            onSpot = { spot ->
+                                spotSelected = uiSpotsState.spots.find {
+                                    it.tag == spot.tag
+                                } ?: uiSpotsState.spots.firstOrNull()
+                                spotSelected?.let { onCameraSpot(camPosState, it.position) }
+                            },
                             onRemoveSpot = onRemoveSpot
                         )
                     },
@@ -163,7 +215,17 @@ private fun HomeContent(
                         uiElapsedTimeState = uiElapsedTimeState,
                         onCameraLoc = { onCameraLoc(camPosState) },
                         onCameraCar = { onCameraCar(camPosState) },
-                        onSpotSelected = onSpotSelected,
+                        onCameraCarLoc = { onCameraCarLoc(camPosState) },
+                        onCameraTilt = { onCameraTilt(camPosState) },
+                        onSpot = { tag ->
+                            spotSelected = uiSpotsState.spots.find {
+                                it.tag == tag
+                            } ?: uiSpotsState.spots.firstOrNull()
+                            scope.launch {
+                                rememberHomeUiContainerState.scrollState.animateScrollToItem(index = uiSpotsState.spots.indexOf(spotSelected))
+                            }
+
+                        },
                         modifier = Modifier.height(
                             (rememberHomeUiContainerState.bsScaffoldState.bottomSheetState.requireOffset() / LocalContext.current.resources.displayMetrics.density).dp
                         )

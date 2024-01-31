@@ -12,12 +12,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rndeveloper.ultimate.model.Spot
-import com.rndeveloper.ultimate.ui.screens.home.DirectionsUiState
 import com.rndeveloper.ultimate.ui.screens.home.HomeUiContainerState
-import com.rndeveloper.ultimate.ui.screens.home.SpotsUiState
 import com.rndeveloper.ultimate.ui.screens.home.components.subcomponents.CountContent
 import com.rndeveloper.ultimate.ui.screens.home.components.subcomponents.ItemContent
 import com.rndeveloper.ultimate.ui.screens.home.rememberHomeUiContainerState
+import com.rndeveloper.ultimate.ui.screens.home.uistates.DirectionsUiState
+import com.rndeveloper.ultimate.ui.screens.home.uistates.SpotsUiState
 import com.rndeveloper.ultimate.ui.theme.UltimateTheme
 
 @Composable
@@ -25,8 +25,9 @@ fun SheetContent(
     rememberHomeUiContainerState: HomeUiContainerState,
     uiSpotsState: SpotsUiState,
     uiDirectionsState: DirectionsUiState,
+    spotDefault: Spot?,
     onExpand: () -> Unit,
-    onSpotSelected: (String) -> Unit,
+    onSpot: (Spot) -> Unit,
     onRemoveSpot: (Spot) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -48,8 +49,8 @@ fun SheetContent(
             items(items = uiSpotsState.spots, key = { i -> i.tag }) { spot ->
                 ItemContent(
                     spot = spot,
-                    selectedSpot = uiSpotsState.selectedSpot,
-                    onSpotSelected = { onSpotSelected(spot.tag) },
+                    selectedSpot = spotDefault,
+                    onSpotItem = { onSpot(spot) },
                     onRemoveSpot = { onRemoveSpot(spot) }
                 )
             }
@@ -70,8 +71,9 @@ fun SheetContentPreview() {
             rememberHomeUiContainerState = rememberHomeUiContainerState(),
             uiSpotsState = SpotsUiState(),
             uiDirectionsState = DirectionsUiState(),
+            spotDefault = null,
             onExpand = { /*TODO*/ },
-            onSpotSelected = {},
+            onSpot = {},
             onRemoveSpot = {}
         )
     }

@@ -77,12 +77,7 @@ class ActivityTransitionRepoImpl @Inject constructor(
         val task = activityRecognitionClient
             .requestActivityTransitionUpdates(request, activityTransitionPendingIntent(user))
 
-        task.addOnSuccessListener {
-            // Handle success
-            Toast.makeText(appContext, "success, $it", Toast.LENGTH_SHORT).show()
-
-
-        }
+        task.addOnSuccessListener {}
 
         task.addOnFailureListener { e: Exception ->
             // Handle error

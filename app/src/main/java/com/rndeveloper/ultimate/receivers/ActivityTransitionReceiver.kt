@@ -26,6 +26,7 @@ import com.rndeveloper.ultimate.repositories.UserRepository
 import com.rndeveloper.ultimate.usecases.spots.SetSpotUseCase
 import com.rndeveloper.ultimate.usecases.user.GetUserDataUseCase
 import com.rndeveloper.ultimate.utils.Constants.ACT_CHANNEL_ID
+import com.rndeveloper.ultimate.utils.Constants.AREA_COLLECTION_REFERENCE
 import com.rndeveloper.ultimate.utils.Constants.NOTIFICATION_ID
 import com.rndeveloper.ultimate.utils.Utils
 import dagger.hilt.android.AndroidEntryPoint
@@ -170,7 +171,7 @@ class ActivityTransitionReceiver : HiltActivityTransitionReceiver() {
                         user = user
                     ).let { spot ->
                         GlobalScope.launch {
-                            setSpotsUseCase(spot).collectLatest {
+                            setSpotsUseCase(AREA_COLLECTION_REFERENCE to spot).collectLatest {
                                 //                                        TODO: Send Notification
                                 sendNotification(
                                     context = context,

@@ -48,6 +48,7 @@ fun ButtonsMapContent(
     onCameraTilt: () -> Unit,
     onCameraLocation: () -> Unit,
     onCameraMyCar: () -> Unit,
+    onCameraCarLoc: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
 
@@ -120,7 +121,7 @@ fun ButtonsMapContent(
         ) {
             FloatingActionButton(
                 modifier = modifier.size(40.dp),
-                onClick = onCameraMyCar,
+                onClick = onCameraCarLoc,
                 containerColor = surfaceColor
 
             ) {
@@ -141,7 +142,6 @@ fun ButtonsMapContent(
                     modifier = modifier.size(40.dp),
                     onClick = onCameraMyCar,
                     containerColor = surfaceColor
-
                 ) {
                     Row {
                         AnimatedVisibility(visible = car == null) {
@@ -259,6 +259,7 @@ fun ButtonsMapContentPreview() {
             onCameraTilt = { /*TODO*/ },
             onCameraLocation = { /*TODO*/ },
             onCameraMyCar = {},
+            onCameraCarLoc = { },
         )
     }
 }

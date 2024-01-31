@@ -2,7 +2,7 @@ package com.rndeveloper.ultimate.usecases
 
 import com.google.android.gms.maps.model.LatLng
 import com.rndeveloper.ultimate.repositories.GeocoderRepository
-import com.rndeveloper.ultimate.ui.screens.home.DirectionsUiState
+import com.rndeveloper.ultimate.ui.screens.home.uistates.DirectionsUiState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import javax.inject.Inject

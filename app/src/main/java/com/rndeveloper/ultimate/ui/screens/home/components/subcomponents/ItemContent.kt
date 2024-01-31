@@ -43,7 +43,7 @@ import com.rndeveloper.ultimate.model.Spot
 fun ItemContent(
     spot: Spot,
     selectedSpot: Spot?,
-    onSpotSelected: () -> Unit,
+    onSpotItem: () -> Unit,
     onRemoveSpot: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -62,7 +62,7 @@ fun ItemContent(
         modifier = modifier
             .fillMaxWidth()
             .padding(2.dp)
-            .clickable { onSpotSelected() },
+            .clickable { onSpotItem() },
         color = surfaceColor,
         border = BorderStroke(color = surfaceColor, width = 0.7.dp),
     ) {
@@ -89,10 +89,9 @@ fun ItemContent(
 //                    tint = spotColor
 //                )
 
-                Text(text = "12m")
+                Text(text = spot.distance)
 
-//                FIXME: Hay que pone estas fun de ext en el snapshot del repo pa q se actualice automaticamente
-                Text(text = spot.timestamp.getFormattedPrettyTime(), fontWeight = FontWeight.Bold)
+                Text(text = spot.timestamp.getFormattedPrettyTime(), fontWeight = FontWeight.Bold, color = spot.color)
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
 

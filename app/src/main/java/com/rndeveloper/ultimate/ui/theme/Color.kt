@@ -69,9 +69,13 @@ val seed = Color(0xFF006591)
 val circle_green = Color(0x2600FF19)
 
 // Time colors
-val green_time_spot = Color(0xFF31D672)
+//val green_time_spot = Color(0xFF31D672)
 val blue_time_spot = Color(0xFF31A2D6)
 
 // Custom icons color
-val red_place_icon = Color(0xFFD63152)
+val red_place_icon = Color(0x80D63152)
 
+val green_place_icon = Color(0x800CD596)
+val yellow_place_icon = Color(0x80F8CF53)
+//val red_place_icon = Color(0xFFEA5D44)
+val blue_place_icon = Color(0x8070DEFF)
