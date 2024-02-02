@@ -1,7 +1,6 @@
 package com.rndeveloper.ultimate.ui.screens.home
 
 import android.os.CountDownTimer
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -19,6 +18,7 @@ import com.rndeveloper.ultimate.repositories.GeocoderRepository
 import com.rndeveloper.ultimate.repositories.LocationClient
 import com.rndeveloper.ultimate.repositories.TimerRepository
 import com.rndeveloper.ultimate.repositories.UserRepository
+import com.rndeveloper.ultimate.ui.screens.home.uistates.AreasUiState
 import com.rndeveloper.ultimate.ui.screens.home.uistates.DirectionsUiState
 import com.rndeveloper.ultimate.ui.screens.home.uistates.LocationUiState
 import com.rndeveloper.ultimate.ui.screens.home.uistates.SpotsUiState
@@ -26,6 +26,7 @@ import com.rndeveloper.ultimate.ui.screens.home.uistates.UserUiState
 import com.rndeveloper.ultimate.usecases.spots.SpotsUseCases
 import com.rndeveloper.ultimate.usecases.user.UserUseCases
 import com.rndeveloper.ultimate.utils.Constants
+import com.rndeveloper.ultimate.utils.Constants.AREA_COLLECTION_REFERENCE
 import com.rndeveloper.ultimate.utils.Constants.DEFAULT_ELAPSED_TIME
 import com.rndeveloper.ultimate.utils.Constants.INTERVAL
 import com.rndeveloper.ultimate.utils.Constants.ITEM_COLLECTION_REFERENCE
@@ -71,6 +72,13 @@ class HomeViewModel @Inject constructor(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
         initialValue = SpotsUiState()
+    )
+
+    private val _areasState = MutableStateFlow(AreasUiState())
+    val uiAreasState: StateFlow<AreasUiState> = _areasState.asStateFlow().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = AreasUiState()
     )
 
     private val _elapsedTimeState = MutableStateFlow(0L)
@@ -170,7 +178,7 @@ class HomeViewModel @Inject constructor(
 //                            it1.lat, it1.lng, distance
 //                        )
 //                    }
-//                    spot.copy(distance = distance[0])
+//                    spot.copy(distance = "${distance[0].toInt()}m")
 //                })
 //            }
             _locationState.update {
@@ -190,6 +198,10 @@ class HomeViewModel @Inject constructor(
         onFirstLaunch: () -> Unit
     ) {
 
+        _spotsState.update {
+            it.copy(isLoading = true)
+        }
+
         if (doLoad || isFirstLaunch) {
 
             val currentPosition = Position(
@@ -199,11 +211,7 @@ class HomeViewModel @Inject constructor(
 
             geocoderRepository.getAddressList(LatLng(currentPosition.lat, currentPosition.lng)) { directions ->
                 if (screenState == ScreenState.MAIN) {
-                    _spotsState.update {
-                        it.copy(isLoading = true)
-                    }
-                    onGetSpots(collectionRef = ITEM_COLLECTION_REFERENCE, position = currentPosition, directions = directions)
-//                    onGetSpots(collectionRef = AREA_COLLECTION_REFERENCE, position = currentPosition, directions = directions)
+                    onGetSpots(position = currentPosition, directions = directions)
                 }
                 _directionsState.update {
                     it.copy(directions = directions)
@@ -217,67 +225,105 @@ class HomeViewModel @Inject constructor(
 
     //    GET SPOTS
     private fun onGetSpots(
-        collectionRef: String,
         position: Position,
         directions: Directions
     ) = viewModelScope.launch(Dispatchers.IO) {
-
         _locationState.value.location?.let { locPosition ->
-            spotsUseCases.getSpotsUseCase(
-                Triple(
-                    collectionRef,
-                    directions,
-                    position to locPosition,
-                )
-            ).collectLatest { newSpotsUiState ->
-                _spotsState.update {
-                    Log.d("Spots updates", "onGetSpots: size _spotsState ${_spotsState.value.spots.size}")
-                    newSpotsUiState
-                }
+            awaitAll(
+                async { getSpotsFlow(directions, position, locPosition) },
+                async { getAreasFlow(directions, position, locPosition) },
+            )
+        }
+    }
+
+    private suspend fun getSpotsFlow(
+        directions: Directions,
+        position: Position,
+        locPosition: Position
+    ) {
+        spotsUseCases.getSpotsUseCase(
+            Triple(
+                ITEM_COLLECTION_REFERENCE,
+                directions,
+                position to locPosition,
+            )
+        ).collectLatest { newSpotsUiState ->
+            _spotsState.update {
+                newSpotsUiState
+            }
+        }
+    }
+
+    private suspend fun getAreasFlow(
+        directions: Directions,
+        position: Position,
+        locPosition: Position
+    ) {
+        spotsUseCases.getAreasUseCase(
+            Triple(
+                AREA_COLLECTION_REFERENCE,
+                directions,
+                position to locPosition,
+            )
+        ).collectLatest { newSpotsUiState ->
+            _areasState.update {
+                newSpotsUiState
             }
         }
     }
 
     //    SET SPOT
-    fun onSet(camPosState: CameraPositionState, screenState: ScreenState) = viewModelScope.launch {
-        if (!camPosState.isMoving && camPosState.position.zoom > 12f) {
+    fun onSet(camPosState: CameraPositionState, screenState: ScreenState, onMainState: () -> Unit) =
+        viewModelScope.launch {
+            if (!camPosState.isMoving && camPosState.position.zoom > 12f) {
 
-            val currentPosition = Position(
-                camPosState.position.target.latitude,
-                camPosState.position.target.longitude
-            )
+//            _spotsState.update {
+//                it.copy(isLoading = true)
+//            }
 
-            when (screenState) {
-                ScreenState.ADDSPOT -> {
-                    Spot().copy(
-                        timestamp = currentTime(),
-                        type = SpotType.BLUE,
-                        directions = _directionsState.value.directions,
-                        position = currentPosition,
-                        user = _userState.value.user
-                    ).let { spot ->
-                        spotsUseCases.setSpotUseCase(ITEM_COLLECTION_REFERENCE to spot)
-                    }.collectLatest { newHomeUiState ->
-                        _spotsState.update {
-                            it
+                val currentPosition = Position(
+                    camPosState.position.target.latitude,
+                    camPosState.position.target.longitude
+                )
+
+
+//            FIXME: HANDLER THIS
+
+                when (screenState) {
+                    ScreenState.ADDSPOT -> {
+
+                        Spot().copy(
+                            timestamp = currentTime(),
+                            type = SpotType.BLUE,
+                            directions = _directionsState.value.directions,
+                            position = currentPosition,
+                            user = _userState.value.user
+                        ).let { spot ->
+                            spotsUseCases.setSpotUseCase(ITEM_COLLECTION_REFERENCE to spot)
+                        }.collectLatest { newHomeUiState ->
+                            onMainState()
+                            _spotsState.update {
+                                it.copy(errorMessage = newHomeUiState.errorMessage)
+                            }
                         }
                     }
-                }
 
-                ScreenState.PARKMYCAR -> {
-                    _userState.value.user.copy(car = currentPosition).let { user ->
-                        userRepository.setUserCar(user)
-                    }.collectLatest { newHomeUiState ->
-                        _userState.update {
-                            it
+                    ScreenState.PARKMYCAR -> {
+
+                        _userState.value.user.copy(car = currentPosition).let { user ->
+                            userRepository.setUserCar(user)
+                        }.collectLatest { newHomeUiState ->
+                            onMainState()
+                            _userState.update {
+                                it
+                            }
                         }
                     }
-                }
 
-                else -> {}
+                    else -> {}
+                }
             }
         }
-    }
 
     fun onRemoveSpot(spot: Spot) = viewModelScope.launch {
         spotsUseCases.removeSpotUseCase(spot).collectLatest { newHomeUiState ->
@@ -287,28 +333,33 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+
+//ON CAMERA ANIMATE
+
+    private fun onCamera(
+        cameraPositionState: CameraPositionState,
+        latLng: LatLng = cameraPositionState.position.target,
+        zoom: Float = 15f,
+        tilt: Float = cameraPositionState.position.tilt
+    ) = viewModelScope.launch {
+        cameraPositionState.animate(
+            CameraUpdateFactory.newCameraPosition(
+                CameraPosition(latLng, zoom, tilt, 0f)
+            )
+        )
+    }
+
     fun onCameraLoc(cameraPositionState: CameraPositionState) {
         _locationState.value.location?.let { position ->
-            viewModelScope.launch {
-                onCamera(cameraPositionState, LatLng(position.lat, position.lng))
-            }
+            onCamera(cameraPositionState, LatLng(position.lat, position.lng))
         }
     }
 
     fun onCameraCar(cameraPositionState: CameraPositionState) {
         _userState.value.user.car?.let { position ->
-            viewModelScope.launch {
-                onCamera(cameraPositionState, LatLng(position.lat, position.lng), 0f)
-            }
+            onCamera(cameraPositionState, LatLng(position.lat, position.lng))
         }
     }
-
-    fun onCameraSpot(cameraPositionState: CameraPositionState, position: Position) {
-        viewModelScope.launch {
-            onCamera(cameraPositionState, LatLng(position.lat, position.lng), 0f)
-        }
-    }
-
 
     fun onCameraTilt(cameraPositionState: CameraPositionState) {
 //      FIXME:  Handle this correctly
@@ -317,18 +368,6 @@ class HomeViewModel @Inject constructor(
             cameraPositionState = cameraPositionState,
             latLng = cameraPositionState.position.target,
             tilt = if (isTilt) 90f else 0f
-        )
-    }
-
-    private fun onCamera(
-        cameraPositionState: CameraPositionState,
-        latLng: LatLng,
-        tilt: Float = cameraPositionState.position.tilt
-    ) = viewModelScope.launch {
-        cameraPositionState.animate(
-            CameraUpdateFactory.newCameraPosition(
-                CameraPosition(latLng, 16f, tilt, 0f)
-            )
         )
     }
 
@@ -346,7 +385,13 @@ class HomeViewModel @Inject constructor(
             )
         }
     }
+
+    fun onCameraSpot(cameraPositionState: CameraPositionState, position: Position) {
+        onCamera(cameraPositionState, LatLng(position.lat, position.lng))
+    }
+
+    fun onCameraZoom(cameraPositionState: CameraPositionState, zoom: Float) {
+        onCamera(cameraPositionState = cameraPositionState, zoom = zoom)
+    }
 }
-
-
 

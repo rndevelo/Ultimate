@@ -33,6 +33,7 @@ import com.rndeveloper.ultimate.usecases.login.LoginUseCases
 import com.rndeveloper.ultimate.usecases.login.LoginWithGoogleUseCase
 import com.rndeveloper.ultimate.usecases.login.RecoverPassUseCase
 import com.rndeveloper.ultimate.usecases.login.RegisterUseCase
+import com.rndeveloper.ultimate.usecases.spots.GetAreasUseCase
 import com.rndeveloper.ultimate.usecases.spots.GetSpotsUseCase
 import com.rndeveloper.ultimate.usecases.spots.RemoveSpotUseCase
 import com.rndeveloper.ultimate.usecases.spots.SetSpotUseCase
@@ -124,15 +125,14 @@ object ApplicationModule {
     @Provides
     fun provideUserUseCases(
         repo: UserRepository
-    ) = UserUseCases(
-        getUserDataUseCase = GetUserDataUseCase(repo),
-    )
+    ) = UserUseCases(getUserDataUseCase = GetUserDataUseCase(repo))
 
     @Provides
     fun provideSpotUseCases(
         repo: SpotRepository
     ) = SpotsUseCases(
         getSpotsUseCase = GetSpotsUseCase(repo),
+        getAreasUseCase = GetAreasUseCase(repo),
         setSpotUseCase = SetSpotUseCase(repo),
         removeSpotUseCase = RemoveSpotUseCase(repo)
     )

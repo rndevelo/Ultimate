@@ -33,10 +33,15 @@ import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.rndeveloper.ultimate.model.MenuItem
+import com.rndeveloper.ultimate.nav.Routes
 import com.rndeveloper.ultimate.ui.screens.home.uistates.UserUiState
 
 @Composable
-fun DrawerHeaderContent(uiUserState: UserUiState, modifier: Modifier = Modifier) {
+fun DrawerHeaderContent(
+    uiUserState: UserUiState,
+    onNavigate: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
 
     Column {
         Row(
@@ -70,7 +75,7 @@ fun DrawerHeaderContent(uiUserState: UserUiState, modifier: Modifier = Modifier)
         }
         Divider(modifier = modifier.padding(horizontal = 15.dp))
         DrawerMenuItemContent(
-            navigateToHistoryScreen = { /*TODO*/ },
+            navigateToHistoryScreen = { onNavigate(Routes.HistoryScreen.route) },
             navigateToAccountScreen = { /*TODO*/ },
             uid = uiUserState.user.uid
         )
@@ -89,10 +94,10 @@ fun DrawerMenuItemContent(
             MenuItem(
 //                id = 0,
                 title = "Historial",
-//                contentDescription = "Go to home screen",
+//                contentDescription = "Go to history screen",
                 icon = Icons.Default.History,
 //                color = Blue500,
-                unit = { navigateToHistoryScreen() }
+                unit = navigateToHistoryScreen
             ),
             MenuItem(
 //                id = 1,

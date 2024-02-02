@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -206,9 +205,6 @@ private fun GoogleButtonContent(isLoading: Boolean) {
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(text = if (isLoading) "Signing in..." else "Sign in with Google")
-        if (isLoading) {
-            CircularProgressIndicator(modifier = Modifier.padding(horizontal = 8.dp))
-        }
     }
 }
 

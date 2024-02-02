@@ -37,6 +37,7 @@ fun GoogleMapContent(
     camPosState: CameraPositionState,
     car: Position?,
     spots: List<Spot>,
+    areas: List<Spot>,
     onMapLoaded: () -> Unit,
     isElapsedTime: Boolean,
     mapType: MapType,
@@ -51,15 +52,6 @@ fun GoogleMapContent(
     } else {
         MapStyleOptions(MapStyle.jsonWithoutPoi)
     }
-
-////    val spotsList by remember { mutableStateOf(spots) }
-//
-//    val aa = cameraPos.projection?.toScreenLocation(cameraPos.position.target)
-//
-//    Log.d(
-//        "DEBUG MAP",
-//        "GoogleMapContent: ${cameraPos.projection?.toScreenLocation(cameraPos.position.target)}"
-//    )
 
     GoogleMap(
         modifier = modifier.clip(RoundedCornerShape(bottomStartPercent = 5, bottomEndPercent = 5)),
@@ -91,18 +83,6 @@ fun GoogleMapContent(
         }
 
         spots.forEach { spot ->
-
-            Circle(
-                center = LatLng(spot.position.lat, spot.position.lng),
-                fillColor = circle_green,
-                radius = 50.0,
-                strokeColor = Color.Transparent,
-                tag = spot.tag,
-                onClick = { circle ->
-                    onSpot(circle.tag as String)
-                }
-            )
-
             Marker(
                 state = MarkerState(position = LatLng(spot.position.lat, spot.position.lng)),
                 tag = spot.tag,
@@ -110,10 +90,23 @@ fun GoogleMapContent(
                     context = context,
                     id = R.drawable.ic_spot_marker
                 ),
-//                visible = isElapsedTime,
+                visible = isElapsedTime,
                 onClick = { marker ->
-//                    onSpotSelected(marker.tag as String)
-                    true
+                    onSpot(marker.tag as String)
+                    false
+                }
+            )
+        }
+
+        areas.forEach { area ->
+            Circle(
+                center = LatLng(area.position.lat, area.position.lng),
+                fillColor = circle_green,
+                radius = 50.0,
+                strokeColor = Color.Transparent,
+                tag = area.tag,
+                onClick = { circle ->
+                    onSpot(circle.tag as String)
                 }
             )
         }
@@ -130,6 +123,7 @@ fun GoogleMapContentPreview() {
             camPosState = rememberCameraPositionState(),
             car = Position(),
             spots = emptyList(),
+            areas = emptyList(),
             onMapLoaded = {},
             isElapsedTime = false,
             mapType = MapType.NORMAL,

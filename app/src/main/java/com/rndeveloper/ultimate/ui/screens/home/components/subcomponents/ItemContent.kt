@@ -33,11 +33,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.model.LatLng
 import com.rndeveloper.ultimate.extensions.getFormattedPrettyTime
 import com.rndeveloper.ultimate.model.Spot
+import com.rndeveloper.ultimate.ui.theme.UltimateTheme
 
 @Composable
 fun ItemContent(
@@ -104,10 +106,11 @@ fun ItemContent(
 
                     FilledIconButton(
                         onClick = {
-                            goNavigate(
-                                latLng = LatLng(spot.position.lat, spot.position.lng),
-                                context = context
-                            )
+                            onRemoveSpot()
+//                            goNavigate(
+//                                latLng = LatLng(spot.position.lat, spot.position.lng),
+//                                context = context
+//                            )
                         },
                     ) {
                         Icon(
@@ -124,7 +127,7 @@ fun ItemContent(
                     maxLines = 3,
                     style = MaterialTheme.typography.labelLarge
                 )
-//                Text(text = "por ${spot.user.username}")
+                Text(text = "por ${spot.user.username}")
             }
         }
     }
@@ -138,5 +141,18 @@ private fun goNavigate(latLng: LatLng?, context: Context) {
         val mapIntent = Intent(Intent.ACTION_VIEW, navigationIntentUri)
         mapIntent.setPackage("com.google.android.apps.maps")
         ContextCompat.startActivity(context, mapIntent, null)
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ItemContentPreview() {
+    UltimateTheme {
+        ItemContent(
+            spot = Spot(),
+            selectedSpot = Spot(),
+            onSpotItem = { /*TODO*/ },
+            onRemoveSpot = { /*TODO*/ }
+        )
     }
 }

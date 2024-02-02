@@ -16,6 +16,7 @@ import com.rndeveloper.ultimate.ui.screens.home.HomeUiContainerState
 import com.rndeveloper.ultimate.ui.screens.home.components.subcomponents.CountContent
 import com.rndeveloper.ultimate.ui.screens.home.components.subcomponents.ItemContent
 import com.rndeveloper.ultimate.ui.screens.home.rememberHomeUiContainerState
+import com.rndeveloper.ultimate.ui.screens.home.uistates.AreasUiState
 import com.rndeveloper.ultimate.ui.screens.home.uistates.DirectionsUiState
 import com.rndeveloper.ultimate.ui.screens.home.uistates.SpotsUiState
 import com.rndeveloper.ultimate.ui.theme.UltimateTheme
@@ -24,6 +25,7 @@ import com.rndeveloper.ultimate.ui.theme.UltimateTheme
 fun SheetContent(
     rememberHomeUiContainerState: HomeUiContainerState,
     uiSpotsState: SpotsUiState,
+    uiAreasState: AreasUiState,
     uiDirectionsState: DirectionsUiState,
     spotDefault: Spot?,
     onExpand: () -> Unit,
@@ -36,6 +38,7 @@ fun SheetContent(
         CountContent(
             screenState = rememberHomeUiContainerState.screenState,
             uiSpotsState = uiSpotsState,
+            uiAreasState = uiAreasState,
             uiDirectionsState = uiDirectionsState,
             onExpand = onExpand
         )
@@ -46,7 +49,7 @@ fun SheetContent(
                 .heightIn(max = 200.dp),
             state = rememberHomeUiContainerState.scrollState
         ) {
-            items(items = uiSpotsState.spots, key = { i -> i.tag }) { spot ->
+            items(items = uiSpotsState.spots + uiAreasState.areas, key = { i -> i.tag }) { spot ->
                 ItemContent(
                     spot = spot,
                     selectedSpot = spotDefault,
@@ -56,9 +59,6 @@ fun SheetContent(
             }
         }
         Divider()
-//        AnimatedVisibility(homeUiState.elapsedTime > 0 && !isAddPanelState) {
-//
-//        }
     }
 }
 
@@ -70,9 +70,10 @@ fun SheetContentPreview() {
         SheetContent(
             rememberHomeUiContainerState = rememberHomeUiContainerState(),
             uiSpotsState = SpotsUiState(),
+            uiAreasState = AreasUiState(),
             uiDirectionsState = DirectionsUiState(),
             spotDefault = null,
-            onExpand = { /*TODO*/ },
+            onExpand = {},
             onSpot = {},
             onRemoveSpot = {}
         )

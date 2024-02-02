@@ -17,14 +17,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.rndeveloper.ultimate.ui.screens.home.uistates.DirectionsUiState
 import com.rndeveloper.ultimate.ui.screens.home.ScreenState
+import com.rndeveloper.ultimate.ui.screens.home.uistates.AreasUiState
+import com.rndeveloper.ultimate.ui.screens.home.uistates.DirectionsUiState
 import com.rndeveloper.ultimate.ui.screens.home.uistates.SpotsUiState
 
 @Composable
 fun CountContent(
     screenState: ScreenState,
     uiSpotsState: SpotsUiState,
+    uiAreasState: AreasUiState,
     uiDirectionsState: DirectionsUiState,
     onExpand: () -> Unit,
     modifier: Modifier = Modifier
@@ -49,7 +51,7 @@ fun CountContent(
         AnimatedVisibility(uiSpotsState.spots.isNotEmpty()) {
             Text(
                 text = when (screenState) {
-                    ScreenState.MAIN -> "${uiSpotsState.spots.size} spots nearby"
+                    ScreenState.MAIN -> "${uiSpotsState.spots.size} spots nearby ${uiAreasState.areas.size} areas nearby "
                     ScreenState.ADDSPOT -> "Add a new spot"
                     ScreenState.PARKMYCAR -> "Park your car"
                 },
@@ -72,6 +74,7 @@ fun CountContentPreview() {
     CountContent(
         screenState = ScreenState.MAIN,
         uiSpotsState = SpotsUiState(),
+        uiAreasState = AreasUiState(),
         uiDirectionsState = DirectionsUiState(),
         onExpand = {}
     )

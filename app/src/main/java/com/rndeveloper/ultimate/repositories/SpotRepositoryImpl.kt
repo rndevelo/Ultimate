@@ -4,6 +4,7 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.rndeveloper.ultimate.model.Directions
 import com.rndeveloper.ultimate.model.Spot
+import com.rndeveloper.ultimate.utils.Constants.ITEM_COLLECTION_REFERENCE
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -54,12 +55,14 @@ class SpotRepositoryImpl @Inject constructor(
 
         val randomPoints = (2..5).random().toLong()
 
-        fireStore.collection("ITEMS")
+        fireStore.collection(ITEM_COLLECTION_REFERENCE)
             .document(spot.directions.country)
             .collection(spot.directions.area)
             .document(spot.tag)
             .delete()
             .addOnSuccessListener { _ ->
+                trySend(Result.success(true))
+
                 fireStore.collection("USERS").document(spot.user.uid).collection("history")
                     .document().set(spot)
                     .addOnSuccessListener {
@@ -83,8 +86,6 @@ class SpotRepositoryImpl @Inject constructor(
             }
 
         awaitClose()
-
-
     }
 }
 

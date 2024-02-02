@@ -1,9 +1,11 @@
 package com.rndeveloper.ultimate.usecases.spots
 
 import com.rndeveloper.ultimate.exceptions.CustomException
-import com.rndeveloper.ultimate.model.Spot
+import com.rndeveloper.ultimate.extensions.sortItems
+import com.rndeveloper.ultimate.model.Directions
+import com.rndeveloper.ultimate.model.Position
 import com.rndeveloper.ultimate.repositories.SpotRepository
-import com.rndeveloper.ultimate.ui.screens.home.uistates.SpotsUiState
+import com.rndeveloper.ultimate.ui.screens.home.uistates.AreasUiState
 import com.rndeveloper.ultimate.usecases.BaseUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -11,21 +13,20 @@ import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collectLatest
 import javax.inject.Inject
 
-class SetSpotUseCase @Inject constructor(
+class GetAreasUseCase @Inject constructor(
     private val repository: SpotRepository,
-) : BaseUseCase<Pair<String, Spot>, Flow<SpotsUiState>>() {
+) : BaseUseCase<Triple<String, Directions, Pair<Position, Position>>, Flow<AreasUiState>>() {
 
-    override suspend fun execute(parameters: Pair<String, Spot>): Flow<SpotsUiState> =
+    override suspend fun execute(parameters: Triple<String, Directions, Pair<Position, Position>>): Flow<AreasUiState> =
         channelFlow {
 
-            // TODO: Validate fields: email restriction and empty fields validations
-
             // Do login if fields are valid
+            val (collectionRef, directions, positions) = parameters
 
-            repository.setSpot(parameters)
+            repository.getSpots(collectionRef, directions)
                 .catch { exception ->
                     send(
-                        SpotsUiState().copy(
+                        AreasUiState().copy(
                             isLoading = false,
                             errorMessage = CustomException.GenericException(
                                 exception.message ?: "Error to get data"
@@ -35,12 +36,18 @@ class SetSpotUseCase @Inject constructor(
                 }
                 .collectLatest { result ->
                     result.fold(
-                        onSuccess = {
-                            trySend(SpotsUiState().copy(isLoading = false))
+                        onSuccess = { spots ->
+//                            TODO : METER TODA ESTA FUNCIÓN EN UNA LAMBDA
+                            trySend(
+                                AreasUiState().copy(
+                                    areas = spots.sortItems(positions),
+                                    isLoading = false
+                                )
+                            )
                         },
                         onFailure = { exception ->
                             send(
-                                SpotsUiState().copy(
+                                AreasUiState().copy(
                                     isLoading = false,
                                     errorMessage = CustomException.GenericException(
                                         exception.message ?: "Exception, didn't can get data"

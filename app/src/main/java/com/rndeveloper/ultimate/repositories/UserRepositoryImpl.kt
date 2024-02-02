@@ -1,8 +1,8 @@
 package com.rndeveloper.ultimate.repositories
 
-import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.rndeveloper.ultimate.model.Spot
 import com.rndeveloper.ultimate.model.User
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -32,12 +32,34 @@ class UserRepositoryImpl @Inject constructor(
                             Result.success(
                                 userAuthData.copy(
                                     points = user.points,
-                                    car = user.car
+                                    car = user.car,
+//                                    history = user.history
                                 )
                             )
                         )
                     } else {
                         trySend(Result.success(userAuthData))
+                        if (e != null) {
+                            trySend(Result.failure(e.fillInStackTrace()))
+                        }
+                    }
+                }
+        }
+        awaitClose()
+    }
+
+    override fun getHistoryData(): Flow<Result<List<Spot>>> = callbackFlow {
+
+//        FIXME: getAddressList? and getSpots?
+        firebaseAuth.currentUser?.let {
+            fireStore
+                .collection("USERS")
+                .document(it.uid)
+                .collection("history").addSnapshotListener { snapshot, e ->
+                    val items = snapshot?.toObjects(Spot::class.java)
+                    if (items != null) {
+                        trySend(Result.success(items))
+                    } else {
                         if (e != null) {
                             trySend(Result.failure(e.fillInStackTrace()))
                         }
@@ -65,5 +87,6 @@ class UserRepositoryImpl @Inject constructor(
 
 interface UserRepository {
     fun getUserData(): Flow<Result<User>>
+    fun getHistoryData(): Flow<Result<List<Spot>>>
     fun setUserCar(user: User): Flow<Result<Boolean?>>
 }

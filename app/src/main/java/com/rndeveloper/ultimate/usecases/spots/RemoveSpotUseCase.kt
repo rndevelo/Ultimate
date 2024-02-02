@@ -20,9 +20,6 @@ class RemoveSpotUseCase @Inject constructor(
 
             // TODO: Validate fields: email restriction and empty fields validations
 
-            // Loading
-            send(SpotsUiState().copy(isLoading = true))
-
             // Do login if fields are valid
 
             repository.removeSpot(parameters).catch { exception ->

@@ -28,6 +28,6 @@ data class User(
         car = null,
         createdAt = "",
         usertoken = "",
-        userpoints = 0
+        userpoints = 0,
     )
 }

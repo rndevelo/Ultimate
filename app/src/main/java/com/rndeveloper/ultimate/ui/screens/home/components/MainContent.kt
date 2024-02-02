@@ -27,6 +27,7 @@ import com.rndeveloper.ultimate.ui.screens.home.ScreenState
 import com.rndeveloper.ultimate.ui.screens.home.components.subcomponents.ButtonsMapContent
 import com.rndeveloper.ultimate.ui.screens.home.components.subcomponents.GoogleMapContent
 import com.rndeveloper.ultimate.ui.screens.home.rememberHomeUiContainerState
+import com.rndeveloper.ultimate.ui.screens.home.uistates.AreasUiState
 import com.rndeveloper.ultimate.ui.screens.home.uistates.SpotsUiState
 import com.rndeveloper.ultimate.ui.screens.home.uistates.UserUiState
 import com.rndeveloper.ultimate.ui.theme.UltimateTheme
@@ -38,6 +39,7 @@ fun MainContent(
     camPosState: CameraPositionState,
     uiUserState: UserUiState,
     uiSpotsState: SpotsUiState,
+    uiAreasState: AreasUiState,
     uiElapsedTimeState: Long,
     onCameraLoc: () -> Unit,
     onCameraCar: () -> Unit,
@@ -71,6 +73,7 @@ fun MainContent(
                 camPosState = camPosState,
                 car = uiUserState.user.car,
                 spots = uiSpotsState.spots,
+                areas = uiAreasState.areas,
                 onMapLoaded = onCameraLoc,
                 isElapsedTime = uiElapsedTimeState > DEFAULT_ELAPSED_TIME,
                 mapType = mapType,
@@ -85,7 +88,6 @@ fun MainContent(
                     mapType =
                         if (mapType == MapType.NORMAL) MapType.SATELLITE else MapType.NORMAL
                 },
-                onParkMyCarState = { rememberHomeUiContainerState.onScreenState(ScreenState.PARKMYCAR) },
                 onCameraTilt = onCameraTilt,
                 onCameraLocation = onCameraLoc,
                 onCameraMyCar = onCameraCar,
@@ -145,6 +147,7 @@ fun MainContentPreview() {
             camPosState = CameraPositionState(),
             uiUserState = UserUiState(),
             uiSpotsState = SpotsUiState(),
+            uiAreasState = AreasUiState(),
             uiElapsedTimeState = 0L,
             onCameraLoc = {},
             onCameraCar = {},

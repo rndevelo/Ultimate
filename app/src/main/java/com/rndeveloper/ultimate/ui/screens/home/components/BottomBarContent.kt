@@ -34,7 +34,8 @@ fun BottomBarContent(
     rememberHomeUiContainerState: HomeUiContainerState,
     uiElapsedTimeState: Long,
     onStartTimer: () -> Unit,
-    onSet: () -> Unit,
+    onCameraZoom: (Float) -> Unit,
+    onSet: (onMain: () -> Unit) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -57,11 +58,14 @@ fun BottomBarContent(
                 onClick = {
                     when (rememberHomeUiContainerState.screenState) {
                         ScreenState.ADDSPOT -> {
-                            onSet()
-                            rememberHomeUiContainerState.onScreenState(ScreenState.MAIN)
+                            onSet {
+                                onCameraZoom(15f)
+                                rememberHomeUiContainerState.onScreenState(ScreenState.MAIN)
+                            }
                         }
 
                         else -> {
+                            onCameraZoom(17f)
                             rememberHomeUiContainerState.onScreenState(ScreenState.ADDSPOT)
                         }
                     }
@@ -97,6 +101,7 @@ fun BottomBarContent(
                         }
 
                         else -> {
+                            onCameraZoom(15f)
                             rememberHomeUiContainerState.onScreenState(ScreenState.MAIN)
                         }
                     }
@@ -127,11 +132,14 @@ fun BottomBarContent(
                 onClick = {
                     when (rememberHomeUiContainerState.screenState) {
                         ScreenState.PARKMYCAR -> {
-                            onSet()
-                            rememberHomeUiContainerState.onScreenState(ScreenState.MAIN)
+                            onSet {
+                                onCameraZoom(15f)
+                                rememberHomeUiContainerState.onScreenState(ScreenState.MAIN)
+                            }
                         }
 
                         else -> {
+                            onCameraZoom(17f)
                             rememberHomeUiContainerState.onScreenState(ScreenState.PARKMYCAR)
                         }
                     }
@@ -159,6 +167,7 @@ fun BottomBarContentPreview() {
             rememberHomeUiContainerState = rememberHomeUiContainerState(),
             uiElapsedTimeState = 0L,
             onStartTimer = { /*TODO*/ },
+            onCameraZoom = {},
             onSet = { /*TODO*/ })
     }
 }
