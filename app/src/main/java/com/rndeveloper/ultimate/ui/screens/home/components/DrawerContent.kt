@@ -92,14 +92,6 @@ fun DrawerMenuItemContent(
     DrawerMenuItemListContent(
         items = listOf(
             MenuItem(
-//                id = 0,
-                title = "Historial",
-//                contentDescription = "Go to history screen",
-                icon = Icons.Default.History,
-//                color = Blue500,
-                unit = navigateToHistoryScreen
-            ),
-            MenuItem(
 //                id = 1,
                 title = "Invita a tus amigos  +3",
 //                contentDescription = "Invite Friends",

@@ -11,12 +11,14 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.rndeveloper.ultimate.model.SpotType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -57,6 +59,17 @@ class HomeUiContainerState @OptIn(ExperimentalMaterial3Api::class) constructor(
     val isSetState: Boolean
         get() = screenState == ScreenState.ADDSPOT || screenState == ScreenState.PARKMYCAR
 
+
+    var indexSpotTime by mutableIntStateOf(0)
+
+    var indexSpotType by mutableIntStateOf(0)
+
+    fun onSpotTime(spotTime: Int) {
+        indexSpotTime = spotTime
+    }
+    fun onSpotType(spotType: Int){
+        indexSpotType = spotType
+    }
 
     fun onOpenDrawer() {
         scope.launch { drawerState.open() }

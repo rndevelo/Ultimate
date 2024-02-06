@@ -1,5 +1,6 @@
 package com.rndeveloper.ultimate.ui.screens.home
 
+import android.content.Context
 import android.os.CountDownTimer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -43,6 +44,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
@@ -88,6 +90,13 @@ class HomeViewModel @Inject constructor(
         initialValue = 0L,
     )
 
+    private val _selectedItemState = MutableStateFlow(Spot())
+    val uiSelectedItemState: StateFlow<Spot> = _selectedItemState.asStateFlow().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = Spot(),
+    )
+
     private val _directionsState = MutableStateFlow(DirectionsUiState())
     val uiDirectionsState: StateFlow<DirectionsUiState> = _directionsState.asStateFlow().stateIn(
         scope = viewModelScope,
@@ -96,7 +105,6 @@ class HomeViewModel @Inject constructor(
     )
 
     private var isTilt = false
-
 
     init {
 
@@ -158,7 +166,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    suspend fun onGetLocationData() {
+    private suspend fun onGetLocationData() {
         _locationState.update {
             it.copy(isLoading = true)
         }
@@ -191,6 +199,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun onGetAddressLine(
+        context: Context,
         camPosState: CameraPositionState,
         screenState: ScreenState,
         doLoad: Boolean,
@@ -198,8 +207,10 @@ class HomeViewModel @Inject constructor(
         onFirstLaunch: () -> Unit
     ) {
 
-        _spotsState.update {
-            it.copy(isLoading = true)
+        if (screenState == ScreenState.MAIN) {
+            _spotsState.update {
+                it.copy(isLoading = true)
+            }
         }
 
         if (doLoad || isFirstLaunch) {
@@ -209,9 +220,14 @@ class HomeViewModel @Inject constructor(
                 camPosState.position.target.longitude
             )
 
-            geocoderRepository.getAddressList(LatLng(currentPosition.lat, currentPosition.lng)) { directions ->
+            geocoderRepository.getAddressList(
+                LatLng(
+                    currentPosition.lat,
+                    currentPosition.lng
+                )
+            ) { directions ->
                 if (screenState == ScreenState.MAIN) {
-                    onGetSpots(position = currentPosition, directions = directions)
+                    onGetSpots(context = context, position = currentPosition, directions = directions)
                 }
                 _directionsState.update {
                     it.copy(directions = directions)
@@ -225,18 +241,20 @@ class HomeViewModel @Inject constructor(
 
     //    GET SPOTS
     private fun onGetSpots(
+        context: Context,
         position: Position,
         directions: Directions
     ) = viewModelScope.launch(Dispatchers.IO) {
         _locationState.value.location?.let { locPosition ->
             awaitAll(
-                async { getSpotsFlow(directions, position, locPosition) },
-                async { getAreasFlow(directions, position, locPosition) },
+                async { getSpotsFlow(context, directions, position, locPosition) },
+                async { getAreasFlow(context, directions, position, locPosition) },
             )
         }
     }
 
     private suspend fun getSpotsFlow(
+        context: Context,
         directions: Directions,
         position: Position,
         locPosition: Position
@@ -244,7 +262,7 @@ class HomeViewModel @Inject constructor(
         spotsUseCases.getSpotsUseCase(
             Triple(
                 ITEM_COLLECTION_REFERENCE,
-                directions,
+                context to directions,
                 position to locPosition,
             )
         ).collectLatest { newSpotsUiState ->
@@ -255,6 +273,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun getAreasFlow(
+        context: Context,
         directions: Directions,
         position: Position,
         locPosition: Position
@@ -262,7 +281,7 @@ class HomeViewModel @Inject constructor(
         spotsUseCases.getAreasUseCase(
             Triple(
                 AREA_COLLECTION_REFERENCE,
-                directions,
+                context to directions,
                 position to locPosition,
             )
         ).collectLatest { newSpotsUiState ->
@@ -273,7 +292,7 @@ class HomeViewModel @Inject constructor(
     }
 
     //    SET SPOT
-    fun onSet(camPosState: CameraPositionState, screenState: ScreenState, onMainState: () -> Unit) =
+    fun onSet(camPosState: CameraPositionState, rememberHomeUiContainerState: HomeUiContainerState, onMainState: () -> Unit) =
         viewModelScope.launch {
             if (!camPosState.isMoving && camPosState.position.zoom > 12f) {
 
@@ -289,11 +308,11 @@ class HomeViewModel @Inject constructor(
 
 //            FIXME: HANDLER THIS
 
-                when (screenState) {
+                when (rememberHomeUiContainerState.screenState) {
                     ScreenState.ADDSPOT -> {
 
                         Spot().copy(
-                            timestamp = currentTime(),
+                            timestamp = selectTime(rememberHomeUiContainerState.indexSpotTime),
                             type = SpotType.BLUE,
                             directions = _directionsState.value.directions,
                             position = currentPosition,
@@ -325,11 +344,29 @@ class HomeViewModel @Inject constructor(
             }
         }
 
+    private fun selectTime(timerLengthSelection: Int): Long {
+        val selectedInterval = when (timerLengthSelection) {
+            0 -> TimeUnit.MILLISECONDS.convert(0, TimeUnit.MINUTES)
+            1 -> TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES)
+            2 -> TimeUnit.MILLISECONDS.convert(10, TimeUnit.MINUTES)
+            3 -> TimeUnit.MILLISECONDS.convert(15, TimeUnit.MINUTES)
+            4 -> TimeUnit.MILLISECONDS.convert(20, TimeUnit.MINUTES)
+            else -> TimeUnit.MILLISECONDS.convert(30, TimeUnit.MINUTES)
+        }
+        return currentTime() + selectedInterval
+    }
+
     fun onRemoveSpot(spot: Spot) = viewModelScope.launch {
-        spotsUseCases.removeSpotUseCase(spot).collectLatest { newHomeUiState ->
+        spotsUseCases.removeSpotUseCase(spot.copy(icon = null)).collectLatest { newHomeUiState ->
             _spotsState.update {
                 newHomeUiState
             }
+        }
+    }
+
+    fun onSelectItem(tag: String, list: List<Spot>) {
+        _selectedItemState.update {
+            (list.find { spot -> spot.tag == tag } ?: list.firstOrNull())!!
         }
     }
 

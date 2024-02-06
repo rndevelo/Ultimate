@@ -17,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -28,7 +29,9 @@ import com.rndeveloper.ultimate.ui.screens.home.ScreenState
 import com.rndeveloper.ultimate.ui.screens.home.rememberHomeUiContainerState
 import com.rndeveloper.ultimate.ui.theme.UltimateTheme
 import com.rndeveloper.ultimate.utils.Constants
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomBarContent(
     rememberHomeUiContainerState: HomeUiContainerState,
@@ -38,6 +41,7 @@ fun BottomBarContent(
     onSet: (onMain: () -> Unit) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val scope = rememberCoroutineScope()
 
     Surface(tonalElevation = 2.dp) {
         Row(
@@ -59,12 +63,15 @@ fun BottomBarContent(
                     when (rememberHomeUiContainerState.screenState) {
                         ScreenState.ADDSPOT -> {
                             onSet {
-                                onCameraZoom(15f)
+                                onCameraZoom(16f)
                                 rememberHomeUiContainerState.onScreenState(ScreenState.MAIN)
                             }
                         }
 
                         else -> {
+                            scope.launch {
+                                rememberHomeUiContainerState.bsScaffoldState.bottomSheetState.expand()
+                            }
                             onCameraZoom(17f)
                             rememberHomeUiContainerState.onScreenState(ScreenState.ADDSPOT)
                         }
@@ -76,7 +83,7 @@ fun BottomBarContent(
                 },
                 expanded = rememberHomeUiContainerState.screenState == ScreenState.ADDSPOT,
                 containerColor = when (rememberHomeUiContainerState.screenState) {
-                    ScreenState.ADDSPOT -> MaterialTheme.colorScheme.primaryContainer
+                    ScreenState.ADDSPOT -> MaterialTheme.colorScheme.primary
                     else -> MaterialTheme.colorScheme.secondaryContainer
                 },
                 elevation = FloatingActionButtonDefaults.elevation(1.dp)
@@ -101,7 +108,7 @@ fun BottomBarContent(
                         }
 
                         else -> {
-                            onCameraZoom(15f)
+                            onCameraZoom(16f)
                             rememberHomeUiContainerState.onScreenState(ScreenState.MAIN)
                         }
                     }
@@ -115,7 +122,7 @@ fun BottomBarContent(
                 },
                 expanded = rememberHomeUiContainerState.screenState == ScreenState.MAIN && uiElapsedTimeState <= Constants.DEFAULT_ELAPSED_TIME,
                 containerColor = when (rememberHomeUiContainerState.screenState) {
-                    ScreenState.MAIN -> MaterialTheme.colorScheme.primaryContainer
+                    ScreenState.MAIN -> MaterialTheme.colorScheme.primary
                     else -> MaterialTheme.colorScheme.secondaryContainer
                 },
                 elevation = FloatingActionButtonDefaults.elevation(1.dp)
@@ -133,7 +140,7 @@ fun BottomBarContent(
                     when (rememberHomeUiContainerState.screenState) {
                         ScreenState.PARKMYCAR -> {
                             onSet {
-                                onCameraZoom(15f)
+                                onCameraZoom(16f)
                                 rememberHomeUiContainerState.onScreenState(ScreenState.MAIN)
                             }
                         }
@@ -149,7 +156,7 @@ fun BottomBarContent(
                 ) else modifier,
                 expanded = rememberHomeUiContainerState.screenState == ScreenState.PARKMYCAR,
                 containerColor = when (rememberHomeUiContainerState.screenState) {
-                    ScreenState.PARKMYCAR -> MaterialTheme.colorScheme.primaryContainer
+                    ScreenState.PARKMYCAR -> MaterialTheme.colorScheme.primary
                     else -> MaterialTheme.colorScheme.secondaryContainer
                 },
                 elevation = FloatingActionButtonDefaults.elevation(1.dp)
@@ -166,8 +173,9 @@ fun BottomBarContentPreview() {
         BottomBarContent(
             rememberHomeUiContainerState = rememberHomeUiContainerState(),
             uiElapsedTimeState = 0L,
-            onStartTimer = { /*TODO*/ },
+            onStartTimer = {},
             onCameraZoom = {},
-            onSet = { /*TODO*/ })
+            onSet = {}
+        )
     }
 }

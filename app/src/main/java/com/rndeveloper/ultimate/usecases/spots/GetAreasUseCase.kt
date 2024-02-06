@@ -1,5 +1,6 @@
 package com.rndeveloper.ultimate.usecases.spots
 
+import android.content.Context
 import com.rndeveloper.ultimate.exceptions.CustomException
 import com.rndeveloper.ultimate.extensions.sortItems
 import com.rndeveloper.ultimate.model.Directions
@@ -15,15 +16,15 @@ import javax.inject.Inject
 
 class GetAreasUseCase @Inject constructor(
     private val repository: SpotRepository,
-) : BaseUseCase<Triple<String, Directions, Pair<Position, Position>>, Flow<AreasUiState>>() {
+) : BaseUseCase<Triple<String, Pair<Context, Directions>, Pair<Position, Position>>, Flow<AreasUiState>>() {
 
-    override suspend fun execute(parameters: Triple<String, Directions, Pair<Position, Position>>): Flow<AreasUiState> =
+    override suspend fun execute(parameters: Triple<String, Pair<Context, Directions>, Pair<Position, Position>>): Flow<AreasUiState> =
         channelFlow {
 
             // Do login if fields are valid
-            val (collectionRef, directions, positions) = parameters
+            val (collectionRef, pair, positions) = parameters
 
-            repository.getSpots(collectionRef, directions)
+            repository.getSpots(collectionRef, pair.second)
                 .catch { exception ->
                     send(
                         AreasUiState().copy(
@@ -40,7 +41,7 @@ class GetAreasUseCase @Inject constructor(
 //                            TODO : METER TODA ESTA FUNCIÓN EN UNA LAMBDA
                             trySend(
                                 AreasUiState().copy(
-                                    areas = spots.sortItems(positions),
+                                    areas = spots.sortItems(pair.first, positions),
                                     isLoading = false
                                 )
                             )

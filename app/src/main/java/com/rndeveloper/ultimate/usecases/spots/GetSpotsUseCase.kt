@@ -1,5 +1,6 @@
 package com.rndeveloper.ultimate.usecases.spots
 
+import android.content.Context
 import android.location.Location
 import com.firebase.geofire.GeoFireUtils
 import com.firebase.geofire.GeoLocation
@@ -26,15 +27,15 @@ import javax.inject.Inject
 
 class GetSpotsUseCase @Inject constructor(
     private val repository: SpotRepository,
-) : BaseUseCase<Triple<String, Directions, Pair<Position, Position>>, Flow<SpotsUiState>>() {
+) : BaseUseCase<Triple<String, Pair<Context, Directions>, Pair<Position, Position>>, Flow<SpotsUiState>>() {
 
-    override suspend fun execute(parameters: Triple<String, Directions, Pair<Position, Position>>): Flow<SpotsUiState> =
+    override suspend fun execute(parameters: Triple<String, Pair<Context, Directions>, Pair<Position, Position>>): Flow<SpotsUiState> =
         channelFlow {
 
             // Do login if fields are valid
-            val (collectionRef, directions, positions) = parameters
+            val (collectionRef, pair, positions) = parameters
 
-            repository.getSpots(collectionRef, directions)
+            repository.getSpots(collectionRef, pair.second)
                 .catch { exception ->
                     send(
                         SpotsUiState().copy(
@@ -47,11 +48,11 @@ class GetSpotsUseCase @Inject constructor(
                 }
                 .collectLatest { result ->
                     result.fold(
-//                        SUCESS
+//                        SUCCESS
                         onSuccess = { spots ->
                             trySend(
                                 SpotsUiState().copy(
-                                    spots = spots.sortItems(positions),
+                                    spots = spots.sortItems(pair.first,positions),
                                     isLoading = false
                                 )
                             )
@@ -70,49 +71,4 @@ class GetSpotsUseCase @Inject constructor(
                     )
                 }
         }
-
-    private fun sortSpots(
-        spots: List<Spot>,
-        positions: Pair<Position, Position>
-    ) = spots.filter { spot ->
-        GeoFireUtils.getDistanceBetween(
-            GeoLocation(spot.position.lat, spot.position.lng),
-            GeoLocation(positions.first.lat, positions.first.lng)
-        ) <= SPOTS_RADIUS_TARGET
-    }.sortedWith { d1, d2 ->
-        val currentLoc = Location("currentLoc")
-        currentLoc.latitude = positions.second.lat
-        currentLoc.longitude = positions.second.lng
-
-        val targets1 = Location("target")
-        targets1.latitude = d1.position.lat
-        targets1.longitude = d1.position.lng
-
-        val targets2 = Location("location")
-        targets2.latitude = d2.position.lat
-        targets2.longitude = d2.position.lng
-
-        val distanceOne = currentLoc.distanceTo(targets1)
-        val distanceTwo = currentLoc.distanceTo(targets2)
-
-        distanceOne.compareTo(distanceTwo)
-    }.map { spot ->
-        val distance = FloatArray(2)
-        Location.distanceBetween(
-            spot.position.lat, spot.position.lng,
-            positions.second.lat, positions.second.lng, distance
-        )
-        //                                val dec = DecimalFormat("#.##").format(distance[0])
-
-        val timeResult = currentTime() - spot.timestamp
-
-        val color = when {
-            timeResult < 0 -> blue_place_icon
-            timeResult < Constants.MINUTE * 10 -> green_place_icon
-            timeResult < Constants.MINUTE * 20 -> yellow_place_icon
-            else -> red_place_icon
-        }
-
-        spot.copy(distance = "${distance[0].toInt()}m", color = color)
-    }
 }

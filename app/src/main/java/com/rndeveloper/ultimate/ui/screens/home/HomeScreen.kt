@@ -1,5 +1,6 @@
 package com.rndeveloper.ultimate.ui.screens.home
 
+import android.content.Context
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,6 +17,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -59,6 +61,7 @@ fun HomeScreen(
     val uiAreasState by homeViewModel.uiAreasState.collectAsStateWithLifecycle()
     val uiElapsedTimeState by homeViewModel.uiElapsedTimeState.collectAsStateWithLifecycle()
     val uiDirectionsState by homeViewModel.uiDirectionsState.collectAsStateWithLifecycle()
+    val uiSelectedItemState by homeViewModel.uiSelectedItemState.collectAsStateWithLifecycle()
 
     HomeContent(
         onNavigate = navController::navigate,
@@ -68,9 +71,10 @@ fun HomeScreen(
         uiAreasState = uiAreasState,
         uiElapsedTimeState = uiElapsedTimeState,
         uiDirectionsState = uiDirectionsState,
-//        onGetLocationData = homeViewModel::onGetLocationData,
+        uiSelectedItemState = uiSelectedItemState,
         onSet = homeViewModel::onSet,
         onRemoveSpot = homeViewModel::onRemoveSpot,
+        onSelectItem = homeViewModel::onSelectItem,
         onStartTimer = { homeViewModel.onSaveGetStartTimer(SPOTS_TIMER) },
         onGetAddressLine = homeViewModel::onGetAddressLine,
         onCameraLoc = homeViewModel::onCameraLoc,
@@ -90,13 +94,14 @@ private fun HomeContent(
     uiUserState: UserUiState,
     uiSpotsState: SpotsUiState,
     uiAreasState: AreasUiState,
-//    onGetLocationData: suspend (CameraPositionState) -> Unit,
     uiElapsedTimeState: Long,
     uiDirectionsState: DirectionsUiState,
-    onSet: (CameraPositionState, ScreenState, () -> Unit) -> Unit,
+    uiSelectedItemState: Spot,
+    onSet: (CameraPositionState, HomeUiContainerState, () -> Unit) -> Unit,
     onRemoveSpot: (Spot) -> Unit,
+    onSelectItem: (String, List<Spot>) -> Unit,
     onStartTimer: () -> Unit,
-    onGetAddressLine: (CameraPositionState, ScreenState, Boolean, Boolean, () -> Unit) -> Unit,
+    onGetAddressLine: (Context, CameraPositionState, ScreenState, Boolean, Boolean, () -> Unit) -> Unit,
     onCameraLoc: (CameraPositionState) -> Unit,
     onCameraCar: (CameraPositionState) -> Unit,
     onCameraCarLoc: (CameraPositionState) -> Unit,
@@ -108,15 +113,15 @@ private fun HomeContent(
     val camPosState: CameraPositionState = rememberCameraPositionState()
     var isFirstLaunch by rememberSaveable { mutableStateOf(true) }
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
     val snackBarHostState = remember { SnackbarHostState() }
-
-    var spotSelected by rememberSaveable { mutableStateOf(uiSpotsState.spots.firstOrNull()) }
 
     LaunchedEffect(Unit) {
         snapshotFlow {
             !camPosState.isMoving || isFirstLaunch
         }.collect { doLoad ->
             onGetAddressLine(
+                context,
                 camPosState,
                 rememberHomeUiContainerState.screenState,
                 doLoad,
@@ -149,10 +154,8 @@ private fun HomeContent(
         }
     }
 
-    LaunchedEffect(key1 = uiElapsedTimeState > DEFAULT_ELAPSED_TIME) {
-        if (uiElapsedTimeState > DEFAULT_ELAPSED_TIME) {
-            rememberHomeUiContainerState.bsScaffoldState.bottomSheetState.expand()
-        }
+    LaunchedEffect(key1 = Unit, key2 = uiElapsedTimeState > DEFAULT_ELAPSED_TIME) {
+        rememberHomeUiContainerState.bsScaffoldState.bottomSheetState.expand()
     }
 
     ModalNavigationDrawer(
@@ -180,7 +183,7 @@ private fun HomeContent(
                         onCameraZoom(camPosState, zoom)
                     },
                     onSet = { onMain ->
-                        onSet(camPosState, rememberHomeUiContainerState.screenState, onMain)
+                        onSet(camPosState, rememberHomeUiContainerState, onMain)
                     }
                 )
             },
@@ -194,13 +197,12 @@ private fun HomeContent(
                             uiSpotsState = uiSpotsState,
                             uiAreasState = uiAreasState,
                             uiDirectionsState = uiDirectionsState,
-                            spotDefault = spotSelected,
+                            isElapsedTime = uiElapsedTimeState > DEFAULT_ELAPSED_TIME,
+                            selectedSpot = uiSelectedItemState,
                             onExpand = {},
-                            onSpot = { spot ->
-                                spotSelected = uiSpotsState.spots.find {
-                                    it.tag == spot.tag
-                                } ?: uiSpotsState.spots.firstOrNull()
-                                spotSelected?.let { onCameraSpot(camPosState, it.position) }
+                            onSpot = { tag, list ->
+                                onSelectItem(tag, list)
+                                onCameraSpot(camPosState, uiSelectedItemState.position)
                             },
                             onRemoveSpot = onRemoveSpot
                         )
@@ -210,7 +212,7 @@ private fun HomeContent(
                     sheetPeekHeight = 125.dp,
                     sheetShape = BottomSheetDefaults.HiddenShape,
                     sheetTonalElevation = 2.dp,
-//                    sheetSwipeEnabled = homeUiState.elapsedTime > 0L
+                    sheetSwipeEnabled = rememberHomeUiContainerState.screenState != ScreenState.ADDSPOT
                 ) {
                     MainContent(
                         rememberHomeUiContainerState = rememberHomeUiContainerState,
@@ -223,15 +225,11 @@ private fun HomeContent(
                         onCameraCar = { onCameraCar(camPosState) },
                         onCameraCarLoc = { onCameraCarLoc(camPosState) },
                         onCameraTilt = { onCameraTilt(camPosState) },
-                        onSpot = { tag ->
-                            spotSelected = uiSpotsState.spots.find {
-                                it.tag == tag
-                            } ?: uiSpotsState.spots.firstOrNull()
+                        onSpot = { tag, list ->
+                            onSelectItem(tag, list)
                             scope.launch {
                                 rememberHomeUiContainerState.scrollState.animateScrollToItem(
-                                    index = uiSpotsState.spots.indexOf(
-                                        spotSelected
-                                    )
+                                    index = uiSpotsState.spots.indexOf(uiSelectedItemState)
                                 )
                             }
                         },

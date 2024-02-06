@@ -25,7 +25,8 @@ data class Directions(
     val country: String,
 ) {
     constructor() : this(
-        addressLine = "",
+//        FIXME: This
+        addressLine = "Unknown location",
         locality = "",
         area = "",
         country = "",

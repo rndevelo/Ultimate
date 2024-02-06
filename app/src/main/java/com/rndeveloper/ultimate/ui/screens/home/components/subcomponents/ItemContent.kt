@@ -93,7 +93,11 @@ fun ItemContent(
 
                 Text(text = spot.distance)
 
-                Text(text = spot.timestamp.getFormattedPrettyTime(), fontWeight = FontWeight.Bold, color = spot.color)
+                Text(
+                    text = spot.timestamp.getFormattedPrettyTime(),
+                    fontWeight = FontWeight.Bold,
+                    color = spot.color
+                )
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
 

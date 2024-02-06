@@ -9,12 +9,14 @@ import android.os.Build
 import androidx.activity.ComponentActivity
 import com.firebase.geofire.GeoFireUtils
 import com.firebase.geofire.GeoLocation
+import com.rndeveloper.ultimate.R
 import com.rndeveloper.ultimate.model.Position
 import com.rndeveloper.ultimate.model.Spot
 import com.rndeveloper.ultimate.ui.theme.blue_place_icon
 import com.rndeveloper.ultimate.ui.theme.green_place_icon
 import com.rndeveloper.ultimate.ui.theme.red_place_icon
 import com.rndeveloper.ultimate.ui.theme.yellow_place_icon
+import com.rndeveloper.ultimate.utils.BitmapHelper
 import com.rndeveloper.ultimate.utils.Constants
 import com.rndeveloper.ultimate.utils.Utils
 import org.ocpsoft.prettytime.PrettyTime
@@ -38,6 +40,7 @@ fun Context.findActivity(): ComponentActivity? = when (this) {
 
 // SORT SPOTS AND AREAS
 fun List<Spot>.sortItems(
+    context: Context,
     positions: Pair<Position, Position>
 ) = this.filter { spot ->
     GeoFireUtils.getDistanceBetween(
@@ -76,8 +79,16 @@ fun List<Spot>.sortItems(
         timeResult < Constants.MINUTE * 20 -> yellow_place_icon
         else -> red_place_icon
     }
+    val drawable = when {
+        timeResult < 0 -> R.drawable.ic_spot_round_marker
+        timeResult < Constants.MINUTE * 10 -> R.drawable.ic_spot_round_marker
+        timeResult < Constants.MINUTE * 20 -> R.drawable.ic_spot_round_yellow_marker
+        else -> R.drawable.ic_spot_round_red_marker
+    }
 
-    spot.copy(distance = "${distance[0].toInt()}m", color = color)
+    val icon = BitmapHelper.vectorToBitmap(context = context, id = drawable)
+
+    spot.copy(distance = "${distance[0].toInt()}m", color = color, icon = icon)
 }
 
 

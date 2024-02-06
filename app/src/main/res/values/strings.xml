@@ -28,15 +28,18 @@
 
 
     <!-- HOME-->
-    <string name="home_text_to_see">To see</string>
-    <string name="home_text_seen">Seen</string>
-    <string name="home_text_without_spots">Without spots in this zone</string>
-    <string name="home_text_unknown_location">Ubicación desconocida</string>
+    <string name="home_text_without_parking_spots">Without parking spots in this zone</string>
+    <string name="home_text_low_areas_activity">Low areas activity</string>
+    <string name="home_text_unknown_location">Unknown location</string>
     <string name="home_text_your_parked_car">Your parked car</string>
     <string name="home_text_not_park_car">Not park car</string>
     <string name="home_text_add_spot">Add spot</string>
     <string name="home_text_show_spots">Show spots</string>
     <string name="home_text_park_your_car">Park your car</string>
+    <string name="home_text_search_parking_spot">Search parking spots</string>
+    <string name="home_text_add_a_new_spot">Add a new spot</string>
+    <string name="home_text_areas_nearby">%1$s activity areas nearby</string>
+    <string name="home_text_spots_nearby">%1$s parking spots nearby</string>
 
 
 </resources>
