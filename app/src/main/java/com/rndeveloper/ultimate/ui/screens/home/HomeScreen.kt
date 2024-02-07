@@ -17,7 +17,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -61,7 +60,6 @@ fun HomeScreen(
     val uiAreasState by homeViewModel.uiAreasState.collectAsStateWithLifecycle()
     val uiElapsedTimeState by homeViewModel.uiElapsedTimeState.collectAsStateWithLifecycle()
     val uiDirectionsState by homeViewModel.uiDirectionsState.collectAsStateWithLifecycle()
-    val uiSelectedItemState by homeViewModel.uiSelectedItemState.collectAsStateWithLifecycle()
 
     HomeContent(
         onNavigate = navController::navigate,
@@ -71,10 +69,8 @@ fun HomeScreen(
         uiAreasState = uiAreasState,
         uiElapsedTimeState = uiElapsedTimeState,
         uiDirectionsState = uiDirectionsState,
-        uiSelectedItemState = uiSelectedItemState,
         onSet = homeViewModel::onSet,
         onRemoveSpot = homeViewModel::onRemoveSpot,
-        onSelectItem = homeViewModel::onSelectItem,
         onStartTimer = { homeViewModel.onSaveGetStartTimer(SPOTS_TIMER) },
         onGetAddressLine = homeViewModel::onGetAddressLine,
         onCameraLoc = homeViewModel::onCameraLoc,
@@ -96,17 +92,15 @@ private fun HomeContent(
     uiAreasState: AreasUiState,
     uiElapsedTimeState: Long,
     uiDirectionsState: DirectionsUiState,
-    uiSelectedItemState: Spot,
     onSet: (CameraPositionState, HomeUiContainerState, () -> Unit) -> Unit,
     onRemoveSpot: (Spot) -> Unit,
-    onSelectItem: (String, List<Spot>) -> Unit,
     onStartTimer: () -> Unit,
     onGetAddressLine: (Context, CameraPositionState, ScreenState, Boolean, Boolean, () -> Unit) -> Unit,
     onCameraLoc: (CameraPositionState) -> Unit,
     onCameraCar: (CameraPositionState) -> Unit,
     onCameraCarLoc: (CameraPositionState) -> Unit,
     onCameraTilt: (CameraPositionState) -> Unit,
-    onCameraSpot: (CameraPositionState, Position) -> Unit,
+    onCameraSpot: (CameraPositionState, Position?) -> Unit,
     onCameraZoom: (CameraPositionState, Float) -> Unit,
 ) {
 
@@ -115,6 +109,8 @@ private fun HomeContent(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val snackBarHostState = remember { SnackbarHostState() }
+    var selectedSpot by rememberSaveable { mutableStateOf(uiSpotsState.spots.firstOrNull()) }
+
 
     LaunchedEffect(Unit) {
         snapshotFlow {
@@ -198,11 +194,13 @@ private fun HomeContent(
                             uiAreasState = uiAreasState,
                             uiDirectionsState = uiDirectionsState,
                             isElapsedTime = uiElapsedTimeState > DEFAULT_ELAPSED_TIME,
-                            selectedSpot = uiSelectedItemState,
+                            selectedSpot = selectedSpot,
                             onExpand = {},
-                            onSpot = { tag, list ->
-                                onSelectItem(tag, list)
-                                onCameraSpot(camPosState, uiSelectedItemState.position)
+                            onSpot = { tag ->
+                                selectedSpot = uiSpotsState.spots.find {
+                                    it.tag == tag
+                                }
+                                selectedSpot?.let { onCameraSpot(camPosState, it.position) }
                             },
                             onRemoveSpot = onRemoveSpot
                         )
@@ -212,7 +210,7 @@ private fun HomeContent(
                     sheetPeekHeight = 125.dp,
                     sheetShape = BottomSheetDefaults.HiddenShape,
                     sheetTonalElevation = 2.dp,
-                    sheetSwipeEnabled = rememberHomeUiContainerState.screenState != ScreenState.ADDSPOT
+                    sheetSwipeEnabled = rememberHomeUiContainerState.screenState == ScreenState.MAIN
                 ) {
                     MainContent(
                         rememberHomeUiContainerState = rememberHomeUiContainerState,
@@ -225,11 +223,13 @@ private fun HomeContent(
                         onCameraCar = { onCameraCar(camPosState) },
                         onCameraCarLoc = { onCameraCarLoc(camPosState) },
                         onCameraTilt = { onCameraTilt(camPosState) },
-                        onSpot = { tag, list ->
-                            onSelectItem(tag, list)
+                        onSpot = { tag ->
+                            selectedSpot = uiSpotsState.spots.find {
+                                it.tag == tag
+                            }
                             scope.launch {
                                 rememberHomeUiContainerState.scrollState.animateScrollToItem(
-                                    index = uiSpotsState.spots.indexOf(uiSelectedItemState)
+                                    index = uiSpotsState.spots.indexOf(selectedSpot)
                                 )
                             }
                         },

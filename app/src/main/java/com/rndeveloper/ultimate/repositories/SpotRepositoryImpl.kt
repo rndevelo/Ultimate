@@ -28,7 +28,7 @@ class SpotRepositoryImpl @Inject constructor(
                 .addSnapshotListener { snapshot, e ->
                     if (snapshot != null && !snapshot.isEmpty) {
                         snapshot.documents.forEach { document ->
-                            document.reference.delete().addOnSuccessListener {}
+//                            document.reference.delete().addOnSuccessListener {}
                         }
                     } else {
                         if (e != null) {

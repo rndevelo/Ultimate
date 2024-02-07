@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.dp
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.MapType
 import com.rndeveloper.ultimate.R
-import com.rndeveloper.ultimate.model.Spot
 import com.rndeveloper.ultimate.ui.screens.home.HomeUiContainerState
 import com.rndeveloper.ultimate.ui.screens.home.ScreenState
 import com.rndeveloper.ultimate.ui.screens.home.components.subcomponents.ButtonsMapContent
@@ -46,7 +45,7 @@ fun MainContent(
     onCameraCar: () -> Unit,
     onCameraCarLoc: () -> Unit,
     onCameraTilt: () -> Unit,
-    onSpot: (String, List<Spot>) -> Unit,
+    onSpot: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -154,7 +153,7 @@ fun MainContentPreview() {
             onCameraCar = {},
             onCameraCarLoc = {},
             onCameraTilt = {},
-            onSpot = {_, _ -> },
+            onSpot = {},
         )
     }
 }

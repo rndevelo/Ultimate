@@ -91,10 +91,10 @@ class HomeViewModel @Inject constructor(
     )
 
     private val _selectedItemState = MutableStateFlow(Spot())
-    val uiSelectedItemState: StateFlow<Spot> = _selectedItemState.asStateFlow().stateIn(
+    val uiSelectedItemState: StateFlow<Spot?> = _selectedItemState.asStateFlow().stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
-        initialValue = Spot(),
+        initialValue = _spotsState.value.spots.firstOrNull(),
     )
 
     private val _directionsState = MutableStateFlow(DirectionsUiState())
@@ -364,12 +364,6 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun onSelectItem(tag: String, list: List<Spot>) {
-        _selectedItemState.update {
-            (list.find { spot -> spot.tag == tag } ?: list.firstOrNull())!!
-        }
-    }
-
 
 //ON CAMERA ANIMATE
 
@@ -423,8 +417,10 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun onCameraSpot(cameraPositionState: CameraPositionState, position: Position) {
-        onCamera(cameraPositionState, LatLng(position.lat, position.lng))
+    fun onCameraSpot(cameraPositionState: CameraPositionState, position: Position?) {
+        position?.let {
+            onCamera(cameraPositionState, LatLng(position.lat, position.lng))
+        }
     }
 
     fun onCameraZoom(cameraPositionState: CameraPositionState, zoom: Float) {

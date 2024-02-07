@@ -41,7 +41,7 @@ fun GoogleMapContent(
     onMapLoaded: () -> Unit,
     isElapsedTime: Boolean,
     mapType: MapType,
-    onSpot: (String, List<Spot>) -> Unit,
+    onSpot: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -89,7 +89,7 @@ fun GoogleMapContent(
                 icon = spot.icon,
                 visible = isElapsedTime,
                 onClick = { marker ->
-                    onSpot(marker.tag as String, spots)
+                    onSpot(marker.tag as String)
                     false
                 }
             )
@@ -103,7 +103,7 @@ fun GoogleMapContent(
                 strokeColor = Color.Transparent,
                 tag = area.tag,
                 onClick = { circle ->
-                    onSpot(circle.tag as String, areas)
+                    onSpot(circle.tag as String)
                 }
             )
         }
@@ -124,7 +124,7 @@ fun GoogleMapContentPreview() {
             onMapLoaded = {},
             isElapsedTime = false,
             mapType = MapType.NORMAL,
-            onSpot = { _, _ -> },
+            onSpot = {},
         )
     }
 }

@@ -63,10 +63,8 @@ fun ItemContent(
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .padding(2.dp)
             .clickable { onSpotItem() },
         color = surfaceColor,
-        border = BorderStroke(color = surfaceColor, width = 0.7.dp),
     ) {
         Column(
             modifier = modifier
@@ -84,12 +82,6 @@ fun ItemContent(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-//                FIXME: Diseñar este icono en condiciones ostia menuda mierda
-//                Icon(
-//                    painter = painterResource(id = R.drawable.ic_spot_type),
-//                    contentDescription = "Tipo de plaza",
-//                    tint = spotColor
-//                )
 
                 Text(text = spot.distance)
 

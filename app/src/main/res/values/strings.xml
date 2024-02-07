@@ -28,7 +28,7 @@
 
 
     <!-- HOME-->
-    <string name="home_text_without_parking_spots">Without parking spots in this zone</string>
+    <string name="home_text_without_parking_spots">Without parking spots</string>
     <string name="home_text_low_areas_activity">Low areas activity</string>
     <string name="home_text_unknown_location">Unknown location</string>
     <string name="home_text_your_parked_car">Your parked car</string>
@@ -40,6 +40,7 @@
     <string name="home_text_add_a_new_spot">Add a new spot</string>
     <string name="home_text_areas_nearby">%1$s activity areas nearby</string>
     <string name="home_text_spots_nearby">%1$s parking spots nearby</string>
+    <string name="home_text_parking_spots">%1$s parking spots</string>
 
 
 </resources>

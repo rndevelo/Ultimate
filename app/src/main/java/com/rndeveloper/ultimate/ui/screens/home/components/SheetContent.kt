@@ -15,8 +15,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Circle
-import androidx.compose.material.icons.filled.Verified
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -24,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rndeveloper.ultimate.R
@@ -49,7 +48,7 @@ fun SheetContent(
     isElapsedTime: Boolean,
     selectedSpot: Spot?,
     onExpand: () -> Unit,
-    onSpot: (String, List<Spot>) -> Unit,
+    onSpot: (String) -> Unit,
     onRemoveSpot: (Spot) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -67,7 +66,7 @@ fun SheetContent(
 
         when (rememberHomeUiContainerState.screenState) {
             ScreenState.MAIN -> {
-                Divider()
+//                Divider()
                 ListsContent(
                     areas = uiAreasState.areas,
                     spots = uiSpotsState.spots,
@@ -77,17 +76,15 @@ fun SheetContent(
                     onSpot = onSpot,
                     onRemoveSpot = onRemoveSpot
                 )
-                Divider()
+//                Divider()
             }
 
             ScreenState.ADDSPOT -> {
-                Divider()
+//                Divider()
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(10.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
+                        .padding(start = 18.dp),
                 ) {
                     DropDownMenuContent(
                         items = timeList,
@@ -96,15 +93,8 @@ fun SheetContent(
                             rememberHomeUiContainerState.onSpotTime(index)
                         }
                     )
-                    DropDownMenuContent(
-                        items = typeList,
-                        index = rememberHomeUiContainerState.indexSpotType,
-                        onIndex = { index ->
-                            rememberHomeUiContainerState.onSpotType(index)
-                        }
-                    )
+//                Divider()
                 }
-                Divider()
             }
 
             ScreenState.PARKMYCAR -> {}
@@ -119,71 +109,55 @@ private fun ListsContent(
     isElapsedTime: Boolean,
     scrollState: LazyListState,
     selectedSpot: Spot?,
-    onSpot: (String, List<Spot>) -> Unit,
+    onSpot: (String) -> Unit,
     onRemoveSpot: (Spot) -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(max = 200.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .heightIn(max = 210.dp),
     ) {
-        Text(
-            text = when {
-                areas.isEmpty() -> stringResource(R.string.home_text_low_areas_activity)
-                else -> stringResource(R.string.home_text_areas_nearby, areas.size)
-            },
-            modifier = Modifier.padding(3.dp)
-        )
-        LazyRow {
-            items(
-                items = areas,
-                key = { i -> i.tag }
-            ) { area ->
-                Icon(
-                    imageVector = Icons.Filled.Circle,
-                    contentDescription = Icons.Filled.Circle.toString(),
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clickable { onSpot(area.tag, areas) },
-                    tint = area.color
-                )
+        AnimatedVisibility(visible = areas.isNotEmpty()) {
+            Text(
+                text = stringResource(R.string.home_text_areas_nearby, areas.size),
+                modifier = Modifier.padding(3.dp),
+                fontWeight = FontWeight.Bold
+            )
+            LazyRow {
+                items(
+                    items = areas,
+                    key = { i -> i.tag }
+                ) { area ->
+                    Icon(
+                        imageVector = Icons.Filled.Circle,
+                        contentDescription = Icons.Filled.Circle.toString(),
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clickable { onSpot(area.tag) },
+                        tint = area.color
+                    )
+                }
             }
         }
-        Text(
-            text = if (spots.isNotEmpty()) {
-                stringResource(R.string.home_text_spots_nearby, spots.size)
-            } else {
-                stringResource(R.string.home_text_without_parking_spots)
-            },
-            modifier = Modifier.padding(3.dp)
-        )
         AnimatedVisibility(visible = isElapsedTime) {
+            Text(
+                text = stringResource(R.string.home_text_spots_nearby, spots.size),
+                modifier = Modifier.padding(3.dp),
+                fontWeight = FontWeight.Bold
+            )
+
             LazyColumn(state = scrollState) {
                 items(items = spots, key = { i -> i.tag }) { spot ->
                     ItemContent(
                         spot = spot,
                         selectedSpot = selectedSpot,
-                        onSpotItem = { onSpot(spot.tag, spots) },
+                        onSpotItem = { onSpot(spot.tag) },
                         onRemoveSpot = { onRemoveSpot(spot) }
                     )
                 }
             }
         }
-        AnimatedVisibility(visible = !isElapsedTime) {
-            Row {
-                Icon(
-                    imageVector = Icons.Filled.Verified,
-                    contentDescription = Icons.Filled.Verified.toString()
-                )
-                Text(
-                    text = "Click to show verified spots",
-                    modifier = Modifier.padding(5.dp)
-                )
-            }
-        }
     }
-
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -197,9 +171,9 @@ fun SheetContentPreview() {
             uiAreasState = AreasUiState(),
             uiDirectionsState = DirectionsUiState(),
             isElapsedTime = true,
-            selectedSpot = null,
+            selectedSpot = Spot(),
             onExpand = {},
-            onSpot = { _, _ -> },
+            onSpot = { },
             onRemoveSpot = {}
         )
     }
