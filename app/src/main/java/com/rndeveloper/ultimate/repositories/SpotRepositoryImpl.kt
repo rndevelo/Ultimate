@@ -1,5 +1,6 @@
 package com.rndeveloper.ultimate.repositories
 
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.rndeveloper.ultimate.model.Directions
@@ -13,6 +14,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class SpotRepositoryImpl @Inject constructor(
+    private val fireAuth: FirebaseAuth,
     private val fireStore: FirebaseFirestore
 ) : SpotRepository {
 
@@ -70,7 +72,9 @@ class SpotRepositoryImpl @Inject constructor(
 
     override fun removeSpot(spot: Spot): Flow<Result<Boolean>> = callbackFlow {
 
-        val randomPoints = (2..5).random().toLong()
+        val userRandomPoints = (3..5).random().toLong()
+        val myRandomPoints = (1..2).random().toLong()
+        val myUid = fireAuth.currentUser?.uid
 
         fireStore.collection(ITEM_COLLECTION_REFERENCE)
             .document(spot.directions.country)
@@ -78,34 +82,26 @@ class SpotRepositoryImpl @Inject constructor(
             .document(spot.tag)
             .delete()
             .addOnSuccessListener { _ ->
-                fireStore
-                    .collection("USERS")
-                    .document(spot.user.uid)
-                    .collection("history")
-                    .document().set(spot)
-                    .addOnSuccessListener {
-                        if (spot.user.points <= 60) {
-                            fireStore
-                                .collection("USERS")
-                                .document(spot.user.uid)
-                                .update("points", FieldValue.increment(randomPoints))
-                                .addOnSuccessListener {
-                                    trySend(Result.success(true))
-                                }.addOnFailureListener { error ->
-                                    trySend(Result.failure(error))
-                                }
-                        } else {
-                            trySend(Result.success(true))
-                        }
-                    }.addOnFailureListener { error ->
-                        trySend(Result.failure(error))
-                    }
+                setPoints(spot.user.uid, userRandomPoints)
+                if (myUid != null) {
+                    setPoints(myUid, myRandomPoints)
+                }
             }
             .addOnFailureListener { error ->
                 trySend(Result.failure(error))
             }
 
         awaitClose()
+    }
+
+    override fun setPoints(
+        uid: String,
+        incrementPoints: Long
+    )  {
+        fireStore
+            .collection("USERS")
+            .document(uid)
+            .update("points", FieldValue.increment(incrementPoints))
     }
 }
 
@@ -114,4 +110,8 @@ interface SpotRepository {
     fun getSpots(collectionRef: String, directions: Directions): Flow<Result<List<Spot>>>
     fun setSpot(pair: Pair<String, Spot>): Flow<Result<Boolean>>
     fun removeSpot(spot: Spot): Flow<Result<Boolean>>
+    fun setPoints(
+        uid: String,
+        incrementPoints: Long
+    )
 }

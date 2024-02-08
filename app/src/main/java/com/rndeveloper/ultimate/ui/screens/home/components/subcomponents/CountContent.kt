@@ -1,6 +1,5 @@
 package com.rndeveloper.ultimate.ui.screens.home.components.subcomponents
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -54,12 +53,19 @@ fun CountContent(
 
     var point by remember { mutableStateOf(false) }
 
-    LaunchedEffect(key1 = Unit, block = {
+    LaunchedEffect(key1 = Unit, key2 = uiAreasState.areas, block = {
         while (true) {
-            delay(500)
+            delay(
+                when {
+                    uiAreasState.areas.size >= 6 -> 250
+                    uiAreasState.areas.size >= 3 -> 500
+                    else -> 1000
+                }
+            )
             point = !point
         }
     })
+
     val color by animateColorAsState(
         targetValue = if (point) green_place_icon else Color.Transparent,
         label = ""
@@ -68,8 +74,7 @@ fun CountContent(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 18.dp)
-            .padding(bottom = 20.dp)
+            .padding(bottom = 14.dp)
             .clickable(interactionSource = interactionSource, indication = null) { onExpand() },
         verticalArrangement = Arrangement.SpaceBetween
     ) {
@@ -104,6 +109,8 @@ fun CountContent(
                     contentDescription = Icons.Filled.Circle.toString(),
                     modifier = Modifier.size(8.dp),
                     tint = if (uiAreasState.areas.isEmpty()) {
+                        Color.LightGray
+                    } else if (uiAreasState.areas.size >= 2) {
                         color
                     } else {
                         color
@@ -111,10 +118,18 @@ fun CountContent(
                 )
                 Spacer(modifier = modifier.width(3.dp))
                 Text(
-                    text = if (uiAreasState.areas.isEmpty()) {
-                        "Low activity"
-                    } else {
-                        "High activity"
+                    text = when {
+                        uiAreasState.areas.isEmpty() -> {
+                            "Low activity"
+                        }
+
+                        uiAreasState.areas.size >= 2 -> {
+                            "High activity"
+                        }
+
+                        else -> {
+                            "Average activity"
+                        }
                     },
                     fontWeight = FontWeight.Light,
                     color = Color.Gray
@@ -122,7 +137,7 @@ fun CountContent(
             }
         }
 
-        Spacer(modifier = modifier.height(3.dp))
+        Spacer(modifier = modifier.height(5.dp))
         Text(
             text = uiDirectionsState.directions.addressLine,
             style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Light),

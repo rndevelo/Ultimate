@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -68,13 +69,14 @@ fun MainContent(
             contentAlignment = Alignment.Center
         ) {
 
+
             GoogleMapContent(
                 rememberHomeUiContainerState = rememberHomeUiContainerState,
                 camPosState = camPosState,
                 car = uiUserState.user.car,
                 spots = uiSpotsState.spots,
                 areas = uiAreasState.areas,
-                onMapLoaded = onCameraLoc,
+                onMapLoaded = {},
                 isElapsedTime = uiElapsedTimeState > DEFAULT_ELAPSED_TIME,
                 mapType = mapType,
                 onSpot = onSpot,
@@ -94,40 +96,28 @@ fun MainContent(
                 onCameraCarLoc = onCameraCarLoc,
             )
 
-//            AnimatedVisibility(
-//                visible = uiElapsedTimeState > DEFAULT_ELAPSED_TIME && !rememberHomeUiContainerState.camPosState.isMoving,
-//                enter = fadeIn(),
-//                exit = fadeOut()
-//            ) {
-//                Icon(
-//                    painter = painterResource(id = R.drawable.ic_spot_marker_stroke),
-//                    contentDescription = R.drawable.ic_spot_marker_stroke.toString(),
-//                    modifier = Modifier.padding(bottom = 38.dp),
-//                    tint = MaterialTheme.colorScheme.inversePrimary
-//                )
-//            }
 
+            Image(
+                painter = painterResource(
+                    id = when (rememberHomeUiContainerState.screenState) {
+                        ScreenState.ADDSPOT -> R.drawable.ic_add_spot
+                        ScreenState.PARKMYCAR -> R.drawable.ic_park_my_car
+                        ScreenState.MAIN -> R.drawable.ic_circle
+                    }
+                ),
+                contentDescription = when (rememberHomeUiContainerState.screenState) {
+                    ScreenState.ADDSPOT -> R.drawable.ic_add_spot.toString()
+                    ScreenState.PARKMYCAR -> R.drawable.ic_park_my_car.toString()
+                    ScreenState.MAIN -> R.drawable.ic_circle.toString()
+                },
+                modifier = if (rememberHomeUiContainerState.isSetState) modifier.padding(bottom = extraPadding) else modifier,
+            )
             AnimatedVisibility(visible = rememberHomeUiContainerState.isSetState) {
-
-                Image(
-                    painter = painterResource(
-                        id = when (rememberHomeUiContainerState.screenState) {
-                            ScreenState.ADDSPOT -> R.drawable.ic_add_spot
-                            ScreenState.PARKMYCAR -> R.drawable.ic_park_my_car
-                            ScreenState.MAIN -> R.drawable.ic_nothing
-                        }
-                    ),
-                    contentDescription = when (rememberHomeUiContainerState.screenState) {
-                        ScreenState.ADDSPOT -> R.drawable.ic_add_spot.toString()
-                        ScreenState.PARKMYCAR -> R.drawable.ic_park_my_car.toString()
-                        ScreenState.MAIN -> R.drawable.ic_nothing.toString()
-                    },
-                    modifier = modifier.padding(bottom = extraPadding),
-                )
+                Text(text = uiUserState.user.uid)
 
                 Image(
                     painter = painterResource(id = R.drawable.ic_marker_shadow),
-                    contentDescription = "Aparcar tu coche",
+                    contentDescription = R.drawable.ic_marker_shadow.toString(),
                     modifier = modifier
                         .align(Alignment.Center)
                         .padding(bottom = 60.dp),

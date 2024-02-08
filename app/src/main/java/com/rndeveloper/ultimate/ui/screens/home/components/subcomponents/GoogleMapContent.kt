@@ -22,6 +22,7 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.rndeveloper.ultimate.R
+import com.rndeveloper.ultimate.extensions.onNavigate
 import com.rndeveloper.ultimate.model.Position
 import com.rndeveloper.ultimate.model.Spot
 import com.rndeveloper.ultimate.ui.screens.home.HomeUiContainerState
@@ -78,7 +79,14 @@ fun GoogleMapContent(
                     context = context,
                     id = R.drawable.ic_park_my_car_shadow
                 ),
-                title = stringResource(R.string.home_text_your_parked_car)
+                title = stringResource(R.string.home_text_your_parked_car),
+                snippet = stringResource(R.string.home_text_navigate_my_car),
+                onInfoWindowClick = { marker ->
+                    onNavigate(
+                        context,
+                        LatLng(marker.position.latitude, marker.position.longitude),
+                    )
+                }
             )
         }
 
@@ -90,7 +98,7 @@ fun GoogleMapContent(
                 visible = isElapsedTime,
                 onClick = { marker ->
                     onSpot(marker.tag as String)
-                    false
+                    true
                 }
             )
         }

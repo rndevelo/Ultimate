@@ -41,6 +41,9 @@
     <string name="home_text_areas_nearby">%1$s activity areas nearby</string>
     <string name="home_text_spots_nearby">%1$s parking spots nearby</string>
     <string name="home_text_parking_spots">%1$s parking spots</string>
+    <string name="home_text_4cred">(+4cred.)</string>
+    <string name="home_text_2creds">(2creds.)</string>
+    <string name="home_text_navigate_my_car">Click here and navigate to your car</string>
 
 
 </resources>

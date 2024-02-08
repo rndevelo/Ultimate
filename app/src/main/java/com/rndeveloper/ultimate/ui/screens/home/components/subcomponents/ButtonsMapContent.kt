@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddLocationAlt
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.GpsFixed
 import androidx.compose.material.icons.filled.Menu
@@ -23,6 +24,7 @@ import androidx.compose.material.icons.filled.Slideshow
 import androidx.compose.material.icons.filled.Terrain
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -36,7 +38,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rndeveloper.ultimate.R
 import com.rndeveloper.ultimate.model.Position
+import com.rndeveloper.ultimate.ui.screens.home.ScreenState
 import com.rndeveloper.ultimate.ui.theme.UltimateTheme
+import kotlinx.coroutines.launch
 
 @Composable
 fun ButtonsMapContent(
@@ -99,6 +103,8 @@ fun ButtonsMapContent(
             }
         }
 
+        //        Admob button
+
         FloatingActionButton(
             onClick = {},
             modifier = Modifier.align(Alignment.BottomStart),
@@ -112,6 +118,7 @@ fun ButtonsMapContent(
                 contentDescription = Icons.Default.Slideshow.toString(),
             )
         }
+
 
         //        FIXME: CarLoc FloatingButtons
         Column(

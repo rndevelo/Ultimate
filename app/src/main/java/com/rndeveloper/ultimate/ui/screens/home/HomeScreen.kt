@@ -41,11 +41,14 @@ import com.rndeveloper.ultimate.ui.screens.home.components.MainContent
 import com.rndeveloper.ultimate.ui.screens.home.components.SheetContent
 import com.rndeveloper.ultimate.ui.screens.home.uistates.AreasUiState
 import com.rndeveloper.ultimate.ui.screens.home.uistates.DirectionsUiState
+import com.rndeveloper.ultimate.ui.screens.home.uistates.LocationUiState
 import com.rndeveloper.ultimate.ui.screens.home.uistates.SpotsUiState
 import com.rndeveloper.ultimate.ui.screens.home.uistates.UserUiState
 import com.rndeveloper.ultimate.ui.theme.UltimateTheme
 import com.rndeveloper.ultimate.utils.Constants.DEFAULT_ELAPSED_TIME
 import com.rndeveloper.ultimate.utils.Constants.SPOTS_TIMER
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,6 +58,7 @@ fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
     rememberUiElementsState: HomeUiContainerState = rememberHomeUiContainerState(),
 ) {
+    val uiLocationState by homeViewModel.uiLocationState.collectAsStateWithLifecycle()
     val uiUserState by homeViewModel.uiUserState.collectAsStateWithLifecycle()
     val uiSpotsState by homeViewModel.uiSpotsState.collectAsStateWithLifecycle()
     val uiAreasState by homeViewModel.uiAreasState.collectAsStateWithLifecycle()
@@ -64,6 +68,7 @@ fun HomeScreen(
     HomeContent(
         onNavigate = navController::navigate,
         rememberHomeUiContainerState = rememberUiElementsState,
+        isLocation = uiLocationState.location != null,
         uiUserState = uiUserState,
         uiSpotsState = uiSpotsState,
         uiAreasState = uiAreasState,
@@ -87,6 +92,7 @@ fun HomeScreen(
 private fun HomeContent(
     onNavigate: (String) -> Unit,
     rememberHomeUiContainerState: HomeUiContainerState,
+    isLocation: Boolean,
     uiUserState: UserUiState,
     uiSpotsState: SpotsUiState,
     uiAreasState: AreasUiState,
@@ -95,7 +101,7 @@ private fun HomeContent(
     onSet: (CameraPositionState, HomeUiContainerState, () -> Unit) -> Unit,
     onRemoveSpot: (Spot) -> Unit,
     onStartTimer: () -> Unit,
-    onGetAddressLine: (Context, CameraPositionState, ScreenState, Boolean, Boolean, () -> Unit) -> Unit,
+    onGetAddressLine: (Context, CameraPositionState, ScreenState, Boolean) -> Unit,
     onCameraLoc: (CameraPositionState) -> Unit,
     onCameraCar: (CameraPositionState) -> Unit,
     onCameraCarLoc: (CameraPositionState) -> Unit,
@@ -109,23 +115,39 @@ private fun HomeContent(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val snackBarHostState = remember { SnackbarHostState() }
-    var selectedSpot by rememberSaveable { mutableStateOf(uiSpotsState.spots.firstOrNull()) }
+    var selectedSpot by rememberSaveable { mutableStateOf(uiAreasState.areas.firstOrNull()) }
 
+    LaunchedEffect(key1 = isFirstLaunch && isLocation) {
+        if (isFirstLaunch && isLocation) {
+            onCameraLoc(camPosState)
+            isFirstLaunch = false
+        }
+    }
 
     LaunchedEffect(Unit) {
         snapshotFlow {
-            !camPosState.isMoving || isFirstLaunch
+            !camPosState.isMoving
         }.collect { doLoad ->
             onGetAddressLine(
                 context,
                 camPosState,
                 rememberHomeUiContainerState.screenState,
-                doLoad,
-                isFirstLaunch
-            ) {
-                isFirstLaunch = false
-            }
+                doLoad
+            )
         }
+    }
+
+    LaunchedEffect(key1 = selectedSpot) {
+        awaitAll(
+            async {
+                onCameraSpot(camPosState, selectedSpot?.position)
+            },
+//            async {
+//                rememberHomeUiContainerState.scrollState.animateScrollToItem(
+//                    index = uiSpotsState.spots.indexOf(selectedSpot)
+//                )
+//            }
+        )
     }
 
     if (!uiUserState.errorMessage?.error.isNullOrBlank()) {
@@ -200,7 +222,6 @@ private fun HomeContent(
                                 selectedSpot = uiSpotsState.spots.find {
                                     it.tag == tag
                                 }
-                                selectedSpot?.let { onCameraSpot(camPosState, it.position) }
                             },
                             onRemoveSpot = onRemoveSpot
                         )
@@ -226,11 +247,6 @@ private fun HomeContent(
                         onSpot = { tag ->
                             selectedSpot = uiSpotsState.spots.find {
                                 it.tag == tag
-                            }
-                            scope.launch {
-                                rememberHomeUiContainerState.scrollState.animateScrollToItem(
-                                    index = uiSpotsState.spots.indexOf(selectedSpot)
-                                )
                             }
                         },
                         modifier = Modifier.height(

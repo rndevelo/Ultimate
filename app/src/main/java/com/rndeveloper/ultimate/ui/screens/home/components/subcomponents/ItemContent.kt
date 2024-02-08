@@ -32,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -83,7 +84,7 @@ fun ItemContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                Text(text = spot.distance)
+                Text(text = spot.distance, style = TextStyle().copy(fontWeight = FontWeight.Light))
 
                 Text(
                     text = spot.timestamp.getFormattedPrettyTime(),
@@ -100,15 +101,7 @@ fun ItemContent(
                         )
                     }
 
-                    FilledIconButton(
-                        onClick = {
-                            onRemoveSpot()
-//                            goNavigate(
-//                                latLng = LatLng(spot.position.lat, spot.position.lng),
-//                                context = context
-//                            )
-                        },
-                    ) {
+                    FilledIconButton(onClick = onRemoveSpot) {
                         Icon(
                             imageVector = Icons.Filled.Navigation,
                             contentDescription = Icons.Filled.Navigation.toString(),
@@ -126,17 +119,6 @@ fun ItemContent(
                 Text(text = "por ${spot.user.username}")
             }
         }
-    }
-}
-
-private fun goNavigate(latLng: LatLng?, context: Context) {
-    if (latLng != null) {
-        val navigationIntentUri =
-            Uri.parse("google.navigation:q=" + latLng.latitude + "," + latLng.longitude) //creating intent with latlng
-
-        val mapIntent = Intent(Intent.ACTION_VIEW, navigationIntentUri)
-        mapIntent.setPackage("com.google.android.apps.maps")
-        ContextCompat.startActivity(context, mapIntent, null)
     }
 }
 

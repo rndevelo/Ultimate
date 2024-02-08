@@ -5,7 +5,13 @@ import android.content.Context
 import android.content.Intent
 import androidx.annotation.CallSuper
 import com.google.android.gms.location.GeofenceStatusCodes
+import com.rndeveloper.ultimate.repositories.SpotRepository
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 
 abstract class HiltGeofenceReceiver : BroadcastReceiver() {
@@ -17,44 +23,22 @@ abstract class HiltGeofenceReceiver : BroadcastReceiver() {
 @AndroidEntryPoint
 class GeofenceReceiver : HiltGeofenceReceiver() {
 
-//    @Inject
-//    lateinit var spotUseCases: SpotUseCases
-//
-//    @OptIn(DelicateCoroutinesApi::class)
-//    @Suppress("DEPRECATION")
-//    override fun onReceive(context: Context, intent: Intent) {
-//        super.onReceive(context, intent) // <-- it's the trick
-//
-//        val points = intent.extras!!.getInt("points")
+    @Inject
+    lateinit var spotRepository: SpotRepository
+
+    @OptIn(DelicateCoroutinesApi::class)
+    @Suppress("DEPRECATION")
+    override fun onReceive(context: Context, intent: Intent) {
+        super.onReceive(context, intent) // <-- it's the trick
+
+        val points = intent.extras!!.getInt("points")
 //        val bundle = intent.getBundleExtra("bundle")
-//        if (bundle != null) {
-//            val newItem: NewSpot? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-//                bundle.getSerializable("newItem", NewSpot::class.java)
-//            } else {
-//                bundle.getSerializable("newItem") as NewSpot?
-//            }
-//
-//            val iUser: User? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-//                bundle.getSerializable("iUser", User::class.java)
-//            } else {
-//                bundle.getSerializable("iUser") as User?
-//            }
-//
-//            Log.d(TAG, "onReceive: points$points, newItem$newItem, iUser$iUser")
-//
-//            GlobalScope.launch(Dispatchers.IO) {
-//                if (newItem != null) {
-//                    if (iUser != null) {
-//                        spotUseCases.deleteSpot(
-//                            points,
-//                            newItem,
-//                            iUser
-//                        ).collect()
-//                    }
-//                }
-//            }
-//
-//            Log.d(TAG, "receiver")
+//        GlobalScope.launch(Dispatchers.IO) {
+//            spotRepository.removeSpot(
+//                points,
+//                newItem,
+//                iUser
+//            ).collect()
 //        }
 //
 //        val geofencingEvent = GeofencingEvent.fromIntent(intent)
@@ -89,7 +73,7 @@ class GeofenceReceiver : HiltGeofenceReceiver() {
 //            Geofence.GEOFENCE_TRANSITION_EXIT -> Toast.makeText(context, "EXIT", Toast.LENGTH_SHORT)
 //                .show()
 //        }
-//    }
+    }
 
     fun errorMessage(context: Context, errorCode: Int): String {
         return when (errorCode) {

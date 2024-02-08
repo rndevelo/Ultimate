@@ -17,6 +17,7 @@ import com.rndeveloper.ultimate.model.Timer
 import com.rndeveloper.ultimate.repositories.ActivityTransitionRepo
 import com.rndeveloper.ultimate.repositories.GeocoderRepository
 import com.rndeveloper.ultimate.repositories.LocationClient
+import com.rndeveloper.ultimate.repositories.SpotRepository
 import com.rndeveloper.ultimate.repositories.TimerRepository
 import com.rndeveloper.ultimate.repositories.UserRepository
 import com.rndeveloper.ultimate.ui.screens.home.uistates.AreasUiState
@@ -52,6 +53,7 @@ class HomeViewModel @Inject constructor(
     private val timerRepository: TimerRepository,
     private val locationClient: LocationClient,
     private val spotsUseCases: SpotsUseCases,
+    private val spotsRepository: SpotRepository,
     private val userUseCases: UserUseCases,
     private val userRepository: UserRepository,
     private val activityTransitionClient: ActivityTransitionRepo,
@@ -59,8 +61,13 @@ class HomeViewModel @Inject constructor(
 //    private val geofenceClient: GeofenceClient,
 ) : ViewModel() {
 
-    private val _locationState = MutableStateFlow(LocationUiState())
 
+    private val _locationState = MutableStateFlow(LocationUiState())
+    val uiLocationState: StateFlow<LocationUiState> = _locationState.asStateFlow().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = LocationUiState()
+    )
 
     private val _userState = MutableStateFlow(UserUiState())
     val uiUserState: StateFlow<UserUiState> = _userState.asStateFlow().stateIn(
@@ -88,13 +95,6 @@ class HomeViewModel @Inject constructor(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
         initialValue = 0L,
-    )
-
-    private val _selectedItemState = MutableStateFlow(Spot())
-    val uiSelectedItemState: StateFlow<Spot?> = _selectedItemState.asStateFlow().stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.Eagerly,
-        initialValue = _spotsState.value.spots.firstOrNull(),
     )
 
     private val _directionsState = MutableStateFlow(DirectionsUiState())
@@ -149,10 +149,11 @@ class HomeViewModel @Inject constructor(
             id = timerId,
             endTime = currentTime() + Constants.TIMER
         )
-        if (_elapsedTimeState.value <= 0L && _spotsState.value.spots.isNotEmpty()) {
+        if (_elapsedTimeState.value <= 0L && _spotsState.value.spots.isNotEmpty() && _userState.value.user.points >= 2) {
             viewModelScope.launch {
                 timerRepository.saveTimer(timer = timer)
             }
+            onSetPoint(points = -2)
             onGetAndStartTimer()
         }
     }
@@ -203,8 +204,6 @@ class HomeViewModel @Inject constructor(
         camPosState: CameraPositionState,
         screenState: ScreenState,
         doLoad: Boolean,
-        isFirstLaunch: Boolean,
-        onFirstLaunch: () -> Unit
     ) {
 
         if (screenState == ScreenState.MAIN) {
@@ -213,7 +212,7 @@ class HomeViewModel @Inject constructor(
             }
         }
 
-        if (doLoad || isFirstLaunch) {
+        if (doLoad) {
 
             val currentPosition = Position(
                 camPosState.position.target.latitude,
@@ -227,14 +226,16 @@ class HomeViewModel @Inject constructor(
                 )
             ) { directions ->
                 if (screenState == ScreenState.MAIN) {
-                    onGetSpots(context = context, position = currentPosition, directions = directions)
+                    onGetSpots(
+                        context = context,
+                        position = currentPosition,
+                        directions = directions
+                    )
                 }
                 _directionsState.update {
                     it.copy(directions = directions)
                 }
             }
-
-            onFirstLaunch()
         }
     }
 
@@ -292,7 +293,11 @@ class HomeViewModel @Inject constructor(
     }
 
     //    SET SPOT
-    fun onSet(camPosState: CameraPositionState, rememberHomeUiContainerState: HomeUiContainerState, onMainState: () -> Unit) =
+    fun onSet(
+        camPosState: CameraPositionState,
+        rememberHomeUiContainerState: HomeUiContainerState,
+        onMainState: () -> Unit
+    ) =
         viewModelScope.launch {
             if (!camPosState.isMoving && camPosState.position.zoom > 12f) {
 
@@ -357,11 +362,23 @@ class HomeViewModel @Inject constructor(
     }
 
     fun onRemoveSpot(spot: Spot) = viewModelScope.launch {
-        spotsUseCases.removeSpotUseCase(spot.copy(icon = null)).collectLatest { newHomeUiState ->
-            _spotsState.update {
-                newHomeUiState
-            }
+//        FIXME : THIS
+        if (_userState.value.user.uid != spot.user.uid) {
+
+            spotsUseCases.removeSpotUseCase(spot.copy(icon = null))
+                .collectLatest { newHomeUiState ->
+                    _spotsState.update {
+                        newHomeUiState
+                    }
+                }
+
+        } else {
+
         }
+    }
+
+    fun onSetPoint(points: Long) {
+        spotsRepository.setPoints(uid = _userState.value.user.uid, incrementPoints = points)
     }
 
 

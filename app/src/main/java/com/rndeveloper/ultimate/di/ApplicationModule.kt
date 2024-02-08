@@ -78,8 +78,9 @@ object ApplicationModule {
     @Singleton
     @Provides
     fun provideSpotsRepository(
+        fireAuth: FirebaseAuth,
         fireStore: FirebaseFirestore
-    ): SpotRepository = SpotRepositoryImpl(fireStore = fireStore)
+    ): SpotRepository = SpotRepositoryImpl(fireAuth = fireAuth, fireStore = fireStore)
 
     @Singleton
     @Provides
