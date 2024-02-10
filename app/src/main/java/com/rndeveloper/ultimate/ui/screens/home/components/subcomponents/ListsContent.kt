@@ -36,60 +36,26 @@ fun ListsContent(
     onRemoveSpot: (Spot) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .heightIn(max = 210.dp),
-    ) {
-        AnimatedVisibility(visible = areas.isNotEmpty()) {
-            Column {
-                Divider()
-                Text(
-                    text = stringResource(R.string.home_text_areas_nearby, areas.size),
-                    modifier = modifier.padding(3.dp),
-//                    fontWeight = FontWeight.Bold
-                )
-                LazyRow {
-                    items(
-                        items = areas,
-                        key = { i -> i.tag }
-                    ) { area ->
-                        Icon(
-                            imageVector = Icons.Filled.Circle,
-                            contentDescription = Icons.Filled.Circle.toString(),
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clickable { onSpot(area.tag) },
-                            tint = area.color
-                        )
-                    }
-                }
-            }
-        }
-        Spacer(modifier = Modifier.height(5.dp))
-        AnimatedVisibility(visible = isElapsedTime) {
-            Column {
-                Divider()
-                Text(
-                    text = stringResource(R.string.home_text_spots_nearby, spots.size),
-                    modifier = Modifier.padding(3.dp),
-//                    fontWeight = FontWeight.Bold
-                )
-
-                LazyColumn(state = scrollState) {
-                    items(items = spots, key = { i -> i.tag }) { spot ->
-                        ItemContent(
-                            spot = spot,
-                            selectedSpot = selectedSpot,
-                            onSpotItem = { onSpot(spot.tag) },
-                            onRemoveSpot = { onRemoveSpot(spot) }
-                        )
-                    }
-                }
-            }
-        }
-        AnimatedVisibility(visible = isElapsedTime || areas.isNotEmpty()) {
+    AnimatedVisibility(visible = isElapsedTime) {
+        Column(
+            modifier = modifier
+                .fillMaxWidth()
+                .heightIn(max = 195.dp),
+        ) {
             Divider()
+
+            LazyColumn(state = scrollState) {
+                items(items = spots, key = { i -> i.tag }) { spot ->
+                    ItemContent(
+                        spot = spot,
+                        selectedSpot = selectedSpot,
+                        onSpotItem = { onSpot(spot.tag) },
+                        onRemoveSpot = { onRemoveSpot(spot) }
+                    )
+                }
+            }
+            Divider()
+
         }
     }
 }

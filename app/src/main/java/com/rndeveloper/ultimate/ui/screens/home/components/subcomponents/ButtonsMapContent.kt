@@ -29,6 +29,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -105,18 +109,38 @@ fun ButtonsMapContent(
 
         //        Admob button
 
+        var isExpandedAdmobButton by remember { mutableStateOf(false) }
+
         FloatingActionButton(
-            onClick = {},
+            onClick = {
+                if (isExpandedAdmobButton) {
+
+                } else {
+                    isExpandedAdmobButton = true
+                }
+            },
             modifier = Modifier.align(Alignment.BottomStart),
 
 //            FIXME: this -----------------
             containerColor = MaterialTheme.colorScheme.tertiary
 
         ) {
-            Icon(
-                imageVector = Icons.Default.Slideshow,
-                contentDescription = Icons.Default.Slideshow.toString(),
-            )
+            Row(modifier = modifier.padding(7.dp)) {
+
+                Icon(
+                    imageVector = Icons.Default.Slideshow,
+                    contentDescription = Icons.Default.Slideshow.toString(),
+                )
+                AnimatedVisibility(visible = isExpandedAdmobButton) {
+                    Spacer(modifier = modifier.width(5.dp))
+                    Text(
+                        text = "(+1cred.)",
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Light)
+                    )
+                }
+
+            }
+
         }
 
 

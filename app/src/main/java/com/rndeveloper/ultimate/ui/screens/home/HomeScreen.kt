@@ -230,7 +230,7 @@ private fun HomeContent(
                     scaffoldState = rememberHomeUiContainerState.bsScaffoldState,
                     sheetPeekHeight = 125.dp,
                     sheetShape = BottomSheetDefaults.HiddenShape,
-                    sheetTonalElevation = 2.dp,
+                    sheetTonalElevation = 3.dp,
                     sheetSwipeEnabled = rememberHomeUiContainerState.screenState == ScreenState.MAIN
                 ) {
                     MainContent(

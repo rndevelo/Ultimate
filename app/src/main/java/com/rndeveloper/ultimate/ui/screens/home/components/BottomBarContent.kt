@@ -49,7 +49,7 @@ fun BottomBarContent(
 ) {
     val scope = rememberCoroutineScope()
 
-    Surface(tonalElevation = 2.dp) {
+    Surface(tonalElevation = 3.dp) {
         Row(
             modifier = modifier
                 .height(85.dp)

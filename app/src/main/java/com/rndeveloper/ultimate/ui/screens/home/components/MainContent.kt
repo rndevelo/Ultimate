@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -62,13 +61,12 @@ fun MainContent(
         ), label = ""
     )
 
-    Surface(tonalElevation = 2.dp) {
+    Surface(tonalElevation = 3.dp) {
 
         Box(
             modifier = modifier,
             contentAlignment = Alignment.Center
         ) {
-
 
             GoogleMapContent(
                 rememberHomeUiContainerState = rememberHomeUiContainerState,
@@ -113,7 +111,6 @@ fun MainContent(
                 modifier = if (rememberHomeUiContainerState.isSetState) modifier.padding(bottom = extraPadding) else modifier,
             )
             AnimatedVisibility(visible = rememberHomeUiContainerState.isSetState) {
-                Text(text = uiUserState.user.uid)
 
                 Image(
                     painter = painterResource(id = R.drawable.ic_marker_shadow),

@@ -73,9 +73,7 @@ val circle_green = Color(0x2600FF19)
 val blue_time_spot = Color(0xFF31A2D6)
 
 // Custom icons color
-val red_place_icon = Color(0x80D63152)
-
-val green_place_icon = Color(0x800CD596)
-val yellow_place_icon = Color(0x80F8CF53)
-//val red_place_icon = Color(0xFFEA5D44)
-val blue_place_icon = Color(0x8070DEFF)
+val red_place_icon = Color(0x26DB1B41)
+val green_place_icon = Color(0x260CD596)
+val yellow_place_icon = Color(0x26F8CF53)
+val blue_place_icon = Color(0x2670DEFF)

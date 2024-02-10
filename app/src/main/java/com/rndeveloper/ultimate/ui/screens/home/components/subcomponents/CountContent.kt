@@ -1,5 +1,6 @@
 package com.rndeveloper.ultimate.ui.screens.home.components.subcomponents
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -12,8 +13,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.Circle
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -26,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Gray
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -50,8 +59,8 @@ fun CountContent(
 ) {
 
     val interactionSource = remember { MutableInteractionSource() }
-
     var point by remember { mutableStateOf(false) }
+    var isExpanded by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = Unit, key2 = uiAreasState.areas, block = {
         while (true) {
@@ -103,38 +112,82 @@ fun CountContent(
                     )
                 },
             )
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Filled.Circle,
-                    contentDescription = Icons.Filled.Circle.toString(),
-                    modifier = Modifier.size(8.dp),
-                    tint = if (uiAreasState.areas.isEmpty()) {
-                        Color.LightGray
-                    } else if (uiAreasState.areas.size >= 2) {
-                        color
-                    } else {
-                        color
+            Column {
+
+                Row(
+                    modifier = Modifier.clickable { isExpanded = !isExpanded },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Circle,
+                        contentDescription = Icons.Filled.Circle.toString(),
+                        modifier = Modifier.size(8.dp),
+                        tint = if (uiAreasState.areas.isEmpty()) {
+                            Color.LightGray
+                        } else if (uiAreasState.areas.size >= 2) {
+                            color
+                        } else {
+                            color
+                        }
+                    )
+                    Spacer(modifier = modifier.width(3.dp))
+                    Text(
+                        text = when {
+                            uiAreasState.areas.isEmpty() -> {
+                                "Low activity"
+                            }
+
+                            uiAreasState.areas.size >= 4 -> {
+                                "High activity"
+                            }
+
+                            else -> {
+                                "Regular activity"
+                            }
+                        },
+                        fontWeight = FontWeight.Light,
+                        color = Gray
+                    )
+                    Spacer(modifier = modifier.width(3.dp))
+
+                    Icon(
+                        imageVector = Icons.Filled.ArrowDropUp,
+                        contentDescription = Icons.Filled.ArrowDropDown.toString(),
+//                    modifier = Modifier.size(8.dp),
+                        tint = Gray
+                    )
+                }
+
+                DropdownMenu(
+                    expanded = isExpanded,
+                    onDismissRequest = { isExpanded = false }
+                ) {
+                    uiAreasState.areas.forEach { area ->
+                        DropdownMenuItem(
+                            text = {
+                                Row {
+                                    Icon(
+                                        imageVector = Icons.Filled.Circle,
+                                        contentDescription = Icons.Filled.Circle.toString(),
+                                        modifier = Modifier
+                                            .size(40.dp),
+                                        tint = area.color
+                                    )
+                                    Text(
+                                        text = area.distance,
+                                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Light)
+                                    )
+                                }
+                            },
+                            onClick = {
+//                                isExpanded = false
+//                            onSelectItem()
+                            },
+                        )
                     }
-                )
-                Spacer(modifier = modifier.width(3.dp))
-                Text(
-                    text = when {
-                        uiAreasState.areas.isEmpty() -> {
-                            "Low activity"
-                        }
-
-                        uiAreasState.areas.size >= 2 -> {
-                            "High activity"
-                        }
-
-                        else -> {
-                            "Average activity"
-                        }
-                    },
-                    fontWeight = FontWeight.Light,
-                    color = Color.Gray
-                )
+                }
             }
+
         }
 
         Spacer(modifier = modifier.height(5.dp))

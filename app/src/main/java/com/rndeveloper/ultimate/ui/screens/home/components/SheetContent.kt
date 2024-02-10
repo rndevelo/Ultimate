@@ -98,7 +98,7 @@ fun SheetContentPreview() {
             isElapsedTime = true,
             selectedSpot = Spot(),
             onExpand = {},
-            onSpot = { },
+            onSpot = {},
             onRemoveSpot = {}
         )
     }

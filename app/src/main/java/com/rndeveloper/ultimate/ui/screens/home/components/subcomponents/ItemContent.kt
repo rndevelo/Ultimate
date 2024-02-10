@@ -116,7 +116,6 @@ fun ItemContent(
                     maxLines = 3,
                     style = MaterialTheme.typography.labelLarge
                 )
-                Text(text = "por ${spot.user.username}")
             }
         }
     }
