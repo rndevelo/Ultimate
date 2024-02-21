@@ -11,8 +11,7 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.GeofencingClient
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.rndeveloper.ultimate.repositories.ActivityTransitionRepo
-import com.rndeveloper.ultimate.repositories.ActivityTransitionRepoImpl
+import com.rndeveloper.ultimate.services.ActivityTransitionManager
 import com.rndeveloper.ultimate.repositories.GeocoderRepository
 import com.rndeveloper.ultimate.repositories.GeocoderRepositoryImpl
 import com.rndeveloper.ultimate.repositories.GeofenceClient
@@ -85,9 +84,9 @@ object ApplicationModule {
     @Singleton
     @Provides
     fun provideActivityRecognitionRepository(
-        @ApplicationContext appContext: Context,
         activityRecognitionClient: ActivityRecognitionClient,
-    ): ActivityTransitionRepo = ActivityTransitionRepoImpl(
+        @ApplicationContext appContext: Context,
+    ): ActivityTransitionManager = ActivityTransitionManager(
         activityRecognitionClient = activityRecognitionClient,
         appContext = appContext
     )

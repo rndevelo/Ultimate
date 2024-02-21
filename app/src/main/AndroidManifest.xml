@@ -38,7 +38,10 @@
         </activity>
 
         <receiver android:name=".receivers.ActivityTransitionReceiver" />
+
         <receiver android:name=".receivers.GeofenceReceiver" />
+
+        <service android:name=".services.UploadFirebaseService" />
 
     </application>
 

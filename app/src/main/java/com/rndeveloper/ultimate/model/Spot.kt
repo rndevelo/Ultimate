@@ -30,4 +30,23 @@ data class Spot(
         newpoints = 0L,
         user = User()
     )
+
+    constructor(
+        timestamp: Long,
+        type: SpotType,
+        directions: Directions,
+        position: Position,
+        user: User
+    ) : this(
+        tag = "",
+        position = position,
+        distance = "",
+        color = green_place_icon,
+        icon = null,
+        directions = directions,
+        type = type,
+        timestamp = timestamp,
+        newpoints = 0L,
+        user = user
+    )
 }

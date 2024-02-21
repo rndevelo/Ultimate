@@ -14,7 +14,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
@@ -34,7 +34,7 @@ import com.rndeveloper.ultimate.utils.Constants.permissionsToRequest
 @Composable
 fun PermissionsScreen(
     navController: NavController,
-    permissionsViewModel: PermissionsViewModel = viewModel()
+    permissionsViewModel: PermissionsViewModel = hiltViewModel()
 ) {
 
     val context = LocalContext.current
@@ -49,6 +49,7 @@ fun PermissionsScreen(
 
     LaunchedEffect(key1 = result) {
         if (result) {
+            permissionsViewModel.startActivityTransition()
             navController.navigate(Routes.HomeScreen.route) {
                 popUpTo(Routes.PermissionsScreen.route) { inclusive = true }
             }

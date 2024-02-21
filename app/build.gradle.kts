@@ -1,6 +1,3 @@
-import java.io.FileInputStream
-import java.util.Properties
-
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -72,7 +69,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.3"
+        kotlinCompilerExtensionVersion = "1.5.8"
     }
     packaging {
         resources {
@@ -89,6 +86,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-service:2.7.0")
 
     // Compose
     implementation(platform("androidx.compose:compose-bom:2024.02.01"))
@@ -109,7 +107,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:21.0.0")
 
     // Permissions
-    implementation ("com.google.accompanist:accompanist-permissions:0.25.1")
+    implementation("com.google.accompanist:accompanist-permissions:0.25.1")
 
     // Hilt
     implementation("com.google.dagger:hilt-android:2.50")
@@ -118,7 +116,7 @@ dependencies {
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:32.7.2"))
     implementation("com.google.firebase:firebase-auth-ktx")
-    implementation("com.google.firebase:firebase-crashlytics-ktx:18.6.2")
+    implementation("com.google.firebase:firebase-crashlytics-ktx")
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
 

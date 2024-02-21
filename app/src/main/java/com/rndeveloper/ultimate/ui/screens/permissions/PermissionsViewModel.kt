@@ -2,8 +2,14 @@ package com.rndeveloper.ultimate.ui.screens.permissions
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
+import com.rndeveloper.ultimate.services.ActivityTransitionManager
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class PermissionsViewModel : ViewModel() {
+@HiltViewModel
+class PermissionsViewModel @Inject constructor(
+    private val activityTransition: ActivityTransitionManager
+) : ViewModel() {
 
     val visiblePermissionDialogQueue = mutableStateListOf<String>()
 
@@ -19,4 +25,8 @@ class PermissionsViewModel : ViewModel() {
             visiblePermissionDialogQueue.add(permission)
         }
     }
+
+    fun startActivityTransition() =
+        activityTransition.startActivityTransition()
+
 }

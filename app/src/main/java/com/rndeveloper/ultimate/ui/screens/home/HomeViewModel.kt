@@ -1,5 +1,6 @@
 package com.rndeveloper.ultimate.ui.screens.home
 
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.os.CountDownTimer
 import android.util.Log
@@ -56,7 +57,6 @@ class HomeViewModel @Inject constructor(
     private val spotsRepository: ItemsRepository,
     private val userUseCases: UserUseCases,
     private val userRepository: UserRepository,
-    private val activityTransitionClient: ActivityTransitionRepo,
     private val geocoderRepository: GeocoderRepository,
 //    private val geofenceClient: GeofenceClient,
 ) : ViewModel() {
@@ -169,7 +169,6 @@ class HomeViewModel @Inject constructor(
             _userState.update {
                 newUserUiState
             }
-            activityTransitionClient.startActivityTransition(user = newUserUiState.user)
         }
     }
 
@@ -208,7 +207,7 @@ class HomeViewModel @Inject constructor(
         camPosState: CameraPositionState,
         screenState: ScreenState,
         doLoad: Boolean,
-    ) {
+    ) = viewModelScope.launch(Dispatchers.IO) {
 
         if (screenState == ScreenState.MAIN) {
             _spotsState.update {
@@ -230,31 +229,19 @@ class HomeViewModel @Inject constructor(
                 )
             ) { directions ->
                 if (screenState == ScreenState.MAIN) {
-                    onGetSpots(
-                        context = context,
-                        position = currentPosition,
-                        directions = directions
-                    )
+                    _locationState.value.location?.let { locPosition ->
+                        launch {
+                            awaitAll(
+                                async { getSpotsFlow(context, directions, currentPosition, locPosition) },
+                                async { getAreasFlow(context, directions, currentPosition, locPosition) },
+                            )
+                        }
+                    }
                 }
                 _directionsState.update {
                     it.copy(directions = directions)
                 }
             }
-        }
-    }
-
-
-    //    GET SPOTS
-    private fun onGetSpots(
-        context: Context,
-        position: Position,
-        directions: Directions
-    ) = viewModelScope.launch(Dispatchers.IO) {
-        _locationState.value.location?.let { locPosition ->
-            awaitAll(
-                async { getSpotsFlow(context, directions, position, locPosition) },
-                async { getAreasFlow(context, directions, position, locPosition) },
-            )
         }
     }
 
@@ -385,8 +372,6 @@ class HomeViewModel @Inject constructor(
                         newHomeUiState
                     }
                 }
-
-        } else {
 
         }
     }

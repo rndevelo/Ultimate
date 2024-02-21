@@ -7,11 +7,13 @@ import android.app.NotificationManager
 import android.content.Context
 import android.graphics.Color
 import android.os.Build
+import android.util.Log
 import com.google.firebase.BuildConfig
 import com.rndeveloper.ultimate.utils.Constants.ACT_CHANNEL_ID
 import dagger.hilt.android.HiltAndroidApp
-import timber.log.Timber.DebugTree
+import timber.log.Timber
 import timber.log.Timber.Forest.plant
+
 
 @HiltAndroidApp
 class UltimateApp : Application() {
@@ -20,7 +22,11 @@ class UltimateApp : Application() {
         super.onCreate()
         createNotificationChannel()
         if (BuildConfig.DEBUG) {
-            plant(DebugTree())
+            plant(Timber.DebugTree())
+        }
+
+        Thread.UncaughtExceptionHandler { t: Thread, e: Throwable ->
+            Log.e("TAG", "Thread: ${t.name}", e)
         }
     }
 
