@@ -21,8 +21,8 @@ import com.rndeveloper.ultimate.repositories.LocationClient
 import com.rndeveloper.ultimate.repositories.LocationClientImpl
 import com.rndeveloper.ultimate.repositories.LoginRepository
 import com.rndeveloper.ultimate.repositories.LoginRepositoryImpl
-import com.rndeveloper.ultimate.repositories.SpotRepository
-import com.rndeveloper.ultimate.repositories.SpotRepositoryImpl
+import com.rndeveloper.ultimate.repositories.ItemsRepository
+import com.rndeveloper.ultimate.repositories.ItemsRepositoryImpl
 import com.rndeveloper.ultimate.repositories.TimerRepository
 import com.rndeveloper.ultimate.repositories.TimerRepositoryImpl
 import com.rndeveloper.ultimate.repositories.UserRepository
@@ -80,7 +80,7 @@ object ApplicationModule {
     fun provideSpotsRepository(
         fireAuth: FirebaseAuth,
         fireStore: FirebaseFirestore
-    ): SpotRepository = SpotRepositoryImpl(fireAuth = fireAuth, fireStore = fireStore)
+    ): ItemsRepository = ItemsRepositoryImpl(fireAuth = fireAuth, fireStore = fireStore)
 
     @Singleton
     @Provides
@@ -130,7 +130,7 @@ object ApplicationModule {
 
     @Provides
     fun provideSpotUseCases(
-        repo: SpotRepository
+        repo: ItemsRepository
     ) = SpotsUseCases(
         getSpotsUseCase = GetSpotsUseCase(repo),
         getAreasUseCase = GetAreasUseCase(repo),

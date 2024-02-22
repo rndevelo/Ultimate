@@ -28,7 +28,6 @@ import com.rndeveloper.ultimate.model.Spot
 import com.rndeveloper.ultimate.ui.screens.home.HomeUiContainerState
 import com.rndeveloper.ultimate.ui.screens.home.rememberHomeUiContainerState
 import com.rndeveloper.ultimate.ui.theme.UltimateTheme
-import com.rndeveloper.ultimate.ui.theme.circle_green
 import com.rndeveloper.ultimate.utils.BitmapHelper
 import com.rndeveloper.ultimate.utils.MapStyle
 
@@ -42,7 +41,7 @@ fun GoogleMapContent(
     onMapLoaded: () -> Unit,
     isElapsedTime: Boolean,
     mapType: MapType,
-    onSpot: (String) -> Unit,
+    onSelectSpot: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -97,7 +96,7 @@ fun GoogleMapContent(
                 icon = spot.icon,
                 visible = isElapsedTime,
                 onClick = { marker ->
-                    onSpot(marker.tag as String)
+                    onSelectSpot(marker.tag as String)
                     true
                 }
             )
@@ -110,9 +109,6 @@ fun GoogleMapContent(
                 radius = 50.0,
                 strokeColor = Color.Transparent,
                 tag = area.tag,
-                onClick = { circle ->
-                    onSpot(circle.tag as String)
-                }
             )
         }
     }
@@ -132,7 +128,7 @@ fun GoogleMapContentPreview() {
             onMapLoaded = {},
             isElapsedTime = false,
             mapType = MapType.NORMAL,
-            onSpot = {},
+            onSelectSpot = {},
         )
     }
 }

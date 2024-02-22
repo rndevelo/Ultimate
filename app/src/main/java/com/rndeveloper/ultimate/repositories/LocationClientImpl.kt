@@ -50,7 +50,6 @@ class LocationClientImpl @Inject constructor(
             callback(Position(location.latitude, location.longitude))
         }
     }
-
 }
 
 interface LocationClient {

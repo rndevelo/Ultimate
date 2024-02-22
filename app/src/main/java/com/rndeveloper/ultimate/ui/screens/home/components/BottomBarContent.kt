@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddLocationAlt
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -47,7 +48,6 @@ fun BottomBarContent(
     onSet: (onMain: () -> Unit) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val scope = rememberCoroutineScope()
 
     Surface(tonalElevation = 3.dp) {
         Row(
@@ -85,9 +85,7 @@ fun BottomBarContent(
                         }
 
                         else -> {
-                            scope.launch {
-                                rememberHomeUiContainerState.bsScaffoldState.bottomSheetState.expand()
-                            }
+                            rememberHomeUiContainerState.onOpenBottomSheet()
                             onCameraZoom(17f)
                             rememberHomeUiContainerState.onScreenState(ScreenState.ADDSPOT)
                         }
@@ -119,11 +117,21 @@ fun BottomBarContent(
                 icon = {
                     if (uiElapsedTimeState <= Constants.DEFAULT_ELAPSED_TIME) {
                         Icon(
-                            imageVector = Icons.Default.Visibility,
-                            contentDescription = Icons.Default.Visibility.toString()
+                            imageVector = Icons.Default.VisibilityOff,
+                            contentDescription = Icons.Default.VisibilityOff.toString()
                         )
                     } else {
-                        Text(text = DateUtils.formatElapsedTime(uiElapsedTimeState.div(1000)))
+                        Row(
+                            modifier = modifier.padding(horizontal = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Visibility,
+                                contentDescription = Icons.Default.Visibility.toString()
+                            )
+                            Spacer(modifier = modifier.width(5.dp))
+                            Text(text = DateUtils.formatElapsedTime(uiElapsedTimeState.div(1000)))
+                        }
                     }
                 },
                 onClick = {

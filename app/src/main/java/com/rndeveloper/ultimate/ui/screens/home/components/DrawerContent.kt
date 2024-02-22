@@ -15,10 +15,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.GroupAdd
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -76,7 +76,7 @@ fun DrawerHeaderContent(
         Divider(modifier = modifier.padding(horizontal = 15.dp))
         DrawerMenuItemContent(
             navigateToHistoryScreen = { onNavigate(Routes.HistoryScreen.route) },
-            navigateToAccountScreen = { /*TODO*/ },
+            navigateToSettingsScreen = { onNavigate(Routes.SettingsScreen.route) },
             uid = uiUserState.user.uid
         )
     }
@@ -85,7 +85,7 @@ fun DrawerHeaderContent(
 @Composable
 fun DrawerMenuItemContent(
     navigateToHistoryScreen: () -> Unit,
-    navigateToAccountScreen: () -> Unit,
+    navigateToSettingsScreen: () -> Unit,
     uid: String?
 ) {
     val context = LocalContext.current
@@ -108,11 +108,11 @@ fun DrawerMenuItemContent(
             ),
             MenuItem(
 //                id = 2,
-                title = "Cuenta",
+                title = "Settings",
 //                contentDescription = "Get help",
-                icon = Icons.Outlined.AccountCircle,
+                icon = Icons.Outlined.Settings,
 //                color = Blue500,
-                unit = { navigateToAccountScreen() }
+                unit = { navigateToSettingsScreen() }
             ),
             MenuItem(
 //                id = 3,

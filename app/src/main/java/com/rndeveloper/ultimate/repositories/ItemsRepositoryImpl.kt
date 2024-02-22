@@ -5,7 +5,8 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.rndeveloper.ultimate.model.Directions
 import com.rndeveloper.ultimate.model.Spot
-import com.rndeveloper.ultimate.utils.Constants.ITEM_COLLECTION_REFERENCE
+import com.rndeveloper.ultimate.utils.Constants.SPOT_COLLECTION_REFERENCE
+import com.rndeveloper.ultimate.utils.Constants.USER_REFERENCE
 import com.rndeveloper.ultimate.utils.Utils.currentTime
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -13,12 +14,12 @@ import kotlinx.coroutines.flow.callbackFlow
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-class SpotRepositoryImpl @Inject constructor(
+class ItemsRepositoryImpl @Inject constructor(
     private val fireAuth: FirebaseAuth,
     private val fireStore: FirebaseFirestore
-) : SpotRepository {
+) : ItemsRepository {
 
-    override fun getSpots(collectionRef: String, directions: Directions): Flow<Result<List<Spot>>> =
+    override fun getItems(collectionRef: String, directions: Directions): Flow<Result<List<Spot>>> =
         callbackFlow {
 
             val collection = fireStore.collection(collectionRef).document(directions.country)
@@ -76,7 +77,7 @@ class SpotRepositoryImpl @Inject constructor(
         val myRandomPoints = (1..2).random().toLong()
         val myUid = fireAuth.currentUser?.uid
 
-        fireStore.collection(ITEM_COLLECTION_REFERENCE)
+        fireStore.collection(SPOT_COLLECTION_REFERENCE)
             .document(spot.directions.country)
             .collection(spot.directions.area)
             .document(spot.tag)
@@ -97,17 +98,15 @@ class SpotRepositoryImpl @Inject constructor(
     override fun setPoints(
         uid: String,
         incrementPoints: Long
-    )  {
-        fireStore
-            .collection("USERS")
-            .document(uid)
+    ) {
+        fireStore.collection(USER_REFERENCE).document(uid)
             .update("points", FieldValue.increment(incrementPoints))
     }
 }
 
 
-interface SpotRepository {
-    fun getSpots(collectionRef: String, directions: Directions): Flow<Result<List<Spot>>>
+interface ItemsRepository {
+    fun getItems(collectionRef: String, directions: Directions): Flow<Result<List<Spot>>>
     fun setSpot(pair: Pair<String, Spot>): Flow<Result<Boolean>>
     fun removeSpot(spot: Spot): Flow<Result<Boolean>>
     fun setPoints(

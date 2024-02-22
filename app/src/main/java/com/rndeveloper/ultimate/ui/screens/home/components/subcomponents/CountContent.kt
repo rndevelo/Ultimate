@@ -1,6 +1,5 @@
 package com.rndeveloper.ultimate.ui.screens.home.components.subcomponents
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -13,9 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
@@ -40,6 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.android.gms.maps.model.LatLng
 import com.rndeveloper.ultimate.R
 import com.rndeveloper.ultimate.ui.screens.home.ScreenState
 import com.rndeveloper.ultimate.ui.screens.home.uistates.AreasUiState
@@ -54,6 +51,7 @@ fun CountContent(
     uiSpotsState: SpotsUiState,
     uiAreasState: AreasUiState,
     uiDirectionsState: DirectionsUiState,
+    onCameraArea: (LatLng) -> Unit,
     onExpand: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -104,7 +102,10 @@ fun CountContent(
                     ScreenState.PARKMYCAR -> stringResource(R.string.home_text_park_your_car)
                 },
                 style = if (uiSpotsState.spots.isNotEmpty()) {
-                    MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold)
+                    MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 20.sp
+                    )
                 } else {
                     MaterialTheme.typography.labelLarge.copy(
                         fontWeight = FontWeight.SemiBold,
@@ -122,28 +123,18 @@ fun CountContent(
                         imageVector = Icons.Filled.Circle,
                         contentDescription = Icons.Filled.Circle.toString(),
                         modifier = Modifier.size(8.dp),
-                        tint = if (uiAreasState.areas.isEmpty()) {
-                            Color.LightGray
-                        } else if (uiAreasState.areas.size >= 2) {
-                            color
-                        } else {
-                            color
+                        tint = when {
+                            uiAreasState.areas.isEmpty() -> Color.Transparent
+                            uiAreasState.areas.size >= 2 -> color
+                            else -> color
                         }
                     )
                     Spacer(modifier = modifier.width(3.dp))
                     Text(
                         text = when {
-                            uiAreasState.areas.isEmpty() -> {
-                                "Low activity"
-                            }
-
-                            uiAreasState.areas.size >= 4 -> {
-                                "High activity"
-                            }
-
-                            else -> {
-                                "Regular activity"
-                            }
+                            uiAreasState.areas.isEmpty() -> "Low activity"
+                            uiAreasState.areas.size >= 4 -> "High activity"
+                            else -> "Regular activity"
                         },
                         fontWeight = FontWeight.Light,
                         color = Gray
@@ -153,7 +144,6 @@ fun CountContent(
                     Icon(
                         imageVector = Icons.Filled.ArrowDropUp,
                         contentDescription = Icons.Filled.ArrowDropDown.toString(),
-//                    modifier = Modifier.size(8.dp),
                         tint = Gray
                     )
                 }
@@ -180,8 +170,12 @@ fun CountContent(
                                 }
                             },
                             onClick = {
-//                                isExpanded = false
-//                            onSelectItem()
+                                onCameraArea(
+                                    LatLng(
+                                        area.position.lat,
+                                        area.position.lng
+                                    )
+                                )
                             },
                         )
                     }
@@ -193,7 +187,7 @@ fun CountContent(
         Spacer(modifier = modifier.height(5.dp))
         Text(
             text = uiDirectionsState.directions.addressLine,
-            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Light),
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Light),
         )
     }
 }
@@ -206,6 +200,7 @@ fun CountContentPreview() {
         uiSpotsState = SpotsUiState(),
         uiAreasState = AreasUiState(),
         uiDirectionsState = DirectionsUiState(),
+        onCameraArea = {},
         onExpand = {}
     )
 }

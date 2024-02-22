@@ -5,11 +5,10 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.rndeveloper.ultimate.ui.screens.history.HistoryScreen
 import com.rndeveloper.ultimate.ui.screens.home.HomeScreen
 import com.rndeveloper.ultimate.ui.screens.login.LoginScreen
 import com.rndeveloper.ultimate.ui.screens.permissions.PermissionsScreen
+import com.rndeveloper.ultimate.ui.screens.settings.SettingsScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,8 +29,8 @@ fun NavGraph() {
         composable(route = Routes.HomeScreen.route) {
             HomeScreen(navController = navController)
         }
-        composable(route = Routes.HistoryScreen.route) {
-            HistoryScreen(navController = navController)
+        composable(route = Routes.SettingsScreen.route) {
+            SettingsScreen(navController = navController)
         }
     }
 }

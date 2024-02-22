@@ -63,7 +63,6 @@ class ActivityTransitionReceiver : HiltActivityTransitionReceiver() {
     @Inject
     lateinit var geocoderRepository: GeocoderRepository
 
-    @OptIn(DelicateCoroutinesApi::class)
     @SuppressLint("MissingPermission")
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
@@ -85,11 +84,13 @@ class ActivityTransitionReceiver : HiltActivityTransitionReceiver() {
                 }
 
                 when {
-                    event.activityType == DetectedActivity.IN_VEHICLE && event.transitionType == ActivityTransition.ACTIVITY_TRANSITION_EXIT -> {
+                    event.activityType == DetectedActivity.IN_VEHICLE &&
+                            event.transitionType == ActivityTransition.ACTIVITY_TRANSITION_EXIT -> {
                         setMyCarData(context, user)
                     }
 
-                    event.activityType == DetectedActivity.IN_VEHICLE && event.transitionType == ActivityTransition.ACTIVITY_TRANSITION_ENTER -> {
+                    event.activityType == DetectedActivity.IN_VEHICLE &&
+                            event.transitionType == ActivityTransition.ACTIVITY_TRANSITION_ENTER -> {
                         setSpotData(context, user)
                     }
                 }
@@ -118,7 +119,7 @@ class ActivityTransitionReceiver : HiltActivityTransitionReceiver() {
             .setContentTitle(contentTitle)
             .setContentText(contentText)
             .setPriority(NotificationCompat.PRIORITY_MAX)
-            .setOngoing(true)
+//            .setOngoing(true)
             .setContentIntent(notifyPendingIntent)
 
         with(NotificationManagerCompat.from(context)) {
@@ -141,7 +142,7 @@ class ActivityTransitionReceiver : HiltActivityTransitionReceiver() {
                         sendNotification(
                             context = context,
                             contentTitle = "¿Has aparcado?",
-                            contentText = "Toca aquí si quieres corregir tu aparcamiento",
+                            contentText = "¡Toca aquí si quieres corregir tu aparcamiento!",
                             notificationId = 32
                         )
                     }
@@ -175,8 +176,8 @@ class ActivityTransitionReceiver : HiltActivityTransitionReceiver() {
                                 //                                        TODO: Send Notification
                                 sendNotification(
                                     context = context,
-                                    contentTitle = "¡Enhorabuena, ${user.username}!",
-                                    contentText = "Has agregado una plaza libre.",
+                                    contentTitle = "¿Has desaparcado?",
+                                    contentText = "¡Confirma la plaza libre para ganar puntos!",
                                     notificationId = 32
                                 )
                             }

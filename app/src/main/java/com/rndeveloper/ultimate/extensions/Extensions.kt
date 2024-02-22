@@ -95,10 +95,10 @@ fun List<Spot>.sortItems(
         else -> red_place_icon
     }
     val drawable = when {
-        timeResult < 0 -> R.drawable.ic_spot_marker_time
-        timeResult < Constants.MINUTE * 10 -> R.drawable.ic_spot_marker
-        timeResult < Constants.MINUTE * 20 -> R.drawable.ic_spot_marker_yellow
-        else -> R.drawable.ic_spot_marker_red
+        timeResult < 0 -> R.drawable.ic_add_spot
+        timeResult < Constants.MINUTE * 10 -> R.drawable.ic_green_spot
+        timeResult < Constants.MINUTE * 20 -> R.drawable.ic_yellow_spot
+        else -> R.drawable.ic_red_spot
     }
 
     val icon = BitmapHelper.vectorToBitmap(context = context, id = drawable)
