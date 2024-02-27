@@ -81,12 +81,13 @@ fun CountContent(
     Column(
         modifier = modifier
             .fillMaxWidth()
+            .padding(horizontal = 18.dp)
             .padding(bottom = 14.dp)
             .clickable(interactionSource = interactionSource, indication = null) { onExpand() },
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Row(
-            modifier = modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -129,7 +130,7 @@ fun CountContent(
                             else -> color
                         }
                     )
-                    Spacer(modifier = modifier.width(3.dp))
+                    Spacer(modifier = Modifier.width(3.dp))
                     Text(
                         text = when {
                             uiAreasState.areas.isEmpty() -> "Low activity"
@@ -139,11 +140,11 @@ fun CountContent(
                         fontWeight = FontWeight.Light,
                         color = Gray
                     )
-                    Spacer(modifier = modifier.width(3.dp))
+                    Spacer(modifier = Modifier.width(3.dp))
 
                     Icon(
-                        imageVector = Icons.Filled.ArrowDropUp,
-                        contentDescription = Icons.Filled.ArrowDropDown.toString(),
+                        imageVector = if (isExpanded) Icons.Filled.ArrowDropUp else Icons.Filled.ArrowDropDown,
+                        contentDescription = if (isExpanded) Icons.Filled.ArrowDropUp.toString() else Icons.Filled.ArrowDropDown.toString(),
                         tint = Gray
                     )
                 }
@@ -159,14 +160,23 @@ fun CountContent(
                                     Icon(
                                         imageVector = Icons.Filled.Circle,
                                         contentDescription = Icons.Filled.Circle.toString(),
-                                        modifier = Modifier
-                                            .size(40.dp),
+                                        modifier = Modifier.size(40.dp),
                                         tint = area.color
                                     )
-                                    Text(
-                                        text = area.distance,
-                                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Light)
-                                    )
+                                    Spacer(modifier = Modifier.width(5.dp))
+                                    Column {
+                                        Text(
+                                            text = area.distance,
+                                            style = MaterialTheme.typography.bodyLarge.copy(
+                                                fontWeight = FontWeight.Light
+                                            )
+                                        )
+                                        Text(
+                                            text = area.time,
+                                            style = MaterialTheme.typography.bodyMedium
+                                        )
+                                    }
+
                                 }
                             },
                             onClick = {

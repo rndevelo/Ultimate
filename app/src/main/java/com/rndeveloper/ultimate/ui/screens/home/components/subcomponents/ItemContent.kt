@@ -87,7 +87,7 @@ fun ItemContent(
                 Text(text = spot.distance, style = TextStyle().copy(fontWeight = FontWeight.Light))
 
                 Text(
-                    text = spot.timestamp.getFormattedPrettyTime(),
+                    text = spot.time,
                     fontWeight = FontWeight.Bold,
                     color = spot.color
                 )

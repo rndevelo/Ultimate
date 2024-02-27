@@ -37,7 +37,7 @@ fun SheetContent(
     modifier: Modifier = Modifier
 ) {
 
-    Column(modifier = modifier.padding(horizontal = 18.dp)) {
+    Column {
         CountContent(
             screenState = rememberHomeUiContainerState.screenState,
             uiSpotsState = uiSpotsState,
@@ -62,7 +62,7 @@ fun SheetContent(
             }
 
             ScreenState.ADDSPOT -> {
-                Row(modifier = Modifier.fillMaxWidth()) {
+                Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp)) {
                     DropDownMenuContent(
                         items = timeList,
                         index = rememberHomeUiContainerState.indexSpotTime,

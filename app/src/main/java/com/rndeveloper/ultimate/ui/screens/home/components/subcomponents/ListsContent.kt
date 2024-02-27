@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -31,7 +32,7 @@ fun ListsContent(
                 .padding(top = 10.dp)
                 .heightIn(max = 180.dp),
         ) {
-            Divider()
+            HorizontalDivider()
 
             LazyColumn(state = scrollState) {
                 items(items = spots, key = { i -> i.tag }) { spot ->
@@ -43,7 +44,7 @@ fun ListsContent(
                     )
                 }
             }
-            Divider()
+            HorizontalDivider()
 
         }
     }

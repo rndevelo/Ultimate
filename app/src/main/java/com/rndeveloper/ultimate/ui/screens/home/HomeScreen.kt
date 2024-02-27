@@ -104,9 +104,14 @@ private fun HomeContent(
     val context = LocalContext.current
     val snackBarHostState = remember { SnackbarHostState() }
 
-
     LaunchedEffect(key1 = isFirstLaunch && uiLocationState.location != null) {
         if (isFirstLaunch && uiLocationState.location != null) {
+            onGetAddressLine(
+                context,
+                rememberHomeUiContainerState.camPosState,
+                rememberHomeUiContainerState.screenState,
+                true
+            )
             rememberHomeUiContainerState.onAnimateCamera(
                 LatLng(uiLocationState.location.lat, uiLocationState.location.lng),
                 15f,
@@ -170,12 +175,6 @@ private fun HomeContent(
 
     ModalNavigationDrawer(
         drawerState = rememberHomeUiContainerState.drawerState,
-        modifier = Modifier.alpha(
-            when (uiUserState.isLoading) {
-                true -> 0.7f
-                false -> 1f
-            },
-        ),
         drawerContent = {
             ModalDrawerSheet(modifier = Modifier.fillMaxWidth(0.8f)) {
                 DrawerHeaderContent(uiUserState = uiUserState, onNavigate = onNavigate)

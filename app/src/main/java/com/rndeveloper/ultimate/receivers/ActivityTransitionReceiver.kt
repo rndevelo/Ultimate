@@ -32,7 +32,9 @@ import com.rndeveloper.ultimate.utils.Utils
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -138,7 +140,6 @@ class ActivityTransitionReceiver : HiltActivityTransitionReceiver() {
             user?.copy(car = locationData)?.let { user ->
                 GlobalScope.launch {
                     userRepository.setUserCar(user).collectLatest {
-                        //                                        TODO: Send Notification
                         sendNotification(
                             context = context,
                             contentTitle = "¿Has aparcado?",
@@ -156,30 +157,28 @@ class ActivityTransitionReceiver : HiltActivityTransitionReceiver() {
         context: Context,
         user: User?,
     ) {
-        locationClient.getLastLocation { locationData ->
-            geocoderRepository.getAddressList(
-                LatLng(
-                    locationData.lat,
-                    locationData.lng
-                )
-            ) { directions ->
-                user?.let { user ->
-                    Spot().copy(
-                        timestamp = Utils.currentTime(),
-                        type = SpotType.BLUE,
-                        directions = directions,
-                        position = locationData,
-                        user = user
-                    ).let { spot ->
-                        GlobalScope.launch {
-                            setSpotsUseCase(AREA_COLLECTION_REFERENCE to spot).collectLatest {
-                                //                                        TODO: Send Notification
-                                sendNotification(
-                                    context = context,
-                                    contentTitle = "¿Has desaparcado?",
-                                    contentText = "¡Confirma la plaza libre para ganar puntos!",
-                                    notificationId = 32
-                                )
+
+        GlobalScope.launch {
+            locationClient.getLocationsRequest().cancellable().collectLatest { location ->
+                geocoderRepository.getAddressList(LatLng(location.lat, location.lng)) { directions ->
+                    user?.let { user ->
+                        Spot().copy(
+                            timestamp = Utils.currentTime(),
+                            type = SpotType.BLUE,
+                            directions = directions,
+                            position = location,
+                            user = user
+                        ).let { spot ->
+                            this@launch.launch {
+                                setSpotsUseCase(AREA_COLLECTION_REFERENCE to spot).collectLatest {
+                                    sendNotification(
+                                        context = context,
+                                        contentTitle = "¡Enhorabuena, ${user.username}!",
+                                        contentText = "Has agregado una plaza libre.",
+                                        notificationId = 32
+                                    )
+                                    this.coroutineContext.job.cancel()
+                                }
                             }
                         }
                     }

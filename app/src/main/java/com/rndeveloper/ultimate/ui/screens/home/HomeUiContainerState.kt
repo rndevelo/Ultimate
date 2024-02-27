@@ -114,7 +114,7 @@ class HomeUiContainerState @OptIn(ExperimentalMaterial3Api::class) constructor(
 
     fun onAnimateCameraTilt() {
         isTilt = !isTilt
-        onAnimateCamera(tilt = if (isTilt) 90f else 0f)
+        onAnimateCamera(zoom = camPosState.position.zoom, tilt = if (isTilt) 90f else 0f)
     }
 
     fun onAnimateCameraBounds(latLngBounds: LatLngBounds) {

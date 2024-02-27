@@ -2,6 +2,7 @@ package com.rndeveloper.ultimate.ui.screens.home
 
 import android.content.Context
 import android.os.CountDownTimer
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
@@ -38,9 +39,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -175,10 +178,8 @@ class HomeViewModel @Inject constructor(
             it.copy(isLoading = true)
         }
 
-
-//        var loc: Position? = null
-
         locationClient.getLocationsRequest().collectLatest { newLocation ->
+            Log.d("LocationUpdates", "onGetLocationData: $newLocation")
 //            loc = newLocation
 
 //            _spotsState.update {
@@ -193,7 +194,10 @@ class HomeViewModel @Inject constructor(
 //                    spot.copy(distance = "${distance[0].toInt()}m")
 //                })
 //            }
+
+
             _locationState.update {
+
                 it.copy(location = newLocation, isLoading = false)
             }
         }

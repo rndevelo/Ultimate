@@ -103,7 +103,12 @@ fun List<Spot>.sortItems(
 
     val icon = BitmapHelper.vectorToBitmap(context = context, id = drawable)
 
-    spot.copy(distance = "${distance[0].toInt()}m", color = color, icon = icon)
+    spot.copy(
+        distance = "${distance[0].toInt()}m",
+        color = color,
+        icon = icon,
+        time = spot.timestamp.getFormattedPrettyTime()
+    )
 }
 
 

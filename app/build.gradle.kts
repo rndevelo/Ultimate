@@ -91,34 +91,34 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
 
     // Compose
-    implementation(platform("androidx.compose:compose-bom:2023.09.00"))
+    implementation(platform("androidx.compose:compose-bom:2024.02.01"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
-    implementation("androidx.compose.material:material-icons-extended:1.6.0")
+    implementation("androidx.compose.material:material-icons-extended:1.6.2")
 
     implementation("androidx.compose.runtime:runtime-tracing:1.0.0-beta01")
 
 
     // Navigation
-    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
-    implementation("androidx.navigation:navigation-compose:2.7.6")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    implementation("androidx.navigation:navigation-compose:2.7.7")
 
     //Google auth
-    implementation("com.google.android.gms:play-services-auth:20.7.0")
+    implementation("com.google.android.gms:play-services-auth:21.0.0")
 
     // Permissions
     implementation ("com.google.accompanist:accompanist-permissions:0.25.1")
 
     // Hilt
-    implementation("com.google.dagger:hilt-android:2.48.1")
-    kapt("com.google.dagger:hilt-android-compiler:2.48.1")
+    implementation("com.google.dagger:hilt-android:2.50")
+    kapt("com.google.dagger:hilt-android-compiler:2.50")
 
     // Firebase
-    implementation(platform("com.google.firebase:firebase-bom:32.2.3"))
+    implementation(platform("com.google.firebase:firebase-bom:32.7.2"))
     implementation("com.google.firebase:firebase-auth-ktx")
-    implementation("com.google.firebase:firebase-crashlytics-ktx:18.6.1")
+    implementation("com.google.firebase:firebase-crashlytics-ktx:18.6.2")
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
 
@@ -151,7 +151,7 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2023.03.00"))
+    androidTestImplementation(platform("androidx.compose:compose-bom:2024.02.01"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
