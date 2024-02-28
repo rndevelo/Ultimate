@@ -45,6 +45,7 @@ data class Spot(
         icon = null,
         directions = directions,
         type = type,
+        time = "",
         timestamp = timestamp,
         newpoints = 0L,
         user = user

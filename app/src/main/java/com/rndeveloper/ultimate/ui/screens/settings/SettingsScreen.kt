@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -58,7 +59,7 @@ fun SettingsContent(/*profileUiState: ProfileUiState,*/ onClickLogOut: () -> Uni
         Button(onClick = { onClickLogOut() }, modifier = Modifier.padding(top = 80.dp)) {
             Text(text = "Logout")
             Spacer(modifier = Modifier.width(10.dp))
-            Icon(imageVector = Icons.Filled.Logout, contentDescription = "Logout")
+            Icon(imageVector = Icons.AutoMirrored.Filled.Logout, contentDescription = "Logout")
         }
     }
 }
