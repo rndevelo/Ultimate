@@ -2,12 +2,10 @@ package com.rndeveloper.ultimate.ui.screens.home
 
 import android.content.Context
 import android.os.CountDownTimer
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.compose.CameraPositionState
 import com.rndeveloper.ultimate.model.Directions
 import com.rndeveloper.ultimate.model.Position
@@ -17,7 +15,7 @@ import com.rndeveloper.ultimate.model.Timer
 import com.rndeveloper.ultimate.repositories.ActivityTransitionRepo
 import com.rndeveloper.ultimate.repositories.GeocoderRepository
 import com.rndeveloper.ultimate.repositories.LocationClient
-import com.rndeveloper.ultimate.repositories.SpotRepository
+import com.rndeveloper.ultimate.repositories.ItemsRepository
 import com.rndeveloper.ultimate.repositories.TimerRepository
 import com.rndeveloper.ultimate.repositories.UserRepository
 import com.rndeveloper.ultimate.ui.screens.home.uistates.AreasUiState
@@ -31,7 +29,7 @@ import com.rndeveloper.ultimate.utils.Constants
 import com.rndeveloper.ultimate.utils.Constants.AREA_COLLECTION_REFERENCE
 import com.rndeveloper.ultimate.utils.Constants.DEFAULT_ELAPSED_TIME
 import com.rndeveloper.ultimate.utils.Constants.INTERVAL
-import com.rndeveloper.ultimate.utils.Constants.ITEM_COLLECTION_REFERENCE
+import com.rndeveloper.ultimate.utils.Constants.SPOT_COLLECTION_REFERENCE
 import com.rndeveloper.ultimate.utils.Utils.currentTime
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -41,9 +39,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -53,7 +53,7 @@ class HomeViewModel @Inject constructor(
     private val timerRepository: TimerRepository,
     private val locationClient: LocationClient,
     private val spotsUseCases: SpotsUseCases,
-    private val spotsRepository: SpotRepository,
+    private val spotsRepository: ItemsRepository,
     private val userUseCases: UserUseCases,
     private val userRepository: UserRepository,
     private val activityTransitionClient: ActivityTransitionRepo,
@@ -83,6 +83,13 @@ class HomeViewModel @Inject constructor(
         initialValue = SpotsUiState()
     )
 
+    private val _spotState = MutableStateFlow(Spot())
+    val uiSpotState: StateFlow<Spot?> = _spotState.asStateFlow().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = null
+    )
+
     private val _areasState = MutableStateFlow(AreasUiState())
     val uiAreasState: StateFlow<AreasUiState> = _areasState.asStateFlow().stateIn(
         scope = viewModelScope,
@@ -104,7 +111,6 @@ class HomeViewModel @Inject constructor(
         initialValue = DirectionsUiState(),
     )
 
-    private var isTilt = false
 
     init {
 
@@ -172,10 +178,8 @@ class HomeViewModel @Inject constructor(
             it.copy(isLoading = true)
         }
 
-
-//        var loc: Position? = null
-
         locationClient.getLocationsRequest().collectLatest { newLocation ->
+            Log.d("LocationUpdates", "onGetLocationData: $newLocation")
 //            loc = newLocation
 
 //            _spotsState.update {
@@ -190,13 +194,13 @@ class HomeViewModel @Inject constructor(
 //                    spot.copy(distance = "${distance[0].toInt()}m")
 //                })
 //            }
+
+
             _locationState.update {
+
                 it.copy(location = newLocation, isLoading = false)
             }
         }
-
-//        if (loc != null) onCameraLoc(cameraPositionState)
-
     }
 
     fun onGetAddressLine(
@@ -260,9 +264,10 @@ class HomeViewModel @Inject constructor(
         position: Position,
         locPosition: Position
     ) {
+
         spotsUseCases.getSpotsUseCase(
             Triple(
-                ITEM_COLLECTION_REFERENCE,
+                SPOT_COLLECTION_REFERENCE,
                 context to directions,
                 position to locPosition,
             )
@@ -270,6 +275,15 @@ class HomeViewModel @Inject constructor(
             _spotsState.update {
                 newSpotsUiState
             }
+            if (newSpotsUiState.spots.isNotEmpty() && _spotState.value.tag.isEmpty()) {
+                onSelectSpot(newSpotsUiState.spots.first().tag)
+            }
+        }
+    }
+
+    fun onSelectSpot(tag: String) {
+        _spotState.update {
+            _spotsState.value.spots.find { it.tag == tag }!!
         }
     }
 
@@ -323,7 +337,7 @@ class HomeViewModel @Inject constructor(
                             position = currentPosition,
                             user = _userState.value.user
                         ).let { spot ->
-                            spotsUseCases.setSpotUseCase(ITEM_COLLECTION_REFERENCE to spot)
+                            spotsUseCases.setSpotUseCase(SPOT_COLLECTION_REFERENCE to spot)
                         }.collectLatest { newHomeUiState ->
                             onMainState()
                             _spotsState.update {
@@ -379,69 +393,6 @@ class HomeViewModel @Inject constructor(
 
     fun onSetPoint(points: Long) {
         spotsRepository.setPoints(uid = _userState.value.user.uid, incrementPoints = points)
-    }
-
-
-//ON CAMERA ANIMATE
-
-    private fun onCamera(
-        cameraPositionState: CameraPositionState,
-        latLng: LatLng = cameraPositionState.position.target,
-        zoom: Float = 15f,
-        tilt: Float = cameraPositionState.position.tilt
-    ) = viewModelScope.launch {
-        cameraPositionState.animate(
-            CameraUpdateFactory.newCameraPosition(
-                CameraPosition(latLng, zoom, tilt, 0f)
-            )
-        )
-    }
-
-    fun onCameraLoc(cameraPositionState: CameraPositionState) {
-        _locationState.value.location?.let { position ->
-            onCamera(cameraPositionState, LatLng(position.lat, position.lng))
-        }
-    }
-
-    fun onCameraCar(cameraPositionState: CameraPositionState) {
-        _userState.value.user.car?.let { position ->
-            onCamera(cameraPositionState, LatLng(position.lat, position.lng))
-        }
-    }
-
-    fun onCameraTilt(cameraPositionState: CameraPositionState) {
-//      FIXME:  Handle this correctly
-        isTilt = !isTilt
-        onCamera(
-            cameraPositionState = cameraPositionState,
-            latLng = cameraPositionState.position.target,
-            tilt = if (isTilt) 90f else 0f
-        )
-    }
-
-    fun onCameraCarLoc(cameraPositionState: CameraPositionState) {
-
-        val latLngBounds = LatLngBounds.Builder()
-        _locationState.value.location?.let { latLngBounds.include(LatLng(it.lat, it.lng)) }
-        _userState.value.user.car?.let { latLngBounds.include(LatLng(it.lat, it.lng)) }
-
-        viewModelScope.launch {
-            cameraPositionState.animate(
-                CameraUpdateFactory.newLatLngBounds(
-                    latLngBounds.build(), 250
-                )
-            )
-        }
-    }
-
-    fun onCameraSpot(cameraPositionState: CameraPositionState, position: Position?) {
-        position?.let {
-            onCamera(cameraPositionState, LatLng(position.lat, position.lng))
-        }
-    }
-
-    fun onCameraZoom(cameraPositionState: CameraPositionState, zoom: Float) {
-        onCamera(cameraPositionState = cameraPositionState, zoom = zoom)
     }
 }
 

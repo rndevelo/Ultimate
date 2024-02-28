@@ -52,7 +52,7 @@ fun ItemContent(
 ) {
 
     val surfaceColor by animateColorAsState(
-        targetValue = if (spot == selectedSpot)
+        targetValue = if (spot.tag == (selectedSpot?.tag ?: spot.tag))
             MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.surface,
         label = "",
     )
@@ -87,7 +87,7 @@ fun ItemContent(
                 Text(text = spot.distance, style = TextStyle().copy(fontWeight = FontWeight.Light))
 
                 Text(
-                    text = spot.timestamp.getFormattedPrettyTime(),
+                    text = spot.time,
                     fontWeight = FontWeight.Bold,
                     color = spot.color
                 )

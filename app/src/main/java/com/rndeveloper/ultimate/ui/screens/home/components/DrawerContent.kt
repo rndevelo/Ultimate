@@ -3,6 +3,7 @@ package com.rndeveloper.ultimate.ui.screens.home.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,12 +16,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.GroupAdd
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material3.Divider
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -44,14 +45,15 @@ fun DrawerHeaderContent(
 ) {
 
     Column {
-        Row(
+        Box(
             modifier = modifier
                 .fillMaxWidth()
                 .padding(horizontal = 15.dp, vertical = 35.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                modifier = modifier.align(Alignment.TopStart),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Image(
                     rememberAsyncImagePainter(
                         ImageRequest.Builder(LocalContext.current)
@@ -71,12 +73,16 @@ fun DrawerHeaderContent(
                     Text(text = uiUserState.user.username)
                 }
             }
-            Text(text = "${uiUserState.user.points}ptos")
+            Text(
+                text = "${uiUserState.user.points}creds.",
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = modifier.align(Alignment.TopEnd),
+            )
         }
-        Divider(modifier = modifier.padding(horizontal = 15.dp))
+        HorizontalDivider(modifier = modifier.padding(horizontal = 15.dp))
         DrawerMenuItemContent(
             navigateToHistoryScreen = { onNavigate(Routes.HistoryScreen.route) },
-            navigateToAccountScreen = { /*TODO*/ },
+            navigateToSettingsScreen = { onNavigate(Routes.SettingsScreen.route) },
             uid = uiUserState.user.uid
         )
     }
@@ -85,7 +91,7 @@ fun DrawerHeaderContent(
 @Composable
 fun DrawerMenuItemContent(
     navigateToHistoryScreen: () -> Unit,
-    navigateToAccountScreen: () -> Unit,
+    navigateToSettingsScreen: () -> Unit,
     uid: String?
 ) {
     val context = LocalContext.current
@@ -108,11 +114,11 @@ fun DrawerMenuItemContent(
             ),
             MenuItem(
 //                id = 2,
-                title = "Cuenta",
+                title = "Settings",
 //                contentDescription = "Get help",
-                icon = Icons.Outlined.AccountCircle,
+                icon = Icons.Outlined.Settings,
 //                color = Blue500,
-                unit = { navigateToAccountScreen() }
+                unit = { navigateToSettingsScreen() }
             ),
             MenuItem(
 //                id = 3,

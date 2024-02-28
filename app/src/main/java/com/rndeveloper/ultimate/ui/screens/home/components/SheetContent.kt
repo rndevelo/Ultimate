@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.google.android.gms.maps.model.LatLng
 import com.rndeveloper.ultimate.model.Spot
 import com.rndeveloper.ultimate.ui.screens.home.HomeUiContainerState
 import com.rndeveloper.ultimate.ui.screens.home.ScreenState
@@ -30,21 +31,20 @@ fun SheetContent(
     uiDirectionsState: DirectionsUiState,
     isElapsedTime: Boolean,
     selectedSpot: Spot?,
-    onExpand: () -> Unit,
-    onSpot: (String) -> Unit,
+    onCameraArea: (LatLng) -> Unit,
+    onSelectSpot: (String) -> Unit,
     onRemoveSpot: (Spot) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
-    Column(
-        modifier = modifier.padding(horizontal = 18.dp)
-    ) {
+    Column {
         CountContent(
             screenState = rememberHomeUiContainerState.screenState,
             uiSpotsState = uiSpotsState,
             uiAreasState = uiAreasState,
             uiDirectionsState = uiDirectionsState,
-            onExpand = onExpand
+            onCameraArea = onCameraArea,
+            onExpand = rememberHomeUiContainerState::onOpenBottomSheet,
         )
 
 //        FIXME : Refactor list content
@@ -52,23 +52,17 @@ fun SheetContent(
         when (rememberHomeUiContainerState.screenState) {
             ScreenState.MAIN -> {
                 ListsContent(
-                    areas = uiAreasState.areas,
                     spots = uiSpotsState.spots,
                     isElapsedTime = isElapsedTime,
                     scrollState = rememberHomeUiContainerState.scrollState,
                     selectedSpot = selectedSpot,
-                    onSpot = onSpot,
+                    onSpot = onSelectSpot,
                     onRemoveSpot = onRemoveSpot
                 )
             }
 
             ScreenState.ADDSPOT -> {
-//                Divider()
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-//                        .padding(start = 18.dp),
-                ) {
+                Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp)) {
                     DropDownMenuContent(
                         items = timeList,
                         index = rememberHomeUiContainerState.indexSpotTime,
@@ -76,10 +70,8 @@ fun SheetContent(
                             rememberHomeUiContainerState.onSpotTime(index)
                         }
                     )
-//                Divider()
                 }
             }
-
             ScreenState.PARKMYCAR -> {}
         }
     }
@@ -97,8 +89,8 @@ fun SheetContentPreview() {
             uiDirectionsState = DirectionsUiState(),
             isElapsedTime = true,
             selectedSpot = Spot(),
-            onExpand = {},
-            onSpot = {},
+            onCameraArea = {},
+            onSelectSpot = {},
             onRemoveSpot = {}
         )
     }

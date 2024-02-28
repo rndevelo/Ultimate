@@ -5,7 +5,7 @@ import com.rndeveloper.ultimate.exceptions.CustomException
 import com.rndeveloper.ultimate.extensions.sortItems
 import com.rndeveloper.ultimate.model.Directions
 import com.rndeveloper.ultimate.model.Position
-import com.rndeveloper.ultimate.repositories.SpotRepository
+import com.rndeveloper.ultimate.repositories.ItemsRepository
 import com.rndeveloper.ultimate.ui.screens.home.uistates.AreasUiState
 import com.rndeveloper.ultimate.usecases.BaseUseCase
 import kotlinx.coroutines.flow.Flow
@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.collectLatest
 import javax.inject.Inject
 
 class GetAreasUseCase @Inject constructor(
-    private val repository: SpotRepository,
+    private val repository: ItemsRepository,
 ) : BaseUseCase<Triple<String, Pair<Context, Directions>, Pair<Position, Position>>, Flow<AreasUiState>>() {
 
     override suspend fun execute(parameters: Triple<String, Pair<Context, Directions>, Pair<Position, Position>>): Flow<AreasUiState> =
@@ -24,7 +24,7 @@ class GetAreasUseCase @Inject constructor(
             // Do login if fields are valid
             val (collectionRef, pair, positions) = parameters
 
-            repository.getSpots(collectionRef, pair.second)
+            repository.getItems(collectionRef, pair.second)
                 .catch { exception ->
                     send(
                         AreasUiState().copy(

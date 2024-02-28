@@ -5,12 +5,9 @@ import android.content.Context
 import android.content.Intent
 import androidx.annotation.CallSuper
 import com.google.android.gms.location.GeofenceStatusCodes
-import com.rndeveloper.ultimate.repositories.SpotRepository
+import com.rndeveloper.ultimate.repositories.ItemsRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
@@ -24,7 +21,7 @@ abstract class HiltGeofenceReceiver : BroadcastReceiver() {
 class GeofenceReceiver : HiltGeofenceReceiver() {
 
     @Inject
-    lateinit var spotRepository: SpotRepository
+    lateinit var itemsRepository: ItemsRepository
 
     @OptIn(DelicateCoroutinesApi::class)
     @Suppress("DEPRECATION")

@@ -41,7 +41,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -52,6 +51,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.tasks.Task
 import com.rndeveloper.ultimate.R
 import com.rndeveloper.ultimate.nav.Routes
+import com.rndeveloper.ultimate.ui.screens.login.components.EmailAndPasswordContent
 import com.rndeveloper.ultimate.ui.theme.UltimateTheme
 
 @ExperimentalMaterial3Api
@@ -103,7 +103,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                 loginUiState = loginUiState,
                 onClickLogin = viewModel::signInOrSignUp,
                 onCLickRecoverPassword = viewModel::recoverPassword,
-                onClickScreenState = viewModel::changeScreenState,
+                onChangeScreenState = viewModel::changeScreenState,
                 onClickGoogleButton = {
                     startForResult.launch(viewModel.googleSignInClient.signInIntent)
                 }
@@ -117,7 +117,7 @@ fun LoginContent(
     loginUiState: LoginUiState,
     onClickLogin: (String, String) -> Unit,
     onCLickRecoverPassword: (String) -> Unit,
-    onClickScreenState: () -> Unit,
+    onChangeScreenState: () -> Unit,
     onClickGoogleButton: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -164,10 +164,15 @@ fun LoginContent(
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Black),
                     modifier = modifier.padding(bottom = 5.dp)
                 )
-                Text(
-                    text = "Esta es una aplicación basada en una gran comunidad de conductores en la que crecemos día a día",
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleMedium
+//                Text(
+//                    text = "Esta es una aplicación basada en una gran comunidad de conductores en la que crecemos día a día",
+//                    textAlign = TextAlign.Center,
+//                    style = MaterialTheme.typography.titleMedium
+//                )
+                EmailAndPasswordContent(
+                    loginUiState = loginUiState,
+                    onChange = onChangeScreenState,
+                    onClick = onClickLogin,
                 )
                 Button(
                     onClick = onClickGoogleButton,

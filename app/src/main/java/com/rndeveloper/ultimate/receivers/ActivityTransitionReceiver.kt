@@ -32,7 +32,9 @@ import com.rndeveloper.ultimate.utils.Utils
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -63,7 +65,6 @@ class ActivityTransitionReceiver : HiltActivityTransitionReceiver() {
     @Inject
     lateinit var geocoderRepository: GeocoderRepository
 
-    @OptIn(DelicateCoroutinesApi::class)
     @SuppressLint("MissingPermission")
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
@@ -85,11 +86,13 @@ class ActivityTransitionReceiver : HiltActivityTransitionReceiver() {
                 }
 
                 when {
-                    event.activityType == DetectedActivity.IN_VEHICLE && event.transitionType == ActivityTransition.ACTIVITY_TRANSITION_EXIT -> {
+                    event.activityType == DetectedActivity.IN_VEHICLE &&
+                            event.transitionType == ActivityTransition.ACTIVITY_TRANSITION_EXIT -> {
                         setMyCarData(context, user)
                     }
 
-                    event.activityType == DetectedActivity.IN_VEHICLE && event.transitionType == ActivityTransition.ACTIVITY_TRANSITION_ENTER -> {
+                    event.activityType == DetectedActivity.IN_VEHICLE &&
+                            event.transitionType == ActivityTransition.ACTIVITY_TRANSITION_ENTER -> {
                         setSpotData(context, user)
                     }
                 }
@@ -118,7 +121,7 @@ class ActivityTransitionReceiver : HiltActivityTransitionReceiver() {
             .setContentTitle(contentTitle)
             .setContentText(contentText)
             .setPriority(NotificationCompat.PRIORITY_MAX)
-            .setOngoing(true)
+//            .setOngoing(true)
             .setContentIntent(notifyPendingIntent)
 
         with(NotificationManagerCompat.from(context)) {
@@ -137,11 +140,10 @@ class ActivityTransitionReceiver : HiltActivityTransitionReceiver() {
             user?.copy(car = locationData)?.let { user ->
                 GlobalScope.launch {
                     userRepository.setUserCar(user).collectLatest {
-                        //                                        TODO: Send Notification
                         sendNotification(
                             context = context,
                             contentTitle = "¿Has aparcado?",
-                            contentText = "Toca aquí si quieres corregir tu aparcamiento",
+                            contentText = "¡Toca aquí si quieres corregir tu aparcamiento!",
                             notificationId = 32
                         )
                     }
@@ -155,30 +157,28 @@ class ActivityTransitionReceiver : HiltActivityTransitionReceiver() {
         context: Context,
         user: User?,
     ) {
-        locationClient.getLastLocation { locationData ->
-            geocoderRepository.getAddressList(
-                LatLng(
-                    locationData.lat,
-                    locationData.lng
-                )
-            ) { directions ->
-                user?.let { user ->
-                    Spot().copy(
-                        timestamp = Utils.currentTime(),
-                        type = SpotType.BLUE,
-                        directions = directions,
-                        position = locationData,
-                        user = user
-                    ).let { spot ->
-                        GlobalScope.launch {
-                            setSpotsUseCase(AREA_COLLECTION_REFERENCE to spot).collectLatest {
-                                //                                        TODO: Send Notification
-                                sendNotification(
-                                    context = context,
-                                    contentTitle = "¡Enhorabuena, ${user.username}!",
-                                    contentText = "Has agregado una plaza libre.",
-                                    notificationId = 32
-                                )
+
+        GlobalScope.launch {
+            locationClient.getLocationsRequest().cancellable().collectLatest { location ->
+                geocoderRepository.getAddressList(LatLng(location.lat, location.lng)) { directions ->
+                    user?.let { user ->
+                        Spot().copy(
+                            timestamp = Utils.currentTime(),
+                            type = SpotType.BLUE,
+                            directions = directions,
+                            position = location,
+                            user = user
+                        ).let { spot ->
+                            this@launch.launch {
+                                setSpotsUseCase(AREA_COLLECTION_REFERENCE to spot).collectLatest {
+                                    sendNotification(
+                                        context = context,
+                                        contentTitle = "¡Enhorabuena, ${user.username}!",
+                                        contentText = "Has agregado una plaza libre.",
+                                        notificationId = 32
+                                    )
+                                    this.coroutineContext.job.cancel()
+                                }
                             }
                         }
                     }

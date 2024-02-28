@@ -18,13 +18,20 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.rndeveloper.ultimate.model.SpotType
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
+import com.google.maps.android.compose.CameraPositionState
+import com.google.maps.android.compose.rememberCameraPositionState
+import com.rndeveloper.ultimate.nav.Routes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun rememberHomeUiContainerState(
+    camPosState: CameraPositionState = rememberCameraPositionState(),
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
     bsScaffoldState: BottomSheetScaffoldState = rememberBottomSheetScaffoldState(),
     scrollState: LazyListState = rememberLazyListState(),
@@ -32,7 +39,7 @@ fun rememberHomeUiContainerState(
     navController: NavHostController = rememberNavController(),
 ): HomeUiContainerState = remember {
     HomeUiContainerState(
-//        camPosState,
+        camPosState,
         drawerState,
         bsScaffoldState,
         scrollState,
@@ -43,7 +50,7 @@ fun rememberHomeUiContainerState(
 
 @Stable
 class HomeUiContainerState @OptIn(ExperimentalMaterial3Api::class) constructor(
-//    val camPosState: CameraPositionState,
+    val camPosState: CameraPositionState,
     val drawerState: DrawerState,
     val bsScaffoldState: BottomSheetScaffoldState,
     val scrollState: LazyListState,
@@ -64,15 +71,60 @@ class HomeUiContainerState @OptIn(ExperimentalMaterial3Api::class) constructor(
 
     var indexSpotType by mutableIntStateOf(0)
 
+    private var isTilt = false
+
     fun onSpotTime(spotTime: Int) {
         indexSpotTime = spotTime
     }
-    fun onSpotType(spotType: Int){
+
+    fun onSpotType(spotType: Int) {
         indexSpotType = spotType
+    }
+
+    fun onNavigate() {
+        navController.navigate(Routes.PermissionsScreen.route) {
+            popUpTo(Routes.HomeScreen.route) { inclusive = true }
+        }
     }
 
     fun onOpenDrawer() {
         scope.launch { drawerState.open() }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    fun onOpenBottomSheet() {
+        scope.launch {
+            bsScaffoldState.bottomSheetState.expand()
+        }
+    }
+
+    fun onAnimateCamera(
+        latLng: LatLng = camPosState.position.target,
+        zoom: Float = 15f,
+        tilt: Float = camPosState.position.tilt
+    ) {
+        scope.launch {
+            camPosState.animate(
+                CameraUpdateFactory.newCameraPosition(
+                    CameraPosition(latLng, zoom, tilt, 0f)
+                )
+            )
+        }
+    }
+
+    fun onAnimateCameraTilt() {
+        isTilt = !isTilt
+        onAnimateCamera(zoom = camPosState.position.zoom, tilt = if (isTilt) 90f else 0f)
+    }
+
+    fun onAnimateCameraBounds(latLngBounds: LatLngBounds) {
+        scope.launch {
+            camPosState.animate(
+                CameraUpdateFactory.newLatLngBounds(
+                    latLngBounds, 250
+                )
+            )
+        }
     }
 
     fun onScreenState(newScreenState: ScreenState) {

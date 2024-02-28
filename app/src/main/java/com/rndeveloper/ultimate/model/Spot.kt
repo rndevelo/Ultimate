@@ -12,6 +12,7 @@ data class Spot(
     val icon: BitmapDescriptor?,
     val directions: Directions,
     val type: SpotType,
+    val time: String,
     val timestamp: Long,
     val newpoints: Long,
     val user: User
@@ -24,6 +25,7 @@ data class Spot(
         icon = null,
         directions = Directions(),
         type = SpotType.FREE,
+        time = "",
         timestamp = 0L,
         newpoints = 0L,
         user = User()

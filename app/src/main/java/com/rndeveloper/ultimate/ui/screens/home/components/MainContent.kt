@@ -12,6 +12,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -19,6 +20,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.MapType
 import com.rndeveloper.ultimate.R
@@ -32,6 +36,7 @@ import com.rndeveloper.ultimate.ui.screens.home.uistates.SpotsUiState
 import com.rndeveloper.ultimate.ui.screens.home.uistates.UserUiState
 import com.rndeveloper.ultimate.ui.theme.UltimateTheme
 import com.rndeveloper.ultimate.utils.Constants.DEFAULT_ELAPSED_TIME
+import kotlinx.coroutines.launch
 
 @Composable
 fun MainContent(
@@ -45,7 +50,7 @@ fun MainContent(
     onCameraCar: () -> Unit,
     onCameraCarLoc: () -> Unit,
     onCameraTilt: () -> Unit,
-    onSpot: (String) -> Unit,
+    onSelectSpot: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -77,7 +82,7 @@ fun MainContent(
                 onMapLoaded = {},
                 isElapsedTime = uiElapsedTimeState > DEFAULT_ELAPSED_TIME,
                 mapType = mapType,
-                onSpot = onSpot,
+                onSelectSpot = onSelectSpot,
             )
 
             ButtonsMapContent(
@@ -140,7 +145,7 @@ fun MainContentPreview() {
             onCameraCar = {},
             onCameraCarLoc = {},
             onCameraTilt = {},
-            onSpot = {},
+            onSelectSpot = {},
         )
     }
 }
