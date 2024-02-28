@@ -93,7 +93,7 @@ class ActivityTransitionReceiver : HiltActivityTransitionReceiver() {
 
                     event.activityType == DetectedActivity.IN_VEHICLE &&
                             event.transitionType == ActivityTransition.ACTIVITY_TRANSITION_ENTER -> {
-                        setSpotData(context, user)
+//                        setSpotData(context, user)
                     }
                 }
             }
@@ -152,40 +152,40 @@ class ActivityTransitionReceiver : HiltActivityTransitionReceiver() {
         }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
-    private fun setSpotData(
-        context: Context,
-        user: User?,
-    ) {
-
-        GlobalScope.launch {
-            locationClient.getLocationsRequest().cancellable().collectLatest { location ->
-                geocoderRepository.getAddressList(LatLng(location.lat, location.lng)) { directions ->
-                    user?.let { user ->
-                        Spot().copy(
-                            timestamp = Utils.currentTime(),
-                            type = SpotType.BLUE,
-                            directions = directions,
-                            position = location,
-                            user = user
-                        ).let { spot ->
-                            this@launch.launch {
-                                setSpotsUseCase(AREA_COLLECTION_REFERENCE to spot).collectLatest {
-                                    sendNotification(
-                                        context = context,
-                                        contentTitle = "¡Enhorabuena, ${user.username}!",
-                                        contentText = "Has agregado una plaza libre.",
-                                        notificationId = 32
-                                    )
-                                    this.coroutineContext.job.cancel()
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+//    @OptIn(DelicateCoroutinesApi::class)
+//    private fun setSpotData(
+//        context: Context,
+//        user: User?,
+//    ) {
+//
+//        GlobalScope.launch {
+//            locationClient.getLocationsRequest().cancellable().collectLatest { location ->
+//                geocoderRepository.getAddressList(LatLng(location.lat, location.lng)) { directions ->
+//                    user?.let { user ->
+//                        Spot().copy(
+//                            timestamp = Utils.currentTime(),
+//                            type = SpotType.BLUE,
+//                            directions = directions,
+//                            position = location,
+//                            user = user
+//                        ).let { spot ->
+//                            this@launch.launch {
+//                                setSpotsUseCase(AREA_COLLECTION_REFERENCE to spot).collectLatest {
+//                                    sendNotification(
+//                                        context = context,
+//                                        contentTitle = "¡Enhorabuena, ${user.username}!",
+//                                        contentText = "Has agregado una plaza libre.",
+//                                        notificationId = 32
+//                                    )
+//                                    this.coroutineContext.job.cancel()
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     private fun getBundleExtras(bundle: Bundle): User? {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

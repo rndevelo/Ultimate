@@ -39,6 +39,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -192,7 +193,6 @@ class HomeViewModel @Inject constructor(
 
 
             _locationState.update {
-
                 it.copy(location = newLocation, isLoading = false)
             }
         }
@@ -201,14 +201,11 @@ class HomeViewModel @Inject constructor(
     fun onGetAddressLine(
         context: Context,
         camPosState: CameraPositionState,
-        screenState: ScreenState,
         doLoad: Boolean,
     ) = viewModelScope.launch(Dispatchers.IO) {
 
-        if (screenState == ScreenState.MAIN) {
-            _spotsState.update {
-                it.copy(isLoading = true)
-            }
+        _spotsState.update {
+            it.copy(isLoading = true)
         }
 
         if (doLoad) {
@@ -218,25 +215,39 @@ class HomeViewModel @Inject constructor(
                 camPosState.position.target.longitude
             )
 
-            geocoderRepository.getAddressList(
-                LatLng(
-                    currentPosition.lat,
-                    currentPosition.lng
+            val directions = async {
+                geocoderRepository.getAddressList(
+                    LatLng(
+                        camPosState.position.target.latitude,
+                        camPosState.position.target.longitude,
+                    )
+                ).first()
+            }.await()
+
+            _directionsState.update {
+                it.copy(directions = directions)
+            }
+
+            _locationState.value.location?.let { locPosition ->
+
+                awaitAll(
+                    async {
+                        getSpotsFlow(
+                            context,
+                            directions,
+                            currentPosition,
+                            locPosition
+                        )
+                    },
+                    async {
+                        getAreasFlow(
+                            context,
+                            directions,
+                            currentPosition,
+                            locPosition
+                        )
+                    },
                 )
-            ) { directions ->
-                if (screenState == ScreenState.MAIN) {
-                    _locationState.value.location?.let { locPosition ->
-                        launch {
-                            awaitAll(
-                                async { getSpotsFlow(context, directions, currentPosition, locPosition) },
-                                async { getAreasFlow(context, directions, currentPosition, locPosition) },
-                            )
-                        }
-                    }
-                }
-                _directionsState.update {
-                    it.copy(directions = directions)
-                }
             }
         }
     }

@@ -4,13 +4,16 @@ import android.location.Geocoder
 import android.os.Build
 import com.google.android.gms.maps.model.LatLng
 import com.rndeveloper.ultimate.model.Directions
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import javax.inject.Inject
 
 class GeocoderRepositoryImpl @Inject constructor(
     private val geocoder: Geocoder
 ) : GeocoderRepository {
 
-    override fun getAddressList(latLng: LatLng, callback: (Directions) -> Unit) {
+    override fun getAddressList(latLng: LatLng): Flow<Directions> = callbackFlow {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 geocoder.getFromLocation(
@@ -20,12 +23,12 @@ class GeocoderRepositoryImpl @Inject constructor(
                 ) { addressList ->
                     if (addressList.isNotEmpty()) {
                         Directions(
-                            addressLine = addressList.first().getAddressLine(0),
-                            locality = addressList.first().locality,
-                            area = addressList.first().subAdminArea,
-                            country = addressList.first().countryName
+                            addressLine = addressList.first().getAddressLine(0) ?: "",
+                            locality = addressList.first().locality ?: "",
+                            area = addressList.first().subAdminArea ?: "",
+                            country = addressList.first().countryName ?: ""
                         ).let { directions ->
-                            callback(directions)
+                            trySend(directions)
                         }
                     } else {
 //                    trySend(Result.failure(e.fillInStackTrace()))
@@ -35,12 +38,12 @@ class GeocoderRepositoryImpl @Inject constructor(
                 geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1)?.let { addressList ->
                     if (addressList.isNotEmpty()) {
                         Directions(
-                            addressLine = addressList.firstOrNull()?.getAddressLine(0)?: "",
-                            locality = addressList.firstOrNull()?.locality ?: "" ,
-                            area = addressList.firstOrNull()?.subAdminArea?: "",
-                            country = addressList.firstOrNull()?.countryName?: ""
+                            addressLine = addressList.firstOrNull()?.getAddressLine(0) ?: "",
+                            locality = addressList.firstOrNull()?.locality ?: "",
+                            area = addressList.firstOrNull()?.subAdminArea ?: "",
+                            country = addressList.firstOrNull()?.countryName ?: ""
                         ).let { directions ->
-                            callback(directions)
+                            trySend(directions)
                         }
                     } else {
 //                    trySend(Result.failure(e.fillInStackTrace()))
@@ -50,70 +53,8 @@ class GeocoderRepositoryImpl @Inject constructor(
         } catch (ex: Exception) {
             ex.printStackTrace()
         }
-    }
-}
-
-
-interface GeocoderRepository {
-    fun getAddressList(latLng: LatLng, callback: (Directions) -> Unit)
-}
-
-
-/*
-
-class GeocoderRepositoryImpl @Inject constructor(
-    private val geocoder: Geocoder
-) : GeocoderRepository {
-
-    override fun getAddressList(latLng: LatLng): Flow<Directions> = callbackFlow {
-
-        var geocoderListener = Geocoder.GeocodeListener { addressList ->
-            if (addressList.isNotEmpty()) {
-                Directions(
-                    addressLine = addressList.first().getAddressLine(0),
-                    locality = addressList.first().locality,
-                    area = addressList.first().subAdminArea,
-                    country = addressList.first().countryName
-                ).let { directions ->
-                    launch { trySend(directions) }
-                }
-            } else {
-                launch { trySend(Directions()) }
-            }
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            geocoder.getFromLocation(
-                latLng.latitude,
-                latLng.longitude,
-                1,
-                geocoderListener
-            )
-        } else {
-            geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1)?.let { addressList ->
-                try {
-
-                    if (addressList.isNotEmpty()) {
-                        Directions(
-                            addressLine = addressList.first().getAddressLine(0),
-                            locality = addressList.first().locality,
-                            area = addressList.first().subAdminArea,
-                            country = addressList.first().countryName
-                        ).let { directions ->
-                            launch { trySend(directions) }
-                        }
-                    } else {
-                        launch { trySend(Directions()) }
-                    }
-                } catch (ex: Exception) {
-                    Timber.e(ex)
-                    launch { trySend(Directions()) }
-                }
-            }
-
-            awaitClose {
-                channel.close()
-            }
+        awaitClose {
+            channel.close()
         }
     }
 }
@@ -123,4 +64,67 @@ interface GeocoderRepository {
     fun getAddressList(latLng: LatLng): Flow<Directions>
 }
 
- */
+
+//
+//class GeocoderRepositoryImpl @Inject constructor(
+//    private val geocoder: Geocoder
+//) : GeocoderRepository {
+//
+//    override fun getAddressList(latLng: LatLng): Flow<Directions> = callbackFlow {
+//
+//        var geocoderListener = Geocoder.GeocodeListener { addressList ->
+//            if (addressList.isNotEmpty()) {
+//                Directions(
+//                    addressLine = addressList.first().getAddressLine(0),
+//                    locality = addressList.first().locality,
+//                    area = addressList.first().subAdminArea,
+//                    country = addressList.first().countryName
+//                ).let { directions ->
+//                    launch { trySend(directions) }
+//                }
+//            } else {
+//                launch { trySend(Directions()) }
+//            }
+//        }
+//
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+//            geocoder.getFromLocation(
+//                latLng.latitude,
+//                latLng.longitude,
+//                1,
+//                geocoderListener
+//            )
+//        } else {
+//            geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1)?.let { addressList ->
+//                try {
+//
+//                    if (addressList.isNotEmpty()) {
+//                        Directions(
+//                            addressLine = addressList.first().getAddressLine(0),
+//                            locality = addressList.first().locality,
+//                            area = addressList.first().subAdminArea,
+//                            country = addressList.first().countryName
+//                        ).let { directions ->
+//                            launch { trySend(directions) }
+//                        }
+//                    } else {
+//                        launch { trySend(Directions()) }
+//                    }
+//                } catch (ex: Exception) {
+//                    Timber.e(ex)
+//                    launch { trySend(Directions()) }
+//                }
+//            }
+//
+//            awaitClose {
+//                channel.close()
+//            }
+//        }
+//    }
+//}
+//
+//
+//interface GeocoderRepository {
+//    fun getAddressList(latLng: LatLng): Flow<Directions>
+//}
+//

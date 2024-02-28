@@ -23,7 +23,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -97,7 +96,7 @@ private fun HomeContent(
     onSelectSpot: (String) -> Unit,
     onRemoveSpot: (Spot) -> Unit,
     onStartTimer: () -> Unit,
-    onGetAddressLine: (Context, CameraPositionState, ScreenState, Boolean) -> Unit,
+    onGetAddressLine: (Context, CameraPositionState, Boolean) -> Unit,
 ) {
 
     var isFirstLaunch by rememberSaveable { mutableStateOf(true) }
@@ -109,7 +108,6 @@ private fun HomeContent(
             onGetAddressLine(
                 context,
                 rememberHomeUiContainerState.camPosState,
-                rememberHomeUiContainerState.screenState,
                 true
             )
             rememberHomeUiContainerState.onAnimateCamera(
@@ -128,7 +126,6 @@ private fun HomeContent(
             onGetAddressLine(
                 context,
                 rememberHomeUiContainerState.camPosState,
-                rememberHomeUiContainerState.screenState,
                 doLoad
             )
         }
@@ -152,7 +149,7 @@ private fun HomeContent(
             snackBarHostState.showSnackbar(
                 uiSpotsState.errorMessage!!.error,
                 "Close",
-                true,
+                false,
                 SnackbarDuration.Long,
             )
         }
@@ -163,7 +160,7 @@ private fun HomeContent(
             snackBarHostState.showSnackbar(
                 uiSpotsState.errorMessage!!.error,
                 "Close",
-                true,
+                false,
                 SnackbarDuration.Long,
             )
         }
