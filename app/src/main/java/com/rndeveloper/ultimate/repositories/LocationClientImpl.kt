@@ -39,7 +39,7 @@ class LocationClientImpl @Inject constructor(
         fusedLocationProviderClient.requestLocationUpdates(
             request,
             locationCallback,
-            Looper.myLooper()
+            Looper.getMainLooper()
         )
 
         awaitClose {
