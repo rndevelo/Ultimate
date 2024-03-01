@@ -67,12 +67,17 @@ class HomeUiContainerState @OptIn(ExperimentalMaterial3Api::class) constructor(
         get() = screenState == ScreenState.ADDSPOT || screenState == ScreenState.PARKMYCAR
 
 
+    var isAlertDialogVisible by mutableStateOf(false)
+
     var indexSpotTime by mutableIntStateOf(0)
 
     var indexSpotType by mutableIntStateOf(0)
 
     private var isTilt = false
 
+    fun onVisibleAlertDialog(isVisible: Boolean) {
+        isAlertDialogVisible = isVisible
+    }
     fun onSpotTime(spotTime: Int) {
         indexSpotTime = spotTime
     }

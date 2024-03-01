@@ -25,7 +25,7 @@ fun ListsContent(
     onRemoveSpot: (Spot) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    AnimatedVisibility(visible = isElapsedTime) {
+
         Column(
             modifier = modifier
                 .fillMaxWidth()
@@ -47,5 +47,5 @@ fun ListsContent(
             HorizontalDivider()
 
         }
-    }
+
 }

@@ -2,6 +2,7 @@ package com.rndeveloper.ultimate.ui.screens.home.components.subcomponents
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
@@ -81,8 +83,8 @@ fun CountContent(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 18.dp)
-            .padding(bottom = 14.dp)
+            .padding(horizontal = 16.dp)
+            .padding(bottom = 10.dp)
             .clickable(interactionSource = interactionSource, indication = null) { onExpand() },
         verticalArrangement = Arrangement.SpaceBetween
     ) {
@@ -102,17 +104,10 @@ fun CountContent(
                     ScreenState.ADDSPOT -> stringResource(R.string.home_text_add_a_new_spot)
                     ScreenState.PARKMYCAR -> stringResource(R.string.home_text_park_your_car)
                 },
-                style = if (uiSpotsState.spots.isNotEmpty()) {
-                    MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 20.sp
-                    )
-                } else {
-                    MaterialTheme.typography.labelLarge.copy(
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 20.sp
-                    )
-                },
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 18.sp
+                ),
             )
             Column {
 
@@ -125,7 +120,7 @@ fun CountContent(
                         contentDescription = Icons.Filled.Circle.toString(),
                         modifier = Modifier.size(8.dp),
                         tint = when {
-                            uiAreasState.areas.isEmpty() -> Color.Transparent
+                            uiAreasState.areas.isEmpty() -> Gray
                             uiAreasState.areas.size >= 2 -> color
                             else -> color
                         }
@@ -193,11 +188,10 @@ fun CountContent(
             }
 
         }
-
-        Spacer(modifier = modifier.height(5.dp))
+        Spacer(modifier = modifier.height(3.dp))
         Text(
             text = uiDirectionsState.directions.addressLine,
-            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Light),
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Light)
         )
     }
 }

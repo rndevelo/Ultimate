@@ -23,7 +23,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -93,11 +92,11 @@ private fun HomeContent(
     uiAreasState: AreasUiState,
     uiElapsedTimeState: Long,
     uiDirectionsState: DirectionsUiState,
-    onSet: (CameraPositionState, HomeUiContainerState, () -> Unit) -> Unit,
+    onSet: (HomeUiContainerState, () -> Unit) -> Unit,
     onSelectSpot: (String) -> Unit,
     onRemoveSpot: (Spot) -> Unit,
     onStartTimer: () -> Unit,
-    onGetAddressLine: (Context, CameraPositionState, ScreenState, Boolean) -> Unit,
+    onGetAddressLine: (Context, CameraPositionState, Boolean) -> Unit,
 ) {
 
     var isFirstLaunch by rememberSaveable { mutableStateOf(true) }
@@ -109,7 +108,6 @@ private fun HomeContent(
             onGetAddressLine(
                 context,
                 rememberHomeUiContainerState.camPosState,
-                rememberHomeUiContainerState.screenState,
                 true
             )
             rememberHomeUiContainerState.onAnimateCamera(
@@ -128,7 +126,6 @@ private fun HomeContent(
             onGetAddressLine(
                 context,
                 rememberHomeUiContainerState.camPosState,
-                rememberHomeUiContainerState.screenState,
                 doLoad
             )
         }
@@ -152,7 +149,7 @@ private fun HomeContent(
             snackBarHostState.showSnackbar(
                 uiSpotsState.errorMessage!!.error,
                 "Close",
-                true,
+                false,
                 SnackbarDuration.Long,
             )
         }
@@ -163,7 +160,7 @@ private fun HomeContent(
             snackBarHostState.showSnackbar(
                 uiSpotsState.errorMessage!!.error,
                 "Close",
-                true,
+                false,
                 SnackbarDuration.Long,
             )
         }
@@ -188,15 +185,8 @@ private fun HomeContent(
                     rememberHomeUiContainerState = rememberHomeUiContainerState,
                     uiElapsedTimeState = uiElapsedTimeState,
                     onStartTimer = onStartTimer,
-                    onCameraZoom = { zoom ->
-                        rememberHomeUiContainerState.onAnimateCamera(zoom = zoom)
-                    },
                     onSet = { onMain ->
-                        onSet(
-                            rememberHomeUiContainerState.camPosState,
-                            rememberHomeUiContainerState,
-                            onMain
-                        )
+                        onSet(rememberHomeUiContainerState, onMain)
                     }
                 )
             },
@@ -219,7 +209,7 @@ private fun HomeContent(
                     },
                     modifier = Modifier.padding(contentPadding),
                     scaffoldState = rememberHomeUiContainerState.bsScaffoldState,
-                    sheetPeekHeight = 125.dp,
+                    sheetPeekHeight = 128.dp,
                     sheetShape = BottomSheetDefaults.HiddenShape,
                     sheetTonalElevation = 3.dp,
                     sheetSwipeEnabled = rememberHomeUiContainerState.screenState == ScreenState.MAIN
@@ -264,6 +254,9 @@ private fun HomeContent(
                         },
                         onCameraTilt = rememberHomeUiContainerState::onAnimateCameraTilt,
                         onSelectSpot = onSelectSpot,
+                        onSet = { onMain ->
+                            onSet(rememberHomeUiContainerState, onMain)
+                        },
                         modifier = Modifier.height(
                             (rememberHomeUiContainerState.bsScaffoldState.bottomSheetState.requireOffset() / LocalContext.current.resources.displayMetrics.density).dp
                         )

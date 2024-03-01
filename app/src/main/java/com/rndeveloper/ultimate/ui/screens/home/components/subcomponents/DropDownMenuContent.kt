@@ -34,11 +34,6 @@ fun DropDownMenuContent(
     OutlinedButton(
         onClick = { isExpanded = true },
     ) {
-        Icon(
-            imageVector = items.first().icon,
-            contentDescription = items.first().icon.toString(),
-            tint = animateColorAsState(items[index].color, label = "").value
-        )
         Text(
             text = items[index].title,
             style = MaterialTheme.typography.bodyMedium

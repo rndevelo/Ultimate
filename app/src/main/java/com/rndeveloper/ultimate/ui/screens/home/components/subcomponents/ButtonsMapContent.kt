@@ -1,9 +1,10 @@
 package com.rndeveloper.ultimate.ui.screens.home.components.subcomponents
 
+import android.app.Activity
+import android.content.Context
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,16 +16,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddLocationAlt
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.GpsFixed
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PanoramaPhotosphere
 import androidx.compose.material.icons.filled.Slideshow
 import androidx.compose.material.icons.filled.Terrain
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -35,16 +33,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.FullScreenContentCallback
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd
+import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback
 import com.rndeveloper.ultimate.R
 import com.rndeveloper.ultimate.model.Position
-import com.rndeveloper.ultimate.ui.screens.home.ScreenState
 import com.rndeveloper.ultimate.ui.theme.UltimateTheme
-import kotlinx.coroutines.launch
 
 @Composable
 fun ButtonsMapContent(
@@ -60,6 +62,7 @@ fun ButtonsMapContent(
 ) {
 
     val surfaceColor = MaterialTheme.colorScheme.surface
+    val context = LocalContext.current
 
     Box(
         modifier = modifier
@@ -113,11 +116,8 @@ fun ButtonsMapContent(
 
         FloatingActionButton(
             onClick = {
-                if (isExpandedAdmobButton) {
+                showRewardedInterstitialAdmob(context = context)
 
-                } else {
-                    isExpandedAdmobButton = true
-                }
             },
             modifier = Modifier.align(Alignment.BottomStart),
 
@@ -143,8 +143,6 @@ fun ButtonsMapContent(
 
         }
 
-
-        //        FIXME: CarLoc FloatingButtons
         Column(
             modifier = modifier.align(Alignment.BottomEnd),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -203,77 +201,35 @@ fun ButtonsMapContent(
     }
 }
 
-@Composable
-private fun FloatingCar(
-    car: Position?,
-    onShowCarMarker: () -> Unit,
-    onCameraCar: () -> Unit,
-    deleteMyCar: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+fun showRewardedInterstitialAdmob(context: Context) {
+    RewardedInterstitialAd.load(
+        context,
+        "ca-app-pub-9476899522712717/8060242202",
+        AdRequest.Builder().build(),
+        object : RewardedInterstitialAdLoadCallback() {
+            override fun onAdLoaded(rewardedInterstitialAd: RewardedInterstitialAd) {
+                super.onAdLoaded(rewardedInterstitialAd)
+                rewardedInterstitialAd.fullScreenContentCallback =
+                    object : FullScreenContentCallback() {
+                        override fun onAdShowedFullScreenContent() {
+                            super.onAdShowedFullScreenContent()
+                            Toast.makeText(context, "onAdShowedFullScreenContent", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                rewardedInterstitialAd.show(context as Activity) { rewardItem ->
+                    val amount = rewardItem.amount
+                    val type = rewardItem.type
+//                    showSnackBar()
+                    Toast.makeText(context, "show", Toast.LENGTH_LONG).show()
 
-    val surfaceColor = MaterialTheme.colorScheme.surface
 
-
-    AnimatedVisibility(visible = car != null) {
-        FloatingActionButton(
-            modifier = modifier.height(40.dp),
-            onClick = onShowCarMarker,
-            containerColor = surfaceColor
-
-        ) {
-            Text(
-                text = "Cambiar mi coche",
-                modifier = modifier
-                    .padding(8.dp)
-                    .animateContentSize(
-                        animationSpec = spring(
-                            dampingRatio = Spring.DampingRatioMediumBouncy,
-                            stiffness = Spring.StiffnessMedium
-                        )
-                    ),
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontWeight = FontWeight.Normal
-                )
-            )
-        }
-        Spacer(modifier = modifier.width(8.dp))
-
-    }
-    ExtendedFloatingActionButton(
-        modifier = if (car != null /*|| !isCarLatLng*/) modifier.height(40.dp) else modifier.size(40.dp),
-        onClick = if (car == null) onCameraCar else onShowCarMarker,
-        containerColor = surfaceColor
-    ) {
-        Row(
-            modifier = modifier
-                .padding(8.dp)
-                .animateContentSize(
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessMedium
-                    )
-                ),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            AnimatedVisibility(visible = car != null) {
-                Row {
-                    Text(
-                        text = if (car != null) "¡Me voy!" else "",
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontWeight = FontWeight.Normal,
-                        )
-                    )
-                    Spacer(modifier = modifier.width(2.dp))
                 }
             }
 
-            Icon(
-                imageVector = Icons.Default.DirectionsCar,
-                contentDescription = "Coche",
-            )
-        }
-    }
+            override fun onAdFailedToLoad(p0: LoadAdError) {
+                super.onAdFailedToLoad(p0)
+            }
+        })
 }
 
 @Preview(showBackground = true)

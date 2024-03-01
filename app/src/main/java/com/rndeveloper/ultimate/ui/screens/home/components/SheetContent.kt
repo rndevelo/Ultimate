@@ -1,5 +1,6 @@
 package com.rndeveloper.ultimate.ui.screens.home.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -47,32 +48,18 @@ fun SheetContent(
             onExpand = rememberHomeUiContainerState::onOpenBottomSheet,
         )
 
-//        FIXME : Refactor list content
-
-        when (rememberHomeUiContainerState.screenState) {
-            ScreenState.MAIN -> {
-                ListsContent(
-                    spots = uiSpotsState.spots,
-                    isElapsedTime = isElapsedTime,
-                    scrollState = rememberHomeUiContainerState.scrollState,
-                    selectedSpot = selectedSpot,
-                    onSpot = onSelectSpot,
-                    onRemoveSpot = onRemoveSpot
-                )
-            }
-
-            ScreenState.ADDSPOT -> {
-                Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp)) {
-                    DropDownMenuContent(
-                        items = timeList,
-                        index = rememberHomeUiContainerState.indexSpotTime,
-                        onIndex = { index ->
-                            rememberHomeUiContainerState.onSpotTime(index)
-                        }
-                    )
-                }
-            }
-            ScreenState.PARKMYCAR -> {}
+        AnimatedVisibility(
+            visible = isElapsedTime
+                    && ScreenState.MAIN == rememberHomeUiContainerState.screenState
+        ) {
+            ListsContent(
+                spots = uiSpotsState.spots,
+                isElapsedTime = isElapsedTime,
+                scrollState = rememberHomeUiContainerState.scrollState,
+                selectedSpot = selectedSpot,
+                onSpot = onSelectSpot,
+                onRemoveSpot = onRemoveSpot
+            )
         }
     }
 }

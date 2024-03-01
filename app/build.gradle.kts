@@ -121,7 +121,6 @@ dependencies {
     implementation("com.google.firebase:firebase-crashlytics-ktx:18.6.2")
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
-
     implementation("com.firebase:geofire-android:3.1.0")
 
     // Location
@@ -130,6 +129,9 @@ dependencies {
     // Google Maps
     implementation("com.google.android.gms:play-services-maps:18.2.0")
     implementation("com.google.maps.android:maps-compose:2.5.3")
+
+//    Admob
+    implementation("com.google.android.gms:play-services-ads:22.6.0")
 
     // DataStore
     implementation("androidx.datastore:datastore-preferences:1.0.0")

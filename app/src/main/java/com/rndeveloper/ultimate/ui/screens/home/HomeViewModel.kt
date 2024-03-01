@@ -206,14 +206,11 @@ class HomeViewModel @Inject constructor(
     fun onGetAddressLine(
         context: Context,
         camPosState: CameraPositionState,
-        screenState: ScreenState,
         doLoad: Boolean,
     ) {
 
-        if (screenState == ScreenState.MAIN) {
-            _spotsState.update {
-                it.copy(isLoading = true)
-            }
+        _spotsState.update {
+            it.copy(isLoading = true)
         }
 
         if (doLoad) {
@@ -229,13 +226,11 @@ class HomeViewModel @Inject constructor(
                     currentPosition.lng
                 )
             ) { directions ->
-                if (screenState == ScreenState.MAIN) {
-                    onGetSpots(
-                        context = context,
-                        position = currentPosition,
-                        directions = directions
-                    )
-                }
+                onGetSpots(
+                    context = context,
+                    position = currentPosition,
+                    directions = directions
+                )
                 _directionsState.update {
                     it.copy(directions = directions)
                 }
@@ -308,11 +303,11 @@ class HomeViewModel @Inject constructor(
 
     //    SET SPOT
     fun onSet(
-        camPosState: CameraPositionState,
         rememberHomeUiContainerState: HomeUiContainerState,
         onMainState: () -> Unit
     ) =
         viewModelScope.launch {
+            val camPosState = rememberHomeUiContainerState.camPosState
             if (!camPosState.isMoving && camPosState.position.zoom > 12f) {
 
 //            _spotsState.update {
