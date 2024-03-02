@@ -1,6 +1,7 @@
 package com.rndeveloper.ultimate.repositories
 
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.rndeveloper.ultimate.model.Spot
 import com.rndeveloper.ultimate.model.User
@@ -83,6 +84,21 @@ class UserRepositoryImpl @Inject constructor(
         }
         awaitClose()
     }
+
+    override fun setPoints(
+        uid: String,
+        incrementPoints: Long
+    ): Flow<Result<Boolean>> = callbackFlow {
+        fireStore.collection(USER_REFERENCE).document(uid)
+            .update("points", FieldValue.increment(incrementPoints)).addOnSuccessListener { _ ->
+                trySend(Result.success(true))
+            }
+            .addOnFailureListener { error ->
+                trySend(Result.failure(error))
+            }
+        awaitClose()
+    }
+
 }
 
 
@@ -90,4 +106,9 @@ interface UserRepository {
     fun getUserData(): Flow<Result<User>>
     fun getHistoryData(): Flow<Result<List<Spot>>>
     fun setUserCar(user: User): Flow<Result<Boolean?>>
+
+    fun setPoints(
+        uid: String,
+        incrementPoints: Long
+    ): Flow<Result<Boolean>>
 }

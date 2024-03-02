@@ -28,7 +28,7 @@
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-9476899522712717~4290773186" />
+            android:value="${ADMOB_APPLICATION_ID}" />
 
         <activity
             android:name=".MainActivity"
@@ -36,7 +36,6 @@
             android:theme="@style/Theme.Ultimate">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

@@ -106,7 +106,8 @@ fun CountContent(
                 },
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.SemiBold,
-                    fontSize = 18.sp
+//                    Difference letter type by empty or not empty spots
+                    fontSize = if (uiSpotsState.spots.isNotEmpty()) 20.sp else 18.5.sp
                 ),
             )
             Column {

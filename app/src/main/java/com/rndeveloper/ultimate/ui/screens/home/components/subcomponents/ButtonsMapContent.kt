@@ -1,9 +1,5 @@
 package com.rndeveloper.ultimate.ui.screens.home.components.subcomponents
 
-import android.app.Activity
-import android.content.Context
-import android.util.Log
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -39,11 +35,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.FullScreenContentCallback
-import com.google.android.gms.ads.LoadAdError
-import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd
-import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback
 import com.rndeveloper.ultimate.R
 import com.rndeveloper.ultimate.model.Position
 import com.rndeveloper.ultimate.ui.theme.UltimateTheme
@@ -58,6 +49,7 @@ fun ButtonsMapContent(
     onCameraLocation: () -> Unit,
     onCameraMyCar: () -> Unit,
     onCameraCarLoc: () -> Unit,
+    showRewardedAdmob: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
 
@@ -115,13 +107,8 @@ fun ButtonsMapContent(
         var isExpandedAdmobButton by remember { mutableStateOf(false) }
 
         FloatingActionButton(
-            onClick = {
-                showRewardedInterstitialAdmob(context = context)
-
-            },
+            onClick = showRewardedAdmob,
             modifier = Modifier.align(Alignment.BottomStart),
-
-//            FIXME: this -----------------
             containerColor = MaterialTheme.colorScheme.tertiary
 
         ) {
@@ -201,37 +188,6 @@ fun ButtonsMapContent(
     }
 }
 
-fun showRewardedInterstitialAdmob(context: Context) {
-    RewardedInterstitialAd.load(
-        context,
-        "ca-app-pub-9476899522712717/8060242202",
-        AdRequest.Builder().build(),
-        object : RewardedInterstitialAdLoadCallback() {
-            override fun onAdLoaded(rewardedInterstitialAd: RewardedInterstitialAd) {
-                super.onAdLoaded(rewardedInterstitialAd)
-                rewardedInterstitialAd.fullScreenContentCallback =
-                    object : FullScreenContentCallback() {
-                        override fun onAdShowedFullScreenContent() {
-                            super.onAdShowedFullScreenContent()
-                            Toast.makeText(context, "onAdShowedFullScreenContent", Toast.LENGTH_LONG).show()
-                        }
-                    }
-                rewardedInterstitialAd.show(context as Activity) { rewardItem ->
-                    val amount = rewardItem.amount
-                    val type = rewardItem.type
-//                    showSnackBar()
-                    Toast.makeText(context, "show", Toast.LENGTH_LONG).show()
-
-
-                }
-            }
-
-            override fun onAdFailedToLoad(p0: LoadAdError) {
-                super.onAdFailedToLoad(p0)
-            }
-        })
-}
-
 @Preview(showBackground = true)
 @Composable
 fun ButtonsMapContentPreview() {
@@ -245,6 +201,7 @@ fun ButtonsMapContentPreview() {
             onCameraLocation = { /*TODO*/ },
             onCameraMyCar = {},
             onCameraCarLoc = { },
+            showRewardedAdmob = {},
         )
     }
 }

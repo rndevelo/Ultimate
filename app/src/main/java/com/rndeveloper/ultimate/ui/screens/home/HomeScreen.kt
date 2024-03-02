@@ -77,6 +77,7 @@ fun HomeScreen(
         onRemoveSpot = homeViewModel::onRemoveSpot,
         onStartTimer = { homeViewModel.onSaveGetStartTimer(SPOTS_TIMER) },
         onGetAddressLine = homeViewModel::onGetAddressLine,
+        showRewardedAdmob = homeViewModel::showRewardedAdmob,
     )
 }
 
@@ -97,6 +98,7 @@ private fun HomeContent(
     onRemoveSpot: (Spot) -> Unit,
     onStartTimer: () -> Unit,
     onGetAddressLine: (Context, CameraPositionState, Boolean) -> Unit,
+    showRewardedAdmob: (Context) -> Unit,
 ) {
 
     var isFirstLaunch by rememberSaveable { mutableStateOf(true) }
@@ -105,11 +107,6 @@ private fun HomeContent(
 
     LaunchedEffect(key1 = isFirstLaunch && uiLocationState.location != null) {
         if (isFirstLaunch && uiLocationState.location != null) {
-            onGetAddressLine(
-                context,
-                rememberHomeUiContainerState.camPosState,
-                true
-            )
             rememberHomeUiContainerState.onAnimateCamera(
                 LatLng(uiLocationState.location.lat, uiLocationState.location.lng),
                 15f,
@@ -121,7 +118,7 @@ private fun HomeContent(
 
     LaunchedEffect(Unit) {
         snapshotFlow {
-            !rememberHomeUiContainerState.camPosState.isMoving
+            !rememberHomeUiContainerState.camPosState.isMoving && rememberHomeUiContainerState.camPosState.position.zoom >= 12f
         }.collect { doLoad ->
             onGetAddressLine(
                 context,
@@ -257,6 +254,7 @@ private fun HomeContent(
                         onSet = { onMain ->
                             onSet(rememberHomeUiContainerState, onMain)
                         },
+                        showRewardedAdmob = { showRewardedAdmob(context) },
                         modifier = Modifier.height(
                             (rememberHomeUiContainerState.bsScaffoldState.bottomSheetState.requireOffset() / LocalContext.current.resources.displayMetrics.density).dp
                         )

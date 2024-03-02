@@ -218,10 +218,10 @@ fun AdaptiveBanner() {
                     )
                 )
                 adUnitId = if (BuildConfig.DEBUG) {
-                    "ca-app-pub-3940256099942544/6300978111"
+                    BuildConfig.ADMOB_BANNER_ID
                 } else {
 //                    FIXME: Add the release one
-                    "ca-app-pub-3940256099942544/6300978111"
+                    BuildConfig.ADMOB_BANNER_ID
                 }
                 loadAd(AdRequest.Builder().build())
             }

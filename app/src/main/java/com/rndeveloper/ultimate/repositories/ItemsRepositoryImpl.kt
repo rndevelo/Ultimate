@@ -73,6 +73,8 @@ class ItemsRepositoryImpl @Inject constructor(
 
     override fun removeSpot(spot: Spot): Flow<Result<Boolean>> = callbackFlow {
 
+//        FIXME: SET POINTS HERE !!
+
         val userRandomPoints = (3..5).random().toLong()
         val myRandomPoints = (1..2).random().toLong()
         val myUid = fireAuth.currentUser?.uid
@@ -83,9 +85,9 @@ class ItemsRepositoryImpl @Inject constructor(
             .document(spot.tag)
             .delete()
             .addOnSuccessListener { _ ->
-                setPoints(spot.user.uid, userRandomPoints)
+//                setPoints(spot.user.uid, userRandomPoints)
                 if (myUid != null) {
-                    setPoints(myUid, myRandomPoints)
+//                    setPoints(myUid, myRandomPoints)
                 }
             }
             .addOnFailureListener { error ->
@@ -94,14 +96,6 @@ class ItemsRepositoryImpl @Inject constructor(
 
         awaitClose()
     }
-
-    override fun setPoints(
-        uid: String,
-        incrementPoints: Long
-    ) {
-        fireStore.collection(USER_REFERENCE).document(uid)
-            .update("points", FieldValue.increment(incrementPoints))
-    }
 }
 
 
@@ -109,8 +103,4 @@ interface ItemsRepository {
     fun getItems(collectionRef: String, directions: Directions): Flow<Result<List<Spot>>>
     fun setSpot(pair: Pair<String, Spot>): Flow<Result<Boolean>>
     fun removeSpot(spot: Spot): Flow<Result<Boolean>>
-    fun setPoints(
-        uid: String,
-        incrementPoints: Long
-    )
 }

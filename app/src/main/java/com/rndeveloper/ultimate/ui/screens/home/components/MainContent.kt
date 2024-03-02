@@ -62,6 +62,7 @@ fun MainContent(
     onCameraTilt: () -> Unit,
     onSelectSpot: (String) -> Unit,
     onSet: (onMain: () -> Unit) -> Unit,
+    showRewardedAdmob: () -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -108,6 +109,7 @@ fun MainContent(
                 onCameraLocation = onCameraLoc,
                 onCameraMyCar = onCameraCar,
                 onCameraCarLoc = onCameraCarLoc,
+                showRewardedAdmob = showRewardedAdmob,
             )
 
 
@@ -223,8 +225,9 @@ fun MainContentPreview() {
             onCameraCar = {},
             onCameraCarLoc = {},
             onCameraTilt = {},
-            onSet = {},
             onSelectSpot = {},
+            onSet = {},
+            showRewardedAdmob = {},
         )
     }
 }

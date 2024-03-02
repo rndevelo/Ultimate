@@ -26,8 +26,6 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
-    private var mRewardedInterstitialAd: RewardedInterstitialAd? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -43,52 +41,6 @@ class MainActivity : ComponentActivity() {
             }
         }
         MobileAds.initialize(this)
-//        loadRewardedInterstitialAdmob()
-//        showRewardedInterstitialAdmob()
-    }
-
-    fun loadRewardedInterstitialAdmob() {
-        RewardedInterstitialAd.load(
-            this,
-            "ca-app-pub-9476899522712717/5295026801",
-            AdRequest.Builder().build(),
-            object : RewardedInterstitialAdLoadCallback() {
-                override fun onAdLoaded(rewardedInterstitialAd: RewardedInterstitialAd) {
-                    super.onAdLoaded(rewardedInterstitialAd)
-                    mRewardedInterstitialAd = rewardedInterstitialAd
-                }
-
-                override fun onAdFailedToLoad(p0: LoadAdError) {
-                    super.onAdFailedToLoad(p0)
-                    mRewardedInterstitialAd = null
-                }
-            })
-    }
-
-    fun showRewardedInterstitialAdmob() {
-        mRewardedInterstitialAd?.fullScreenContentCallback =
-            object : FullScreenContentCallback() {
-                override fun onAdShowedFullScreenContent() {
-                    super.onAdShowedFullScreenContent()
-                    Toast.makeText(
-                        this@MainActivity,
-                        "onAdShowedFullScreenContent",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-
-                override fun onAdDismissedFullScreenContent() {
-                    super.onAdDismissedFullScreenContent()
-                    mRewardedInterstitialAd = null
-                    loadRewardedInterstitialAdmob()
-                }
-            }
-        mRewardedInterstitialAd?.show(this) { rewardItem ->
-            val amount = rewardItem.amount
-            val type = rewardItem.type
-            //                    showSnackBar()
-            Toast.makeText(this, "show", Toast.LENGTH_LONG).show()
-        }
     }
 }
 

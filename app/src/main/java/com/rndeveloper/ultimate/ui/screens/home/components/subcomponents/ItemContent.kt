@@ -1,13 +1,9 @@
 package com.rndeveloper.ultimate.ui.screens.home.components.subcomponents
 
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -36,9 +32,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
-import com.google.android.gms.maps.model.LatLng
-import com.rndeveloper.ultimate.extensions.getFormattedPrettyTime
 import com.rndeveloper.ultimate.model.Spot
 import com.rndeveloper.ultimate.ui.theme.UltimateTheme
 

@@ -1,12 +1,21 @@
 package com.rndeveloper.ultimate.ui.screens.home
 
+import android.app.Activity
 import android.content.Context
 import android.os.CountDownTimer
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.ads.AdError
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.FullScreenContentCallback
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.rewarded.RewardedAd
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
+import com.rndeveloper.ultimate.BuildConfig
+import com.rndeveloper.ultimate.exceptions.CustomException
 import com.rndeveloper.ultimate.model.Directions
 import com.rndeveloper.ultimate.model.Position
 import com.rndeveloper.ultimate.model.Spot
@@ -39,11 +48,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -307,6 +314,11 @@ class HomeViewModel @Inject constructor(
         onMainState: () -> Unit
     ) =
         viewModelScope.launch {
+
+            _spotsState.update {
+                it.copy(isLoading = true)
+            }
+
             val camPosState = rememberHomeUiContainerState.camPosState
             if (!camPosState.isMoving && camPosState.position.zoom > 12f) {
 
@@ -372,22 +384,81 @@ class HomeViewModel @Inject constructor(
 
     fun onRemoveSpot(spot: Spot) = viewModelScope.launch {
 //        FIXME : THIS
-        if (_userState.value.user.uid != spot.user.uid) {
-
-            spotsUseCases.removeSpotUseCase(spot.copy(icon = null))
-                .collectLatest { newHomeUiState ->
-                    _spotsState.update {
-                        newHomeUiState
-                    }
+        _spotsState.update {
+            it.copy(isLoading = true)
+        }
+        spotsUseCases.removeSpotUseCase(spot.copy(icon = null) to _userState.value.user)
+            .collectLatest { newHomeUiState ->
+                _spotsState.update {
+                    it.copy(isLoading = newHomeUiState.isLoading, errorMessage = newHomeUiState.errorMessage)
                 }
+            }
+    }
 
-        } else {
-
+    fun onSetPoint(points: Long) = viewModelScope.launch {
+        userRepository.setPoints(uid = _userState.value.user.uid, incrementPoints = points).collectLatest {
+//            _userState.update {
+//                it.copy(errorMessage = CustomException.GenericException("Nice, you has gotten 1 cred.!"))
+//            }
         }
     }
 
-    fun onSetPoint(points: Long) {
-        spotsRepository.setPoints(uid = _userState.value.user.uid, incrementPoints = points)
+    fun showRewardedAdmob(context: Context) {
+        val adRequest = AdRequest.Builder().build()
+
+        RewardedAd.load(
+            context,
+            BuildConfig.ADMOB_REWARDED_ID,
+            adRequest,
+            object : RewardedAdLoadCallback() {
+                override fun onAdFailedToLoad(adError: LoadAdError) {
+                    Log.i("showRewardedAdmob", "error $adError")
+                    //rewarded = null
+                }
+
+                override fun onAdLoaded(rewardedAd: RewardedAd) {
+                    Log.i("showRewardedAdmob", "Ad was loaded.")
+                    //rewarded = rewardedAd
+
+                    rewardedAd.fullScreenContentCallback = object : FullScreenContentCallback() {
+
+                        override fun onAdShowedFullScreenContent() {
+                            // Called when ad is shown.
+                            Log.i("showRewardedAdmob", "Ad showed fullscreen content.")
+                        }
+
+                        override fun onAdImpression() {
+                            // Called when an impression is recorded for an ad.
+                            Log.i("showRewardedAdmob", "Ad recorded an impression.")
+                        }
+
+                        override fun onAdClicked() {
+                            // Called when a click is recorded for an ad.
+                            Log.i("showRewardedAdmob", "Ad was clicked.")
+                        }
+
+                        override fun onAdDismissedFullScreenContent() {
+                            // Called when ad is dismissed.
+                            // Set the ad reference to null so you don't show the ad a second time.
+                            Log.i("showRewardedAdmob", "Ad dismissed fullscreen content.")
+
+                            //rewarded = null
+                        }
+
+                        override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                            // Called when ad fails to show.
+                            Log.e("showRewardedAdmob", "Ad failed to show fullscreen content.")
+                            //rewarded = null
+                        }
+                    }
+                    rewardedAd.show(context as Activity) { rewardItem ->
+                        val amount = rewardItem.amount
+                        val type = rewardItem.type
+                        onSetPoint(1)
+                        Log.i("showRewardedAdmob", "amount $amount  type $type.")
+                    }
+                }
+            })
     }
 }
 
