@@ -158,16 +158,22 @@ class HomeViewModel @Inject constructor(
     }
 
     fun onSaveGetStartTimer(timerId: String) {
-        val timer = Timer(
-            id = timerId,
-            endTime = currentTime() + Constants.TIMER
-        )
-        if (_elapsedTimeState.value <= 0L && _spotsState.value.spots.isNotEmpty() && _userState.value.user.points >= 2) {
-            viewModelScope.launch {
-                timerRepository.saveTimer(timer = timer)
+        if (_userState.value.user.points >= 2) {
+            val timer = Timer(
+                id = timerId,
+                endTime = currentTime() + Constants.TIMER
+            )
+            if (_elapsedTimeState.value <= 0L && _spotsState.value.spots.isNotEmpty() && _userState.value.user.points >= 2) {
+                viewModelScope.launch {
+                    timerRepository.saveTimer(timer = timer)
+                }
+                onSetPoint(points = -2)
+                onGetAndStartTimer()
             }
-            onSetPoint(points = -2)
-            onGetAndStartTimer()
+        }else{
+            _spotsState.update {
+                it.copy(errorMessage = CustomException.GenericException("No tienes suficientes puntos"))
+            }
         }
     }
 
@@ -390,17 +396,21 @@ class HomeViewModel @Inject constructor(
         spotsUseCases.removeSpotUseCase(spot.copy(icon = null) to _userState.value.user)
             .collectLatest { newHomeUiState ->
                 _spotsState.update {
-                    it.copy(isLoading = newHomeUiState.isLoading, errorMessage = newHomeUiState.errorMessage)
+                    it.copy(
+                        isLoading = newHomeUiState.isLoading,
+                        errorMessage = newHomeUiState.errorMessage
+                    )
                 }
             }
     }
 
     fun onSetPoint(points: Long) = viewModelScope.launch {
-        userRepository.setPoints(uid = _userState.value.user.uid, incrementPoints = points).collectLatest {
+        userRepository.setPoints(uid = _userState.value.user.uid, incrementPoints = points)
+            .collectLatest {
 //            _userState.update {
 //                it.copy(errorMessage = CustomException.GenericException("Nice, you has gotten 1 cred.!"))
 //            }
-        }
+            }
     }
 
     fun showRewardedAdmob(context: Context) {
