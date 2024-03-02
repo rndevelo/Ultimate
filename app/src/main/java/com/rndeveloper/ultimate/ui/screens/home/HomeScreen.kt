@@ -145,8 +145,8 @@ private fun HomeContent(
         LaunchedEffect(uiUserState.errorMessage) {
             snackBarHostState.showSnackbar(
                 uiSpotsState.errorMessage!!.error,
-                "Close",
-                false,
+                "",
+                true,
                 SnackbarDuration.Long,
             )
         }
@@ -156,8 +156,8 @@ private fun HomeContent(
         LaunchedEffect(uiSpotsState.errorMessage) {
             snackBarHostState.showSnackbar(
                 uiSpotsState.errorMessage!!.error,
-                "Close",
-                false,
+                "",
+                true,
                 SnackbarDuration.Long,
             )
         }
