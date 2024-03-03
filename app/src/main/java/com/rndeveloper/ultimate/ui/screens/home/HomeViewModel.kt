@@ -15,6 +15,8 @@ import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import com.rndeveloper.ultimate.BuildConfig
+import com.rndeveloper.ultimate.backend.ApiService
+import com.rndeveloper.ultimate.backend.RouteResponse
 import com.rndeveloper.ultimate.exceptions.CustomException
 import com.rndeveloper.ultimate.model.Directions
 import com.rndeveloper.ultimate.model.Position
@@ -65,6 +67,7 @@ class HomeViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val activityTransitionClient: ActivityTransitionRepo,
     private val geocoderRepository: GeocoderRepository,
+    private val apiService: ApiService,
 //    private val geofenceClient: GeofenceClient,
 ) : ViewModel() {
 
@@ -118,6 +121,13 @@ class HomeViewModel @Inject constructor(
         initialValue = DirectionsUiState(),
     )
 
+private val _routeState = MutableStateFlow(RouteResponse(emptyList()))
+    val uiRouteState: StateFlow<RouteResponse> = _routeState.asStateFlow().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = RouteResponse(emptyList()),
+    )
+
 
     init {
 
@@ -130,6 +140,23 @@ class HomeViewModel @Inject constructor(
             )
         }
     }
+
+
+    fun onCreateRoute() = viewModelScope.launch {
+        val call = apiService.getRoute(
+            BuildConfig.ROUTES_API_KEY,
+            "${_locationState.value.location?.lng},${_locationState.value.location?.lat}",
+            "${_spotState.value.position.lng},${_spotState.value.position.lat}"
+        )
+        if (call.isSuccessful) {
+            if (call.body() != null) {
+                _routeState.update {
+                    call.body()!!
+                }
+            }
+        }
+    }
+
 
     //    TIMER
     private fun onGetAndStartTimer() = viewModelScope.launch {
@@ -151,6 +178,9 @@ class HomeViewModel @Inject constructor(
                         _elapsedTimeState.update {
                             DEFAULT_ELAPSED_TIME
                         }
+                        _routeState.update {
+                            it.copy(features = emptyList())
+                        }
                     }
                 }.start()
             }
@@ -170,7 +200,7 @@ class HomeViewModel @Inject constructor(
                 onSetPoint(points = -2)
                 onGetAndStartTimer()
             }
-        }else{
+        } else {
             _spotsState.update {
                 it.copy(errorMessage = CustomException.GenericException("No tienes suficientes puntos"))
             }

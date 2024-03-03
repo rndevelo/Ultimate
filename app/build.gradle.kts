@@ -109,7 +109,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:21.0.0")
 
     // Permissions
-    implementation ("com.google.accompanist:accompanist-permissions:0.25.1")
+    implementation("com.google.accompanist:accompanist-permissions:0.25.1")
 
     // Hilt
     implementation("com.google.dagger:hilt-android:2.50")
@@ -148,6 +148,12 @@ dependencies {
     // Coil
 //    implementation("io.coil-kt:coil:2.5.0")
     implementation("io.coil-kt:coil-compose:2.5.0")
+
+//    Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    //Gson -> json data to java or kotlin format
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
     // Test
     testImplementation("junit:junit:4.13.2")

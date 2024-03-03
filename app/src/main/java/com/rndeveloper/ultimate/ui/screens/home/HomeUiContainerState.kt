@@ -67,6 +67,8 @@ class HomeUiContainerState @OptIn(ExperimentalMaterial3Api::class) constructor(
         get() = screenState == ScreenState.ADDSPOT || screenState == ScreenState.PARKMYCAR
 
 
+    var isExpandedAdmobButton by mutableStateOf(false)
+
     var isAlertDialogVisible by mutableStateOf(false)
 
     var indexSpotTime by mutableIntStateOf(0)
@@ -75,6 +77,9 @@ class HomeUiContainerState @OptIn(ExperimentalMaterial3Api::class) constructor(
 
     private var isTilt = false
 
+    fun onExpandedAdmobButton(isVisible: Boolean) {
+        isExpandedAdmobButton = isVisible
+    }
     fun onVisibleAlertDialog(isVisible: Boolean) {
         isAlertDialogVisible = isVisible
     }
@@ -126,7 +131,7 @@ class HomeUiContainerState @OptIn(ExperimentalMaterial3Api::class) constructor(
         scope.launch {
             camPosState.animate(
                 CameraUpdateFactory.newLatLngBounds(
-                    latLngBounds, 250
+                    latLngBounds, 350
                 )
             )
         }

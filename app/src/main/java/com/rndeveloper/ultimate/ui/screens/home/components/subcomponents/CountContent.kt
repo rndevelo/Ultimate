@@ -33,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Gray
+import androidx.compose.ui.graphics.Color.Companion.LightGray
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -121,7 +122,7 @@ fun CountContent(
                         contentDescription = Icons.Filled.Circle.toString(),
                         modifier = Modifier.size(8.dp),
                         tint = when {
-                            uiAreasState.areas.isEmpty() -> Gray
+                            uiAreasState.areas.isEmpty() -> LightGray
                             uiAreasState.areas.size >= 2 -> color
                             else -> color
                         }

@@ -2,7 +2,11 @@ package com.rndeveloper.ultimate.ui.screens.home.components.subcomponents
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Circle
+import androidx.compose.material.icons.filled.Start
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -10,6 +14,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.google.android.gms.maps.model.ButtCap
+import com.google.android.gms.maps.model.CustomCap
+import com.google.android.gms.maps.model.JointType
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.CameraPositionState
@@ -20,8 +27,10 @@ import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.rndeveloper.ultimate.R
+import com.rndeveloper.ultimate.backend.RouteResponse
 import com.rndeveloper.ultimate.extensions.onNavigate
 import com.rndeveloper.ultimate.model.Position
 import com.rndeveloper.ultimate.model.Spot
@@ -42,6 +51,7 @@ fun GoogleMapContent(
     isElapsedTime: Boolean,
     mapType: MapType,
     onSelectSpot: (String) -> Unit,
+    uiRouteState: RouteResponse,
     modifier: Modifier = Modifier
 ) {
 
@@ -73,7 +83,7 @@ fun GoogleMapContent(
         if (car != null) {
             Marker(
                 state = MarkerState(position = LatLng(car.lat, car.lng)),
-                alpha = if (rememberHomeUiContainerState.isSetState) 0.4f else 1.0f,
+                alpha = if (rememberHomeUiContainerState.isSetState || isElapsedTime) 0.4f else 1.0f,
                 icon = BitmapHelper.vectorToBitmap(
                     context = context,
                     id = R.drawable.ic_park_my_car_shadow
@@ -111,6 +121,19 @@ fun GoogleMapContent(
                 tag = area.tag,
             )
         }
+
+        if (uiRouteState.features.isNotEmpty()) {
+            val mapRoute = uiRouteState.features.first().geometry.coordinates.map {
+                LatLng(it[1], it[0])
+            }
+            Polyline(
+                points = mapRoute,
+                color = MaterialTheme.colorScheme.primary,
+                endCap = CustomCap(BitmapHelper.vectorToBitmap(context, R.drawable.ic_circle)),
+                startCap = CustomCap(BitmapHelper.vectorToBitmap(context, R.drawable.ic_circle)),
+            )
+        }
+
     }
 }
 
@@ -129,6 +152,7 @@ fun GoogleMapContentPreview() {
             isElapsedTime = false,
             mapType = MapType.NORMAL,
             onSelectSpot = {},
+            uiRouteState = RouteResponse(emptyList()),
         )
     }
 }

@@ -32,6 +32,7 @@ import androidx.navigation.NavController
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.compose.CameraPositionState
+import com.rndeveloper.ultimate.backend.RouteResponse
 import com.rndeveloper.ultimate.model.Spot
 import com.rndeveloper.ultimate.ui.screens.home.components.BottomBarContent
 import com.rndeveloper.ultimate.ui.screens.home.components.DrawerHeaderContent
@@ -61,6 +62,7 @@ fun HomeScreen(
     val uiAreasState by homeViewModel.uiAreasState.collectAsStateWithLifecycle()
     val uiElapsedTimeState by homeViewModel.uiElapsedTimeState.collectAsStateWithLifecycle()
     val uiDirectionsState by homeViewModel.uiDirectionsState.collectAsStateWithLifecycle()
+    val uiRouteState by homeViewModel.uiRouteState.collectAsStateWithLifecycle()
 
     HomeContent(
         onNavigate = navController::navigate,
@@ -72,8 +74,10 @@ fun HomeScreen(
         uiAreasState = uiAreasState,
         uiElapsedTimeState = uiElapsedTimeState,
         uiDirectionsState = uiDirectionsState,
+        uiRouteState = uiRouteState,
         onSet = homeViewModel::onSet,
         onSelectSpot = homeViewModel::onSelectSpot,
+        onCreateRoute = homeViewModel::onCreateRoute,
         onRemoveSpot = homeViewModel::onRemoveSpot,
         onStartTimer = { homeViewModel.onSaveGetStartTimer(SPOTS_TIMER) },
         onGetAddressLine = homeViewModel::onGetAddressLine,
@@ -93,8 +97,10 @@ private fun HomeContent(
     uiAreasState: AreasUiState,
     uiElapsedTimeState: Long,
     uiDirectionsState: DirectionsUiState,
+    uiRouteState: RouteResponse,
     onSet: (HomeUiContainerState, () -> Unit) -> Unit,
     onSelectSpot: (String) -> Unit,
+    onCreateRoute: () -> Unit,
     onRemoveSpot: (Spot) -> Unit,
     onStartTimer: () -> Unit,
     onGetAddressLine: (Context, CameraPositionState, Boolean) -> Unit,
@@ -130,14 +136,16 @@ private fun HomeContent(
 
     LaunchedEffect(key1 = uiSpotState) {
         if (!isFirstLaunch && uiSpotState != null && uiElapsedTimeState > DEFAULT_ELAPSED_TIME) {
-            rememberHomeUiContainerState.onAnimateCamera(
-                LatLng(uiSpotState.position.lat, uiSpotState.position.lng),
-                16f,
-                0f,
-            )
+            val latLngBounds = LatLngBounds.Builder()
+            uiLocationState.location?.let { loc ->
+                latLngBounds.include(LatLng(loc.lat, loc.lng))
+            }
+            latLngBounds.include(LatLng(uiSpotState.position.lat, uiSpotState.position.lng))
+            rememberHomeUiContainerState.onAnimateCameraBounds(latLngBounds.build())
             rememberHomeUiContainerState.scrollState.animateScrollToItem(
                 index = uiSpotsState.spots.indexOf(uiSpotState)
             )
+            onCreateRoute()
         }
     }
 
@@ -218,6 +226,7 @@ private fun HomeContent(
                         uiSpotsState = uiSpotsState,
                         uiAreasState = uiAreasState,
                         uiElapsedTimeState = uiElapsedTimeState,
+                        uiRouteState = uiRouteState,
                         onCameraLoc = {
                             uiLocationState.location?.let { loc ->
                                 rememberHomeUiContainerState.onAnimateCamera(

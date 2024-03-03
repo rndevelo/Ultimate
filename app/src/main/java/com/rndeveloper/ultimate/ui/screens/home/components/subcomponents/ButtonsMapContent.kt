@@ -1,7 +1,9 @@
 package com.rndeveloper.ultimate.ui.screens.home.components.subcomponents
 
+import android.text.format.DateUtils
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,7 +20,12 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PanoramaPhotosphere
 import androidx.compose.material.icons.filled.Slideshow
 import androidx.compose.material.icons.filled.Terrain
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -37,10 +44,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rndeveloper.ultimate.R
 import com.rndeveloper.ultimate.model.Position
+import com.rndeveloper.ultimate.ui.screens.home.HomeUiContainerState
+import com.rndeveloper.ultimate.ui.screens.home.ScreenState
+import com.rndeveloper.ultimate.ui.screens.home.rememberHomeUiContainerState
 import com.rndeveloper.ultimate.ui.theme.UltimateTheme
+import com.rndeveloper.ultimate.utils.Constants
 
 @Composable
 fun ButtonsMapContent(
+    rememberHomeUiContainerState: HomeUiContainerState,
     car: Position?,
     isShowLoading: Boolean,
     onOpenOrCloseDrawer: () -> Unit,
@@ -54,7 +66,6 @@ fun ButtonsMapContent(
 ) {
 
     val surfaceColor = MaterialTheme.colorScheme.surface
-    val context = LocalContext.current
 
     Box(
         modifier = modifier
@@ -103,32 +114,63 @@ fun ButtonsMapContent(
         }
 
         //        Admob button
-
-        var isExpandedAdmobButton by remember { mutableStateOf(false) }
-
-        FloatingActionButton(
-            onClick = showRewardedAdmob,
-            modifier = Modifier.align(Alignment.BottomStart),
-            containerColor = MaterialTheme.colorScheme.tertiary
-
-        ) {
-            Row(modifier = modifier.padding(7.dp)) {
-
-                Icon(
-                    imageVector = Icons.Default.Slideshow,
-                    contentDescription = Icons.Default.Slideshow.toString(),
-                )
-                AnimatedVisibility(visible = isExpandedAdmobButton) {
+        ExtendedFloatingActionButton(
+            text = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(text = "Show add")
                     Spacer(modifier = modifier.width(5.dp))
                     Text(
                         text = "(+1cred.)",
-                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Light)
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Light),
+                        modifier = Modifier.height(16.dp)
                     )
                 }
+            },
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.Slideshow,
+                    contentDescription = Icons.Default.Slideshow.toString()
+                )
+            },
+            onClick = {
+                if (rememberHomeUiContainerState.isExpandedAdmobButton) {
+                    rememberHomeUiContainerState.onExpandedAdmobButton(false)
+                    showRewardedAdmob()
+                }else {
+                    rememberHomeUiContainerState.onExpandedAdmobButton(true)
+                }
+            },
+            modifier = Modifier.align(Alignment.BottomStart),
+            expanded = rememberHomeUiContainerState.isExpandedAdmobButton,
+            containerColor = MaterialTheme.colorScheme.tertiary,
+        )
 
-            }
-
-        }
+//        FloatingActionButton(
+//            onClick = {
+//                if (isExpandedAdmobButton)
+//                    showRewardedAdmob()
+//            },
+//            modifier = Modifier.align(Alignment.BottomStart),
+//            containerColor = MaterialTheme.colorScheme.tertiary
+//
+//        ) {
+//            Row(modifier = modifier.padding(7.dp)) {
+//
+//                Icon(
+//                    imageVector = Icons.Default.Slideshow,
+//                    contentDescription = Icons.Default.Slideshow.toString(),
+//                )
+//                AnimatedVisibility(visible = isExpandedAdmobButton) {
+//                    Spacer(modifier = modifier.width(5.dp))
+//                    Text(
+//                        text = "(+1cred.)",
+//                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Light)
+//                    )
+//                }
+//
+//            }
+//
+//        }
 
         Column(
             modifier = modifier.align(Alignment.BottomEnd),
@@ -188,11 +230,13 @@ fun ButtonsMapContent(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
 fun ButtonsMapContentPreview() {
     UltimateTheme {
         ButtonsMapContent(
+            rememberHomeUiContainerState = rememberHomeUiContainerState(),
             car = Position(),
             isShowLoading = true,
             onOpenOrCloseDrawer = { /*TODO*/ },

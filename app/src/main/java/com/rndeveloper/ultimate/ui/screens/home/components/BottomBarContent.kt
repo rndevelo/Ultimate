@@ -143,6 +143,9 @@ fun BottomBarContent(
                         when (rememberHomeUiContainerState.screenState) {
                             ScreenState.MAIN -> {
                                 onStartTimer()
+                                if (uiElapsedTimeState > Constants.DEFAULT_ELAPSED_TIME){
+                                    rememberHomeUiContainerState.onOpenBottomSheet()
+                                }
                             }
 
                             else -> {

@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.sp
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.MapType
 import com.rndeveloper.ultimate.R
+import com.rndeveloper.ultimate.backend.RouteResponse
 import com.rndeveloper.ultimate.ui.screens.home.HomeUiContainerState
 import com.rndeveloper.ultimate.ui.screens.home.ScreenState
 import com.rndeveloper.ultimate.ui.screens.home.components.subcomponents.ButtonsMapContent
@@ -56,6 +57,7 @@ fun MainContent(
     uiSpotsState: SpotsUiState,
     uiAreasState: AreasUiState,
     uiElapsedTimeState: Long,
+    uiRouteState: RouteResponse,
     onCameraLoc: () -> Unit,
     onCameraCar: () -> Unit,
     onCameraCarLoc: () -> Unit,
@@ -95,9 +97,11 @@ fun MainContent(
                 isElapsedTime = uiElapsedTimeState > DEFAULT_ELAPSED_TIME,
                 mapType = mapType,
                 onSelectSpot = onSelectSpot,
+                uiRouteState = uiRouteState
             )
 
             ButtonsMapContent(
+                rememberHomeUiContainerState = rememberHomeUiContainerState,
                 car = uiUserState.user.car,
                 isShowLoading = uiSpotsState.isLoading || uiUserState.isLoading,
                 onOpenOrCloseDrawer = { rememberHomeUiContainerState.onOpenDrawer() },
@@ -221,6 +225,7 @@ fun MainContentPreview() {
             uiSpotsState = SpotsUiState(),
             uiAreasState = AreasUiState(),
             uiElapsedTimeState = 0L,
+            uiRouteState = RouteResponse(emptyList()),
             onCameraLoc = {},
             onCameraCar = {},
             onCameraCarLoc = {},
