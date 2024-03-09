@@ -32,7 +32,6 @@ import androidx.navigation.NavController
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.compose.CameraPositionState
-import com.rndeveloper.ultimate.backend.RouteResponse
 import com.rndeveloper.ultimate.model.Spot
 import com.rndeveloper.ultimate.ui.screens.home.components.BottomBarContent
 import com.rndeveloper.ultimate.ui.screens.home.components.DrawerHeaderContent
@@ -97,11 +96,11 @@ private fun HomeContent(
     uiAreasState: AreasUiState,
     uiElapsedTimeState: Long,
     uiDirectionsState: DirectionsUiState,
-    uiRouteState: RouteResponse,
+    uiRouteState: List<LatLng>,
     onSet: (HomeUiContainerState, () -> Unit) -> Unit,
     onSelectSpot: (String) -> Unit,
     onCreateRoute: () -> Unit,
-    onRemoveSpot: (Spot) -> Unit,
+    onRemoveSpot: (Context) -> Unit,
     onStartTimer: () -> Unit,
     onGetAddressLine: (Context, CameraPositionState, Boolean) -> Unit,
     showRewardedAdmob: (Context) -> Unit,
@@ -143,7 +142,7 @@ private fun HomeContent(
             latLngBounds.include(LatLng(uiSpotState.position.lat, uiSpotState.position.lng))
             rememberHomeUiContainerState.onAnimateCameraBounds(latLngBounds.build())
             rememberHomeUiContainerState.scrollState.animateScrollToItem(
-                index = uiSpotsState.spots.indexOf(uiSpotState)
+                index = uiSpotsState.spots.indexOf(uiSpotsState.spots.find { it.tag == uiSpotState.tag })
             )
             onCreateRoute()
         }
@@ -188,8 +187,9 @@ private fun HomeContent(
             bottomBar = {
                 BottomBarContent(
                     rememberHomeUiContainerState = rememberHomeUiContainerState,
-                    uiElapsedTimeState = uiElapsedTimeState,
+                    isElapsedTime = uiElapsedTimeState > DEFAULT_ELAPSED_TIME,
                     onStartTimer = onStartTimer,
+                    onRemoveSpot = { onRemoveSpot(context) },
                     onSet = { onMain ->
                         onSet(rememberHomeUiContainerState, onMain)
                     }
@@ -209,7 +209,6 @@ private fun HomeContent(
                             selectedSpot = uiSpotState,
                             onCameraArea = rememberHomeUiContainerState::onAnimateCamera,
                             onSelectSpot = onSelectSpot,
-                            onRemoveSpot = onRemoveSpot
                         )
                     },
                     modifier = Modifier.padding(contentPadding),
@@ -265,7 +264,8 @@ private fun HomeContent(
                         },
                         showRewardedAdmob = { showRewardedAdmob(context) },
                         modifier = Modifier.height(
-                            (rememberHomeUiContainerState.bsScaffoldState.bottomSheetState.requireOffset() / LocalContext.current.resources.displayMetrics.density).dp
+                            (rememberHomeUiContainerState.bsScaffoldState.bottomSheetState.requireOffset()
+                                    / LocalContext.current.resources.displayMetrics.density).dp
                         )
                     )
                 }

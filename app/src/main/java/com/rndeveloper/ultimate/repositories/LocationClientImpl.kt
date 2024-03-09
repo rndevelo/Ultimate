@@ -49,7 +49,6 @@ class LocationClientImpl @Inject constructor(
 
     @SuppressLint("MissingPermission")
     override fun getLastLocation(callback: (Position) -> Unit) {
-
         fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
             callback(Position(location.latitude, location.longitude))
         }

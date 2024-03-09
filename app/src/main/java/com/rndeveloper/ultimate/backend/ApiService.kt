@@ -1,8 +1,5 @@
 package com.rndeveloper.ultimate.backend
 
-import androidx.compose.foundation.interaction.DragInteraction
-import com.rndeveloper.ultimate.ui.screens.home.uistates.AreasUiState
-import okhttp3.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
 

@@ -51,7 +51,7 @@ fun GoogleMapContent(
     isElapsedTime: Boolean,
     mapType: MapType,
     onSelectSpot: (String) -> Unit,
-    uiRouteState: RouteResponse,
+    uiRouteState: List<LatLng>,
     modifier: Modifier = Modifier
 ) {
 
@@ -78,6 +78,7 @@ fun GoogleMapContent(
             zoomControlsEnabled = false,
         ),
         onMapLoaded = onMapLoaded,
+        onMapClick = { rememberHomeUiContainerState.onExpandedAdmobButton(false) }
     ) {
 
         if (car != null) {
@@ -122,18 +123,13 @@ fun GoogleMapContent(
             )
         }
 
-        if (uiRouteState.features.isNotEmpty()) {
-            val mapRoute = uiRouteState.features.first().geometry.coordinates.map {
-                LatLng(it[1], it[0])
-            }
-            Polyline(
-                points = mapRoute,
-                color = MaterialTheme.colorScheme.primary,
-                endCap = CustomCap(BitmapHelper.vectorToBitmap(context, R.drawable.ic_circle)),
-                startCap = CustomCap(BitmapHelper.vectorToBitmap(context, R.drawable.ic_circle)),
-            )
-        }
-
+        Polyline(
+            points = uiRouteState,
+            color = MaterialTheme.colorScheme.primary,
+            endCap = CustomCap(BitmapHelper.vectorToBitmap(context, R.drawable.ic_circle)),
+            startCap = CustomCap(BitmapHelper.vectorToBitmap(context, R.drawable.ic_circle)),
+            width = 17f
+        )
     }
 }
 
@@ -152,7 +148,7 @@ fun GoogleMapContentPreview() {
             isElapsedTime = false,
             mapType = MapType.NORMAL,
             onSelectSpot = {},
-            uiRouteState = RouteResponse(emptyList()),
+            uiRouteState = emptyList(),
         )
     }
 }

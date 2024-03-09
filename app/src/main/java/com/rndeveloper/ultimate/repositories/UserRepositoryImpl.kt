@@ -1,14 +1,19 @@
 package com.rndeveloper.ultimate.repositories
 
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.messaging.FirebaseMessaging
 import com.rndeveloper.ultimate.model.Spot
 import com.rndeveloper.ultimate.model.User
+import com.rndeveloper.ultimate.services.MyFirebaseMessagingService
 import com.rndeveloper.ultimate.utils.Constants.USER_REFERENCE
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class UserRepositoryImpl @Inject constructor(
@@ -30,12 +35,31 @@ class UserRepositoryImpl @Inject constructor(
                 .addSnapshotListener { snapshot, e ->
                     val user = snapshot?.toObject(User::class.java)
                     if (user != null) {
+
+                        if (user.token.isEmpty()) {
+
+                            FirebaseMessaging.getInstance().token.addOnSuccessListener { task ->
+                                MyFirebaseMessagingService.token = task
+                                launch {
+                                    setUserData(
+                                        userAuthData.copy(
+                                            points = user.points,
+                                            car = user.car,
+                                            token = task
+                                        )
+                                    ).collectLatest { }
+                                }
+                            }.addOnFailureListener {
+                                Log.d("GetToken", "${it.message}")
+                            }
+                        }
+
                         trySend(
                             Result.success(
                                 userAuthData.copy(
                                     points = user.points,
                                     car = user.car,
-//                                    history = user.history
+                                    token = user.token
                                 )
                             )
                         )
@@ -71,13 +95,12 @@ class UserRepositoryImpl @Inject constructor(
         awaitClose()
     }
 
-    override fun setUserCar(user: User): Flow<Result<Boolean?>> = callbackFlow {
+    override fun setUserData(user: User): Flow<Result<Boolean?>> = callbackFlow {
 
         firebaseAuth.currentUser?.apply {
             fireStore.collection(USER_REFERENCE).document(uid)
                 .set(user).addOnSuccessListener {
                     trySend(Result.success(true))
-
                 }.addOnFailureListener {
                     trySend(Result.failure(it))
                 }
@@ -98,14 +121,13 @@ class UserRepositoryImpl @Inject constructor(
             }
         awaitClose()
     }
-
 }
 
 
 interface UserRepository {
     fun getUserData(): Flow<Result<User>>
     fun getHistoryData(): Flow<Result<List<Spot>>>
-    fun setUserCar(user: User): Flow<Result<Boolean?>>
+    fun setUserData(user: User): Flow<Result<Boolean?>>
 
     fun setPoints(
         uid: String,

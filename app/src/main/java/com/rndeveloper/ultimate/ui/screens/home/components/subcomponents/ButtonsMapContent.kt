@@ -20,14 +20,17 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PanoramaPhotosphere
 import androidx.compose.material.icons.filled.Slideshow
 import androidx.compose.material.icons.filled.Terrain
+import androidx.compose.material.icons.filled.Timelapse
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -53,6 +56,7 @@ import com.rndeveloper.ultimate.utils.Constants
 @Composable
 fun ButtonsMapContent(
     rememberHomeUiContainerState: HomeUiContainerState,
+    uiElapsedTimeState: Long,
     car: Position?,
     isShowLoading: Boolean,
     onOpenOrCloseDrawer: () -> Unit,
@@ -84,11 +88,28 @@ fun ButtonsMapContent(
             )
         }
 
+//        AnimatedVisibility(
+//            visible = isShowLoading,
+//            modifier = modifier.align(Alignment.TopCenter),
+//        ) {
+//            LoadingAnimation()
+//        }
+
         AnimatedVisibility(
-            visible = isShowLoading,
+            visible = true,
             modifier = modifier.align(Alignment.TopCenter),
         ) {
-            LoadingAnimation()
+            Card(modifier = Modifier.padding(3.dp)) {
+                Row {
+                    Icon(
+                        imageVector = Icons.Default.Visibility,
+                        contentDescription = Icons.Default.Visibility.toString()
+                    )
+                    Spacer(modifier = Modifier.width(2.dp))
+                    Text(text = DateUtils.formatElapsedTime(uiElapsedTimeState.div(1000)))
+                }
+
+            }
         }
 
         Column(modifier = modifier.align(Alignment.TopEnd)) {
@@ -136,7 +157,7 @@ fun ButtonsMapContent(
                 if (rememberHomeUiContainerState.isExpandedAdmobButton) {
                     rememberHomeUiContainerState.onExpandedAdmobButton(false)
                     showRewardedAdmob()
-                }else {
+                } else {
                     rememberHomeUiContainerState.onExpandedAdmobButton(true)
                 }
             },
@@ -237,6 +258,7 @@ fun ButtonsMapContentPreview() {
     UltimateTheme {
         ButtonsMapContent(
             rememberHomeUiContainerState = rememberHomeUiContainerState(),
+            uiElapsedTimeState = 0L,
             car = Position(),
             isShowLoading = true,
             onOpenOrCloseDrawer = { /*TODO*/ },

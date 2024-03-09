@@ -16,8 +16,8 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import com.rndeveloper.ultimate.BuildConfig
 import com.rndeveloper.ultimate.backend.ApiService
-import com.rndeveloper.ultimate.backend.RouteResponse
 import com.rndeveloper.ultimate.exceptions.CustomException
+import com.rndeveloper.ultimate.extensions.onNavigate
 import com.rndeveloper.ultimate.model.Directions
 import com.rndeveloper.ultimate.model.Position
 import com.rndeveloper.ultimate.model.Spot
@@ -25,8 +25,8 @@ import com.rndeveloper.ultimate.model.SpotType
 import com.rndeveloper.ultimate.model.Timer
 import com.rndeveloper.ultimate.repositories.ActivityTransitionRepo
 import com.rndeveloper.ultimate.repositories.GeocoderRepository
+import com.rndeveloper.ultimate.repositories.GeofenceClient
 import com.rndeveloper.ultimate.repositories.LocationClient
-import com.rndeveloper.ultimate.repositories.ItemsRepository
 import com.rndeveloper.ultimate.repositories.TimerRepository
 import com.rndeveloper.ultimate.repositories.UserRepository
 import com.rndeveloper.ultimate.ui.screens.home.uistates.AreasUiState
@@ -41,6 +41,7 @@ import com.rndeveloper.ultimate.utils.Constants.AREA_COLLECTION_REFERENCE
 import com.rndeveloper.ultimate.utils.Constants.DEFAULT_ELAPSED_TIME
 import com.rndeveloper.ultimate.utils.Constants.INTERVAL
 import com.rndeveloper.ultimate.utils.Constants.SPOT_COLLECTION_REFERENCE
+import com.rndeveloper.ultimate.utils.Constants.TIMER
 import com.rndeveloper.ultimate.utils.Utils.currentTime
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -62,15 +63,13 @@ class HomeViewModel @Inject constructor(
     private val timerRepository: TimerRepository,
     private val locationClient: LocationClient,
     private val spotsUseCases: SpotsUseCases,
-    private val spotsRepository: ItemsRepository,
     private val userUseCases: UserUseCases,
     private val userRepository: UserRepository,
     private val activityTransitionClient: ActivityTransitionRepo,
     private val geocoderRepository: GeocoderRepository,
     private val apiService: ApiService,
-//    private val geofenceClient: GeofenceClient,
+    private val geofenceClient: GeofenceClient,
 ) : ViewModel() {
-
 
     private val _locationState = MutableStateFlow(LocationUiState())
     val uiLocationState: StateFlow<LocationUiState> = _locationState.asStateFlow().stateIn(
@@ -107,11 +106,11 @@ class HomeViewModel @Inject constructor(
         initialValue = AreasUiState()
     )
 
-    private val _elapsedTimeState = MutableStateFlow(0L)
+    private val _elapsedTimeState = MutableStateFlow(DEFAULT_ELAPSED_TIME)
     val uiElapsedTimeState: StateFlow<Long> = _elapsedTimeState.asStateFlow().stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
-        initialValue = 0L,
+        initialValue = DEFAULT_ELAPSED_TIME,
     )
 
     private val _directionsState = MutableStateFlow(DirectionsUiState())
@@ -121,11 +120,11 @@ class HomeViewModel @Inject constructor(
         initialValue = DirectionsUiState(),
     )
 
-private val _routeState = MutableStateFlow(RouteResponse(emptyList()))
-    val uiRouteState: StateFlow<RouteResponse> = _routeState.asStateFlow().stateIn(
+    private val _routeState = MutableStateFlow(emptyList<LatLng>())
+    val uiRouteState: StateFlow<List<LatLng>> = _routeState.asStateFlow().stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
-        initialValue = RouteResponse(emptyList()),
+        initialValue = emptyList(),
     )
 
 
@@ -150,8 +149,11 @@ private val _routeState = MutableStateFlow(RouteResponse(emptyList()))
         )
         if (call.isSuccessful) {
             if (call.body() != null) {
+                val mapRoute = call.body()!!.features.first().geometry.coordinates.map {
+                    LatLng(it[1], it[0])
+                }
                 _routeState.update {
-                    call.body()!!
+                    mapRoute
                 }
             }
         }
@@ -169,6 +171,7 @@ private val _routeState = MutableStateFlow(RouteResponse(emptyList()))
                     INTERVAL
                 ) {
                     override fun onTick(millisUntilFinished: Long) {
+
                         _elapsedTimeState.update {
                             millisUntilFinished
                         }
@@ -179,7 +182,7 @@ private val _routeState = MutableStateFlow(RouteResponse(emptyList()))
                             DEFAULT_ELAPSED_TIME
                         }
                         _routeState.update {
-                            it.copy(features = emptyList())
+                            emptyList()
                         }
                     }
                 }.start()
@@ -188,21 +191,30 @@ private val _routeState = MutableStateFlow(RouteResponse(emptyList()))
     }
 
     fun onSaveGetStartTimer(timerId: String) {
-        if (_userState.value.user.points >= 2) {
-            val timer = Timer(
-                id = timerId,
-                endTime = currentTime() + Constants.TIMER
-            )
-            if (_elapsedTimeState.value <= 0L && _spotsState.value.spots.isNotEmpty() && _userState.value.user.points >= 2) {
-                viewModelScope.launch {
-                    timerRepository.saveTimer(timer = timer)
+
+        if (_spotsState.value.spots.isNotEmpty()) {
+            if (_userState.value.user.points >= 5) {
+                val timer = Timer(
+                    id = timerId,
+                    endTime = currentTime() + TIMER
+                )
+                if (_elapsedTimeState.value <= DEFAULT_ELAPSED_TIME) {
+                    viewModelScope.launch {
+                        timerRepository.saveTimer(timer = timer)
+                    }
+                    onSetPoint(points = -5)
+                    onGetAndStartTimer()
                 }
-                onSetPoint(points = -2)
-                onGetAndStartTimer()
+
+            } else {
+                _spotsState.update {
+                    it.copy(errorMessage = CustomException.GenericException("No tienes suficientes puntos"))
+                }
             }
+
         } else {
             _spotsState.update {
-                it.copy(errorMessage = CustomException.GenericException("No tienes suficientes puntos"))
+                it.copy(errorMessage = CustomException.GenericException("No hay aparcamientos en esta zona"))
             }
         }
     }
@@ -240,7 +252,6 @@ private val _routeState = MutableStateFlow(RouteResponse(emptyList()))
 
 
             _locationState.update {
-
                 it.copy(location = newLocation, isLoading = false)
             }
         }
@@ -312,9 +323,6 @@ private val _routeState = MutableStateFlow(RouteResponse(emptyList()))
         ).collectLatest { newSpotsUiState ->
             _spotsState.update {
                 newSpotsUiState
-            }
-            if (newSpotsUiState.spots.isNotEmpty() && _spotState.value.tag.isEmpty()) {
-                onSelectSpot(newSpotsUiState.spots.first().tag)
             }
         }
     }
@@ -392,7 +400,7 @@ private val _routeState = MutableStateFlow(RouteResponse(emptyList()))
                     ScreenState.PARKMYCAR -> {
 
                         _userState.value.user.copy(car = currentPosition).let { user ->
-                            userRepository.setUserCar(user)
+                            userRepository.setUserData(user)
                         }.collectLatest { newHomeUiState ->
                             onMainState()
                             _userState.update {
@@ -418,25 +426,51 @@ private val _routeState = MutableStateFlow(RouteResponse(emptyList()))
         return currentTime() + selectedInterval
     }
 
-    fun onRemoveSpot(spot: Spot) = viewModelScope.launch {
+    fun onRemoveSpot(context: Context) = viewModelScope.launch {
 //        FIXME : THIS
         _spotsState.update {
             it.copy(isLoading = true)
         }
-        spotsUseCases.removeSpotUseCase(spot.copy(icon = null) to _userState.value.user)
-            .collectLatest { newHomeUiState ->
-                _spotsState.update {
-                    it.copy(
-                        isLoading = newHomeUiState.isLoading,
-                        errorMessage = newHomeUiState.errorMessage
+
+        if (_userState.value.user.uid != _spotState.value.user.uid) {
+            geofenceClient.startGeofence(_spotState.value.copy(icon = null)).collect {
+                if (it.isSuccess) {
+                    onNavigate(
+                        context = context,
+                        latLng = LatLng(
+                            _spotState.value.position.lat,
+                            _spotState.value.position.lng
+                        )
                     )
+                } else {
+
+                    _spotsState.update {
+                        _spotsState.value.copy(
+                            isLoading = false,
+                            errorMessage = CustomException.GenericException("Start geofence was error")
+                        )
+                    }
+
                 }
             }
+        } else {
+            _spotsState.update {
+                _spotsState.value.copy(
+                    isLoading = false,
+                    errorMessage = CustomException.GenericException("You can't get your own place")
+                )
+            }
+        }
     }
 
     fun onSetPoint(points: Long) = viewModelScope.launch {
         userRepository.setPoints(uid = _userState.value.user.uid, incrementPoints = points)
             .collectLatest {
+                if (it.isSuccess) {
+                    if (_spotState.value.tag.isEmpty()) {
+                        onSelectSpot(_spotsState.value.spots.first().tag)
+                    }
+                }
 //            _userState.update {
 //                it.copy(errorMessage = CustomException.GenericException("Nice, you has gotten 1 cred.!"))
 //            }

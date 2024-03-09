@@ -1,6 +1,7 @@
 package com.rndeveloper.ultimate.di
 
 import com.rndeveloper.ultimate.backend.ApiService
+import com.rndeveloper.ultimate.notifications.NotificationAPI
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
@@ -21,10 +22,13 @@ object RetrofitModule {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
+    @Singleton
+    @Provides
+    fun provideApiService(retrofit: Retrofit): ApiService =
+        retrofit.create(ApiService::class.java)
 
     @Singleton
     @Provides
-    fun provideGoogleSignInClient(retrofit: Retrofit): ApiService =
-        retrofit.create(ApiService::class.java)
-
+    fun provideNotificationAPI(retrofit: Retrofit): NotificationAPI =
+        retrofit.create(NotificationAPI::class.java)
 }

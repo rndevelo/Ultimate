@@ -32,10 +32,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.MapType
 import com.rndeveloper.ultimate.R
-import com.rndeveloper.ultimate.backend.RouteResponse
 import com.rndeveloper.ultimate.ui.screens.home.HomeUiContainerState
 import com.rndeveloper.ultimate.ui.screens.home.ScreenState
 import com.rndeveloper.ultimate.ui.screens.home.components.subcomponents.ButtonsMapContent
@@ -46,6 +46,7 @@ import com.rndeveloper.ultimate.ui.screens.home.uistates.AreasUiState
 import com.rndeveloper.ultimate.ui.screens.home.uistates.SpotsUiState
 import com.rndeveloper.ultimate.ui.screens.home.uistates.UserUiState
 import com.rndeveloper.ultimate.ui.theme.UltimateTheme
+import com.rndeveloper.ultimate.utils.Constants
 import com.rndeveloper.ultimate.utils.Constants.DEFAULT_ELAPSED_TIME
 import com.rndeveloper.ultimate.utils.timeList
 
@@ -57,7 +58,7 @@ fun MainContent(
     uiSpotsState: SpotsUiState,
     uiAreasState: AreasUiState,
     uiElapsedTimeState: Long,
-    uiRouteState: RouteResponse,
+    uiRouteState: List<LatLng>,
     onCameraLoc: () -> Unit,
     onCameraCar: () -> Unit,
     onCameraCarLoc: () -> Unit,
@@ -102,6 +103,7 @@ fun MainContent(
 
             ButtonsMapContent(
                 rememberHomeUiContainerState = rememberHomeUiContainerState,
+                uiElapsedTimeState = uiElapsedTimeState,
                 car = uiUserState.user.car,
                 isShowLoading = uiSpotsState.isLoading || uiUserState.isLoading,
                 onOpenOrCloseDrawer = { rememberHomeUiContainerState.onOpenDrawer() },
@@ -225,7 +227,7 @@ fun MainContentPreview() {
             uiSpotsState = SpotsUiState(),
             uiAreasState = AreasUiState(),
             uiElapsedTimeState = 0L,
-            uiRouteState = RouteResponse(emptyList()),
+            uiRouteState = emptyList(),
             onCameraLoc = {},
             onCameraCar = {},
             onCameraCarLoc = {},
