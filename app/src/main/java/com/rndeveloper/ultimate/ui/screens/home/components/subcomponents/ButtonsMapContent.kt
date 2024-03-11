@@ -3,7 +3,7 @@ package com.rndeveloper.ultimate.ui.screens.home.components.subcomponents
 import android.text.format.DateUtils
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,26 +20,23 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PanoramaPhotosphere
 import androidx.compose.material.icons.filled.Slideshow
 import androidx.compose.material.icons.filled.Terrain
-import androidx.compose.material.icons.filled.Timelapse
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -88,28 +85,11 @@ fun ButtonsMapContent(
             )
         }
 
-//        AnimatedVisibility(
-//            visible = isShowLoading,
-//            modifier = modifier.align(Alignment.TopCenter),
-//        ) {
-//            LoadingAnimation()
-//        }
-
         AnimatedVisibility(
-            visible = true,
+            visible = isShowLoading,
             modifier = modifier.align(Alignment.TopCenter),
         ) {
-            Card(modifier = Modifier.padding(3.dp)) {
-                Row {
-                    Icon(
-                        imageVector = Icons.Default.Visibility,
-                        contentDescription = Icons.Default.Visibility.toString()
-                    )
-                    Spacer(modifier = Modifier.width(2.dp))
-                    Text(text = DateUtils.formatElapsedTime(uiElapsedTimeState.div(1000)))
-                }
-
-            }
+            LoadingAnimation()
         }
 
         Column(modifier = modifier.align(Alignment.TopEnd)) {
@@ -138,10 +118,10 @@ fun ButtonsMapContent(
         ExtendedFloatingActionButton(
             text = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = "Show add")
+                    Text(text = stringResource(R.string.home_text_show_add))
                     Spacer(modifier = modifier.width(5.dp))
                     Text(
-                        text = "(+1cred.)",
+                        text = stringResource(R.string.home_text_more_1creds),
                         style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Light),
                         modifier = Modifier.height(16.dp)
                     )
@@ -166,86 +146,94 @@ fun ButtonsMapContent(
             containerColor = MaterialTheme.colorScheme.tertiary,
         )
 
-//        FloatingActionButton(
-//            onClick = {
-//                if (isExpandedAdmobButton)
-//                    showRewardedAdmob()
-//            },
-//            modifier = Modifier.align(Alignment.BottomStart),
-//            containerColor = MaterialTheme.colorScheme.tertiary
-//
-//        ) {
-//            Row(modifier = modifier.padding(7.dp)) {
-//
-//                Icon(
-//                    imageVector = Icons.Default.Slideshow,
-//                    contentDescription = Icons.Default.Slideshow.toString(),
-//                )
-//                AnimatedVisibility(visible = isExpandedAdmobButton) {
-//                    Spacer(modifier = modifier.width(5.dp))
-//                    Text(
-//                        text = "(+1cred.)",
-//                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Light)
-//                    )
-//                }
-//
-//            }
-//
-//        }
 
-        Column(
-            modifier = modifier.align(Alignment.BottomEnd),
-            horizontalAlignment = Alignment.CenterHorizontally
+        Card(
+            modifier = Modifier.align(Alignment.BottomCenter),
+            colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface)
         ) {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(5.dp),
+            ) {
+                Icon(
+                    imageVector = if (uiElapsedTimeState > Constants.DEFAULT_ELAPSED_TIME) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                    contentDescription = Icons.Default.Visibility.toString()
+                )
+                Spacer(modifier = Modifier.width(2.dp))
+                Text(
+                    text = if (uiElapsedTimeState > Constants.DEFAULT_ELAPSED_TIME) DateUtils.formatElapsedTime(
+                        uiElapsedTimeState.div(1000)
+                    ) else "05:00"
+                )
+            }
+        }
+
+        LocCarButtonsContent(
+            rememberHomeUiContainerState = rememberHomeUiContainerState,
+            surfaceColor = surfaceColor,
+            car = car,
+            onCameraCarLoc = onCameraCarLoc,
+            onCameraMyCar = onCameraMyCar,
+            onCameraLocation = onCameraLocation,
+            modifier = modifier.align(Alignment.BottomEnd),
+        )
+    }
+}
+
+@Composable
+private fun LocCarButtonsContent(
+    rememberHomeUiContainerState: HomeUiContainerState,
+    surfaceColor: Color,
+    car: Position?,
+    onCameraCarLoc: () -> Unit,
+    onCameraMyCar: () -> Unit,
+    onCameraLocation: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        FloatingActionButton(
+            modifier = modifier.size(40.dp),
+            onClick = onCameraCarLoc,
+            containerColor = surfaceColor
+
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_carloc_userloc),
+                contentDescription = R.drawable.ic_carloc_userloc.toString()
+            )
+        }
+        Spacer(modifier = modifier.height(4.dp))
+        Row {
             FloatingActionButton(
                 modifier = modifier.size(40.dp),
-                onClick = onCameraCarLoc,
+                onClick = {
+                    if (car != null) onCameraMyCar() else rememberHomeUiContainerState.onScreenState(
+                        ScreenState.PARKMYCAR
+                    )
+                },
+                containerColor = surfaceColor
+            ) {
+                Icon(
+                    imageVector = Icons.Default.DirectionsCar,
+                    contentDescription = Icons.Default.DirectionsCar.toString(),
+                    tint = if (car != null) MaterialTheme.colorScheme.onSurface else Color.LightGray
+                )
+            }
+            Spacer(modifier = modifier.width(8.dp))
+            FloatingActionButton(
+                modifier = modifier.size(40.dp),
+                onClick = onCameraLocation,
                 containerColor = surfaceColor
 
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_carloc_userloc),
-                    contentDescription = "Ir a Ubicación y coche"
+                Icon(
+                    imageVector = Icons.Default.GpsFixed,
+                    contentDescription = Icons.Default.GpsFixed.toString(),
                 )
-            }
-            Spacer(modifier = modifier.height(4.dp))
-            Row {
-//                FloatingCar(
-//                    car = car,
-//                    onShowCarMarker = {},
-//                    onCameraCar = {},
-//                    deleteMyCar = {}
-//                )
-                FloatingActionButton(
-                    modifier = modifier.size(40.dp),
-                    onClick = onCameraMyCar,
-                    containerColor = surfaceColor
-                ) {
-                    Row {
-                        AnimatedVisibility(visible = car == null) {
-                            Text(
-                                text = stringResource(R.string.home_text_not_park_car),
-                                modifier = Modifier.padding(horizontal = 2.dp)
-                            )
-                        }
-                        Icon(
-                            imageVector = Icons.Default.DirectionsCar,
-                            contentDescription = Icons.Default.DirectionsCar.toString(),
-                        )
-                    }
-                }
-                Spacer(modifier = modifier.width(8.dp))
-                FloatingActionButton(
-                    modifier = modifier.size(40.dp),
-                    onClick = onCameraLocation,
-                    containerColor = surfaceColor
-
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.GpsFixed,
-                        contentDescription = Icons.Default.GpsFixed.toString(),
-                    )
-                }
             }
         }
     }

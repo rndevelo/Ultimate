@@ -1,16 +1,12 @@
 package com.rndeveloper.ultimate.repositories
 
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.rndeveloper.ultimate.backend.ApiService
 import com.rndeveloper.ultimate.model.Directions
 import com.rndeveloper.ultimate.model.Spot
 import com.rndeveloper.ultimate.notifications.NotificationAPI
 import com.rndeveloper.ultimate.utils.Constants.SPOT_COLLECTION_REFERENCE
-import com.rndeveloper.ultimate.utils.Constants.USER_REFERENCE
 import com.rndeveloper.ultimate.utils.Utils.currentTime
-import dagger.Provides
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -20,13 +16,11 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-import javax.inject.Singleton
 
 class ItemsRepositoryImpl @Inject constructor(
     private val fireAuth: FirebaseAuth,
     private val fireStore: FirebaseFirestore,
     private val userRepository: UserRepository,
-    private val notificationAPI: NotificationAPI,
 ) : ItemsRepository {
 
     override fun getItems(collectionRef: String, directions: Directions): Flow<Result<List<Spot>>> =
@@ -95,10 +89,11 @@ class ItemsRepositoryImpl @Inject constructor(
                     launch {
                         userRepository.setPoints(parameters.second.first, 5).collect {
 //                            notificationAPI.postNotification(parameters.second.second)
-                            providerRetrofit().create(NotificationAPI::class.java)
-                                .postNotification(parameters.second.second)
                         }
+                        providerRetrofit().create(NotificationAPI::class.java)
+                            .postNotification(parameters.second.second)
                     }
+
                     if (myUid != null) {
                         launch {
                             userRepository.setPoints(myUid, 2).collectLatest {}

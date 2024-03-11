@@ -17,6 +17,7 @@ import com.rndeveloper.ultimate.ui.screens.home.uistates.AreasUiState
 import com.rndeveloper.ultimate.ui.screens.home.uistates.DirectionsUiState
 import com.rndeveloper.ultimate.ui.screens.home.uistates.SpotsUiState
 import com.rndeveloper.ultimate.ui.theme.UltimateTheme
+import com.rndeveloper.ultimate.utils.Constants
 
 @Composable
 fun SheetContent(
@@ -24,7 +25,7 @@ fun SheetContent(
     uiSpotsState: SpotsUiState,
     uiAreasState: AreasUiState,
     uiDirectionsState: DirectionsUiState,
-    isElapsedTime: Boolean,
+    uiElapsedTimeState: Long,
     selectedSpot: Spot?,
     onCameraArea: (LatLng) -> Unit,
     onSelectSpot: (String) -> Unit,
@@ -42,7 +43,7 @@ fun SheetContent(
         )
 
         AnimatedVisibility(
-            visible = isElapsedTime
+            visible = uiElapsedTimeState > Constants.DEFAULT_ELAPSED_TIME
                     && ScreenState.MAIN == rememberHomeUiContainerState.screenState
         ) {
             ListsContent(
@@ -65,7 +66,7 @@ fun SheetContentPreview() {
             uiSpotsState = SpotsUiState(),
             uiAreasState = AreasUiState(),
             uiDirectionsState = DirectionsUiState(),
-            isElapsedTime = true,
+            uiElapsedTimeState = 0L,
             selectedSpot = Spot(),
             onCameraArea = {},
             onSelectSpot = {}

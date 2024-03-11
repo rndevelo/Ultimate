@@ -208,7 +208,7 @@ class HomeViewModel @Inject constructor(
 
             } else {
                 _spotsState.update {
-                    it.copy(errorMessage = CustomException.GenericException("No tienes suficientes puntos"))
+                    it.copy(errorMessage = CustomException.GenericException("No tienes suficientes créditos"))
                 }
             }
 
@@ -328,8 +328,11 @@ class HomeViewModel @Inject constructor(
     }
 
     fun onSelectSpot(tag: String) {
-        _spotState.update {
-            _spotsState.value.spots.find { it.tag == tag }!!
+        val spot = _spotsState.value.spots.find { it.tag == tag }
+        if (spot != null) {
+            _spotState.update {
+                spot
+            }
         }
     }
 
@@ -450,7 +453,6 @@ class HomeViewModel @Inject constructor(
                             errorMessage = CustomException.GenericException("Start geofence was error")
                         )
                     }
-
                 }
             }
         } else {
@@ -515,7 +517,6 @@ class HomeViewModel @Inject constructor(
                             // Called when ad is dismissed.
                             // Set the ad reference to null so you don't show the ad a second time.
                             Log.i("showRewardedAdmob", "Ad dismissed fullscreen content.")
-
                             //rewarded = null
                         }
 
@@ -529,6 +530,9 @@ class HomeViewModel @Inject constructor(
                         val amount = rewardItem.amount
                         val type = rewardItem.type
                         onSetPoint(1)
+                        _spotsState.update {
+                            it.copy(errorMessage = CustomException.GenericException("Congratulations! You has won one point."))
+                        }
                         Log.i("showRewardedAdmob", "amount $amount  type $type.")
                     }
                 }

@@ -19,6 +19,7 @@ import com.google.android.gms.maps.model.CustomCap
 import com.google.android.gms.maps.model.JointType
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
+import com.google.android.gms.maps.model.RoundCap
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.Circle
 import com.google.maps.android.compose.GoogleMap
@@ -126,8 +127,8 @@ fun GoogleMapContent(
         Polyline(
             points = uiRouteState,
             color = MaterialTheme.colorScheme.primary,
-            endCap = CustomCap(BitmapHelper.vectorToBitmap(context, R.drawable.ic_circle)),
-            startCap = CustomCap(BitmapHelper.vectorToBitmap(context, R.drawable.ic_circle)),
+            endCap = RoundCap(),
+            startCap = RoundCap(),
             width = 17f
         )
     }

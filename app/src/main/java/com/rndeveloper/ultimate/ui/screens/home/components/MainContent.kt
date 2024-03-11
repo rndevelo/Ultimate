@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -41,6 +42,7 @@ import com.rndeveloper.ultimate.ui.screens.home.ScreenState
 import com.rndeveloper.ultimate.ui.screens.home.components.subcomponents.ButtonsMapContent
 import com.rndeveloper.ultimate.ui.screens.home.components.subcomponents.DropDownMenuContent
 import com.rndeveloper.ultimate.ui.screens.home.components.subcomponents.GoogleMapContent
+import com.rndeveloper.ultimate.ui.screens.home.components.subcomponents.SetAlertDialog
 import com.rndeveloper.ultimate.ui.screens.home.rememberHomeUiContainerState
 import com.rndeveloper.ultimate.ui.screens.home.uistates.AreasUiState
 import com.rndeveloper.ultimate.ui.screens.home.uistates.SpotsUiState
@@ -118,7 +120,6 @@ fun MainContent(
                 showRewardedAdmob = showRewardedAdmob,
             )
 
-
             Image(
                 painter = painterResource(
                     id = when (rememberHomeUiContainerState.screenState) {
@@ -134,8 +135,8 @@ fun MainContent(
                 },
                 modifier = if (rememberHomeUiContainerState.isSetState) modifier.padding(bottom = extraPadding) else modifier,
             )
-            AnimatedVisibility(visible = rememberHomeUiContainerState.isSetState) {
 
+            AnimatedVisibility(visible = rememberHomeUiContainerState.isSetState) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_marker_shadow),
                     contentDescription = R.drawable.ic_marker_shadow.toString(),
@@ -146,73 +147,13 @@ fun MainContent(
             }
 
             AnimatedVisibility(visible = rememberHomeUiContainerState.isAlertDialogVisible) {
-                SetAlertDialog(rememberHomeUiContainerState, onSet)
+                SetAlertDialog(
+                    rememberHomeUiContainerState = rememberHomeUiContainerState,
+                    onSet = onSet
+                )
             }
         }
     }
-}
-
-@Composable
-private fun SetAlertDialog(
-    rememberHomeUiContainerState: HomeUiContainerState,
-    onSet: (onMain: () -> Unit) -> Unit,
-) {
-    AlertDialog(
-        onDismissRequest = {
-            rememberHomeUiContainerState.onVisibleAlertDialog(false)
-        },
-        confirmButton = {
-            Button(
-                onClick = {
-                    onSet {
-                        rememberHomeUiContainerState.onVisibleAlertDialog(false)
-                        rememberHomeUiContainerState.onScreenState(ScreenState.MAIN)
-                        rememberHomeUiContainerState.onAnimateCamera(zoom = 16f)
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(text = "Send")
-            }
-        },
-        title = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start
-            ) {
-                Icon(
-                    imageVector = timeList.first().icon,
-                    contentDescription = timeList.first().icon.toString(),
-                    tint = animateColorAsState(
-                        timeList[rememberHomeUiContainerState.indexSpotTime].color,
-                        label = ""
-                    ).value
-                )
-                Spacer(modifier = Modifier.width(5.dp))
-                Text(
-                    text = "Add spot time",
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 18.sp
-                    )
-                )
-            }
-        },
-        text = {
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.TopStart
-            ) {
-                DropDownMenuContent(
-                    items = timeList,
-                    index = rememberHomeUiContainerState.indexSpotTime,
-                    onIndex = { index ->
-                        rememberHomeUiContainerState.onSpotTime(index)
-                    },
-                )
-            }
-        }
-    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -2,7 +2,6 @@ package com.rndeveloper.ultimate.ui.screens.home.components.subcomponents
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
@@ -63,18 +61,22 @@ fun CountContent(
     var point by remember { mutableStateOf(false) }
     var isExpanded by remember { mutableStateOf(false) }
 
-    LaunchedEffect(key1 = Unit, key2 = uiAreasState.areas, block = {
-        while (true) {
-            delay(
-                when {
-                    uiAreasState.areas.size >= 6 -> 250
-                    uiAreasState.areas.size >= 3 -> 500
-                    else -> 1000
-                }
-            )
-            point = !point
+    LaunchedEffect(
+        key1 = Unit,
+        key2 = uiAreasState.areas,
+        block = {
+            while (true) {
+                delay(
+                    when {
+                        uiAreasState.areas.size >= 6 -> 250
+                        uiAreasState.areas.size >= 3 -> 500
+                        else -> 1000
+                    }
+                )
+                point = !point
+            }
         }
-    })
+    )
 
     val color by animateColorAsState(
         targetValue = if (point) green_place_icon else Color.Transparent,
@@ -107,10 +109,10 @@ fun CountContent(
                 },
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.SemiBold,
-//                    Difference letter type by empty or not empty spots
                     fontSize = if (uiSpotsState.spots.isNotEmpty()) 20.sp else 18.5.sp
                 ),
             )
+
             Column {
 
                 Row(
@@ -193,7 +195,8 @@ fun CountContent(
         Spacer(modifier = modifier.height(3.dp))
         Text(
             text = uiDirectionsState.directions.addressLine,
-            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Light)
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Light),
+            maxLines = 2,
         )
     }
 }

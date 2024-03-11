@@ -45,7 +45,7 @@ fun PermissionsMainContent(
     ) {
         Image(
             painter = painterResource(id = R.drawable.permission_location),
-            contentDescription = "Imagen de mapa con dos puntos",
+            contentDescription = R.drawable.permission_location.toString(),
             contentScale = ContentScale.Fit,
             modifier = modifier
                 .height(200.dp)

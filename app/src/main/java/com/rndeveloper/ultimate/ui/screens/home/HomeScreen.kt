@@ -134,7 +134,7 @@ private fun HomeContent(
     }
 
     LaunchedEffect(key1 = uiSpotState) {
-        if (!isFirstLaunch && uiSpotState != null && uiElapsedTimeState > DEFAULT_ELAPSED_TIME) {
+        if (!isFirstLaunch && uiSpotState != null && uiElapsedTimeState > DEFAULT_ELAPSED_TIME && uiSpotState.tag.isNotEmpty()) {
             val latLngBounds = LatLngBounds.Builder()
             uiLocationState.location?.let { loc ->
                 latLngBounds.include(LatLng(loc.lat, loc.lng))
@@ -149,23 +149,22 @@ private fun HomeContent(
     }
 
     if (!uiUserState.errorMessage?.error.isNullOrBlank()) {
-        LaunchedEffect(uiUserState.errorMessage) {
+        LaunchedEffect(snackBarHostState) {
             snackBarHostState.showSnackbar(
-                uiSpotsState.errorMessage!!.error,
-                "",
-                true,
-                SnackbarDuration.Long,
+                uiUserState.errorMessage!!.error,
+                "Close",
+                false,
+                SnackbarDuration.Long
             )
         }
     }
-
     if (!uiSpotsState.errorMessage?.error.isNullOrBlank()) {
-        LaunchedEffect(uiSpotsState.errorMessage) {
+        LaunchedEffect(snackBarHostState) {
             snackBarHostState.showSnackbar(
                 uiSpotsState.errorMessage!!.error,
-                "",
-                true,
-                SnackbarDuration.Long,
+                "Close",
+                false,
+                SnackbarDuration.Long
             )
         }
     }
@@ -205,7 +204,7 @@ private fun HomeContent(
                             uiSpotsState = uiSpotsState,
                             uiAreasState = uiAreasState,
                             uiDirectionsState = uiDirectionsState,
-                            isElapsedTime = uiElapsedTimeState > DEFAULT_ELAPSED_TIME,
+                            uiElapsedTimeState = uiElapsedTimeState,
                             selectedSpot = uiSpotState,
                             onCameraArea = rememberHomeUiContainerState::onAnimateCamera,
                             onSelectSpot = onSelectSpot,

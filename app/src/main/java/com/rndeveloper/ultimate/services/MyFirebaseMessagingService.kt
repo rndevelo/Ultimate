@@ -28,7 +28,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         sendNotification(
             this,
             "¡Enhorabuena!, Alguien encontró una plaza gracias a ti.",
-            "Has ganado 5 puntos",
+            "Has ganado 5 créditos",
             32
         )
     }

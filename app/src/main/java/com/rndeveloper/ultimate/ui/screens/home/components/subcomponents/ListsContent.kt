@@ -25,11 +25,9 @@ fun ListsContent(
         Column(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(vertical = 10.dp)
-                .heightIn(max = 180.dp),
+                .heightIn(max = 160.dp),
         ) {
             HorizontalDivider()
-
             LazyColumn(state = scrollState) {
                 items(items = spots, key = { i -> i.tag }) { spot ->
                     ItemContent(

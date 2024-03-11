@@ -27,8 +27,8 @@ object RetrofitModule {
     fun provideApiService(retrofit: Retrofit): ApiService =
         retrofit.create(ApiService::class.java)
 
-    @Singleton
-    @Provides
-    fun provideNotificationAPI(retrofit: Retrofit): NotificationAPI =
-        retrofit.create(NotificationAPI::class.java)
+//    @Singleton
+//    @Provides
+//    fun provideNotificationAPI(retrofit: Retrofit): NotificationAPI =
+//        retrofit.create(NotificationAPI::class.java)
 }

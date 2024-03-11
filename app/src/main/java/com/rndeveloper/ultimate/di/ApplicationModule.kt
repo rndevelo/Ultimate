@@ -4,12 +4,12 @@ import android.content.Context
 import android.location.Geocoder
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.location.ActivityRecognitionClient
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.GeofencingClient
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.rndeveloper.ultimate.notifications.NotificationAPI
 import com.rndeveloper.ultimate.repositories.ActivityTransitionRepo
 import com.rndeveloper.ultimate.repositories.ActivityTransitionRepoImpl
 import com.rndeveloper.ultimate.repositories.GeocoderRepository
@@ -52,8 +52,16 @@ object ApplicationModule {
 
     @Singleton
     @Provides
-    fun provideLoginRepository(firebaseAuth: FirebaseAuth): LoginRepository =
-        LoginRepositoryImpl(firebaseAuth = firebaseAuth)
+    fun provideLoginRepository(
+        firebaseAuth: FirebaseAuth,
+        googleSignInClient: GoogleSignInClient,
+        userRepository: UserRepository
+    ): LoginRepository =
+        LoginRepositoryImpl(
+            firebaseAuth = firebaseAuth,
+            googleSignInClient = googleSignInClient,
+            userRepository = userRepository
+        )
 
     @Singleton
     @Provides
@@ -80,12 +88,10 @@ object ApplicationModule {
         fireAuth: FirebaseAuth,
         fireStore: FirebaseFirestore,
         userRepository: UserRepository,
-        notificationAPI: NotificationAPI,
     ): ItemsRepository = ItemsRepositoryImpl(
         fireAuth = fireAuth,
         fireStore = fireStore,
-        userRepository = userRepository,
-        notificationAPI = notificationAPI
+        userRepository = userRepository
     )
 
     @Singleton

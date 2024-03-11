@@ -4,26 +4,22 @@ import android.app.Activity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Button
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -41,6 +37,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -53,6 +50,7 @@ import com.rndeveloper.ultimate.R
 import com.rndeveloper.ultimate.nav.Routes
 import com.rndeveloper.ultimate.ui.screens.login.components.EmailAndPasswordContent
 import com.rndeveloper.ultimate.ui.theme.UltimateTheme
+import kotlinx.coroutines.delay
 
 @ExperimentalMaterial3Api
 @Composable
@@ -61,20 +59,21 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
     val snackBarHostState = remember { SnackbarHostState() }
     val loginUiState by viewModel.state.collectAsStateWithLifecycle()
 
-    if (loginUiState.isLogged) {
-        LaunchedEffect(key1 = Unit) {
+    LaunchedEffect(key1 = loginUiState.isLogged) {
+        if (loginUiState.isLogged) {
+            delay(1000)
             navController.navigate(Routes.PermissionsScreen.route) {
-                popUpTo(Routes.LoginScreen.route) { inclusive = true }
+                popUpTo(navController.graph.id) { inclusive = true }
             }
         }
     }
 
-    LaunchedEffect(key1 = loginUiState.errorMessage) {
-        if (!loginUiState.errorMessage?.error.isNullOrBlank()) {
+    if (!loginUiState.errorMessage?.error.isNullOrBlank()) {
+        LaunchedEffect(snackBarHostState) {
             snackBarHostState.showSnackbar(
-                "Firebase Message : ${loginUiState.errorMessage!!.error}",
+                loginUiState.errorMessage!!.error,
                 "Close",
-                true,
+                false,
                 SnackbarDuration.Long
             )
         }
@@ -100,7 +99,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
             contentAlignment = Alignment.Center
         ) {
             LoginContent(
-                loginUiState = loginUiState,
+                uiLoginState = loginUiState,
                 onClickLogin = viewModel::signInOrSignUp,
                 onCLickRecoverPassword = viewModel::recoverPassword,
                 onChangeScreenState = viewModel::changeScreenState,
@@ -114,7 +113,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
 
 @Composable
 fun LoginContent(
-    loginUiState: LoginUiState,
+    uiLoginState: LoginUiState,
     onClickLogin: (String, String) -> Unit,
     onCLickRecoverPassword: (String) -> Unit,
     onChangeScreenState: () -> Unit,
@@ -144,72 +143,44 @@ fun LoginContent(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .align(Alignment.Center)
-                .padding(24.dp),
+                .align(if (!uiLoginState.isLogged) Alignment.TopCenter else Alignment.Center)
+                .padding(22.dp),
         ) {
             Column(
                 modifier = modifier
-                    .padding(horizontal = 27.dp)
+                    .padding(horizontal = 25.dp)
                     .padding(bottom = 34.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_ultimate_foreground),
-                    contentDescription = "Logo Login",
-                    modifier = Modifier.size(180.dp)
+                    contentDescription = R.drawable.ic_ultimate_foreground.toString(),
+                    modifier = Modifier.size(160.dp)
                 )
                 Text(
                     text = "Bienvenido a Paparcar",
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Black),
-                    modifier = modifier.padding(bottom = 5.dp)
+                    modifier = modifier.padding(bottom = 6.dp)
                 )
-//                Text(
-//                    text = "Esta es una aplicación basada en una gran comunidad de conductores en la que crecemos día a día",
-//                    textAlign = TextAlign.Center,
-//                    style = MaterialTheme.typography.titleMedium
-//                )
-                EmailAndPasswordContent(
-                    loginUiState = loginUiState,
-                    onChange = onChangeScreenState,
-                    onClick = onClickLogin,
-                )
-                Button(
-                    onClick = onClickGoogleButton,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 32.dp)
-                ) {
-                    GoogleButtonContent(isLoading = loginUiState.isLoading)
+
+                AnimatedVisibility(uiLoginState.isLogged) {
+                    Text(
+                        text = "Esta es una aplicación basada en una gran comunidad de conductores en la que crecemos día a día",
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(bottom = 5.dp)
+                    )
+                }
+                if (!uiLoginState.isLogged) {
+                    EmailAndPasswordContent(
+                        uiLoginState = uiLoginState,
+                        onChangeScreenState = onChangeScreenState,
+                        onClickGoogleButton = onClickGoogleButton,
+                        onClick = onClickLogin,
+                    )
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun GoogleButtonContent(isLoading: Boolean) {
-
-    Row(
-        modifier = Modifier
-            .animateContentSize(
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                    stiffness = Spring.StiffnessMedium
-                )
-            ),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center,
-    ) {
-        Icon(
-            painter = painterResource(id = R.drawable.ic_google),
-            contentDescription = null,
-            modifier = Modifier
-                .size(30.dp)
-                .padding(horizontal = 8.dp),
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(text = if (isLoading) "Signing in..." else "Sign in with Google")
     }
 }
 

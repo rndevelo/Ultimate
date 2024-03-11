@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddLocationAlt
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Navigation
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -129,8 +130,8 @@ fun BottomBarContent(
                             )
                         } else {
                             Icon(
-                                imageVector = Icons.Default.VisibilityOff,
-                                contentDescription = Icons.Default.VisibilityOff.toString()
+                                imageVector = Icons.Default.Visibility,
+                                contentDescription = Icons.Default.Visibility.toString()
                             )
                         }
                     },

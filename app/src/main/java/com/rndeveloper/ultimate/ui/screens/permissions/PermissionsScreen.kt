@@ -50,7 +50,7 @@ fun PermissionsScreen(
     LaunchedEffect(key1 = result) {
         if (result) {
             navController.navigate(Routes.HomeScreen.route) {
-                popUpTo(Routes.PermissionsScreen.route) { inclusive = true }
+                popUpTo(navController.graph.id) { inclusive = true }
             }
         }
     }

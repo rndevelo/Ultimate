@@ -41,11 +41,13 @@
     <string name="home_text_areas_nearby">%1$s activity areas nearby</string>
     <string name="home_text_spots_nearby">%1$s parking spots nearby</string>
     <string name="home_text_parking_spots">%1$s parking spots</string>
+    <string name="home_text_more_1creds">(+1cred.)</string>
     <string name="home_text_more_5creds">(+5cred.)</string>
     <string name="home_text_5creds">(5creds.)</string>
     <string name="home_text_navigate_my_car">Click here and navigate to your car</string>
     <string name="home_text_more_2creds">(+2creds.)</string>
     <string name="home_text_navigate">Navigate</string>
+    <string name="home_text_show_add">Show add</string>
 
 
 </resources>
