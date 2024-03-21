@@ -2,6 +2,7 @@ package com.rndeveloper.ultimate.di
 
 import android.content.Context
 import android.location.Geocoder
+import android.net.ConnectivityManager
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -10,6 +11,7 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.GeofencingClient
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.rndeveloper.ultimate.notifications.NotificationAPI
 import com.rndeveloper.ultimate.repositories.ActivityTransitionRepo
 import com.rndeveloper.ultimate.repositories.ActivityTransitionRepoImpl
 import com.rndeveloper.ultimate.repositories.GeocoderRepository
@@ -22,6 +24,8 @@ import com.rndeveloper.ultimate.repositories.LoginRepository
 import com.rndeveloper.ultimate.repositories.LoginRepositoryImpl
 import com.rndeveloper.ultimate.repositories.ItemsRepository
 import com.rndeveloper.ultimate.repositories.ItemsRepositoryImpl
+import com.rndeveloper.ultimate.repositories.NetworkConnectivity
+import com.rndeveloper.ultimate.repositories.NetworkConnectivityImpl
 import com.rndeveloper.ultimate.repositories.TimerRepository
 import com.rndeveloper.ultimate.repositories.TimerRepositoryImpl
 import com.rndeveloper.ultimate.repositories.UserRepository
@@ -82,16 +86,22 @@ object ApplicationModule {
     fun provideTimerRepository(userPreferencesRepository: DataStore<Preferences>): TimerRepository =
         TimerRepositoryImpl(userPreferencesRepository = userPreferencesRepository)
 
+    @Provides
+    fun provideNetworkConnectivity(connectivityManager: ConnectivityManager): NetworkConnectivity =
+        NetworkConnectivityImpl(connectivityManager = connectivityManager)
+
     @Singleton
     @Provides
     fun provideSpotsRepository(
         fireAuth: FirebaseAuth,
         fireStore: FirebaseFirestore,
         userRepository: UserRepository,
+        notificationAPI: NotificationAPI,
     ): ItemsRepository = ItemsRepositoryImpl(
         fireAuth = fireAuth,
         fireStore = fireStore,
-        userRepository = userRepository
+        userRepository = userRepository,
+        notificationAPI = notificationAPI
     )
 
     @Singleton
@@ -147,5 +157,4 @@ object ApplicationModule {
         setSpotUseCase = SetSpotUseCase(repo),
         removeSpotUseCase = RemoveSpotUseCase(repo)
     )
-
 }

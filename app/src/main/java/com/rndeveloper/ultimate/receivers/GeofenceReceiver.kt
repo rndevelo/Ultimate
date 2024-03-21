@@ -46,9 +46,9 @@ class GeofenceReceiver : HiltGeofenceReceiver() {
         val tag = intent.extras!!.getString("tag")
         val uid = intent.extras!!.getString("uid")
         val token = intent.extras!!.getString("token")
-        if (country != null && area != null && tag != null && uid != null) {
+        if (country != null && area != null && tag != null && uid != null && token != null) {
             GlobalScope.launch(Dispatchers.IO) {
-                removeSpotUseCase(Pair(Triple(country, area, tag), uid to uid))
+                removeSpotUseCase(Pair(Triple(country, area, tag), uid to token))
                     .collectLatest { newHomeUiState -> }
             }
         }

@@ -59,44 +59,36 @@ fun BottomBarContent(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+
                 ExtendedFloatingActionButton(
-                    text = {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(text = stringResource(R.string.home_text_add_spot))
-                            Spacer(modifier = modifier.width(5.dp))
-                            Text(
-                                text = stringResource(R.string.home_text_more_5creds),
-                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Light),
-                                modifier = Modifier.height(16.dp)
-                            )
-                        }
-                    },
+                    text = { Text(text = stringResource(R.string.home_text_park_your_car)) },
                     icon = {
                         Icon(
-                            imageVector = Icons.Default.AddLocationAlt,
-                            contentDescription = Icons.Default.AddLocationAlt.toString(),
+                            imageVector = Icons.Default.DirectionsCar,
+                            contentDescription = Icons.Default.DirectionsCar.toString(),
                         )
                     },
                     onClick = {
                         when (rememberHomeUiContainerState.screenState) {
-                            ScreenState.ADDSPOT -> {
-                                rememberHomeUiContainerState.onVisibleAlertDialog(true)
+                            ScreenState.PARKMYCAR -> {
+                                onSet {
+                                    rememberHomeUiContainerState.onAnimateCamera(zoom = 16f)
+                                    rememberHomeUiContainerState.onScreenState(ScreenState.MAIN)
+                                }
                             }
 
                             else -> {
-                                rememberHomeUiContainerState.onOpenBottomSheet()
                                 rememberHomeUiContainerState.onAnimateCamera(zoom = 17f)
-                                rememberHomeUiContainerState.onScreenState(ScreenState.ADDSPOT)
+                                rememberHomeUiContainerState.onScreenState(ScreenState.PARKMYCAR)
                             }
                         }
                     },
-                    modifier = when (rememberHomeUiContainerState.screenState) {
-                        ScreenState.ADDSPOT -> modifier.weight(1f)
-                        else -> modifier
-                    },
-                    expanded = rememberHomeUiContainerState.screenState == ScreenState.ADDSPOT,
+                    modifier = if (rememberHomeUiContainerState.screenState == ScreenState.PARKMYCAR) modifier.weight(
+                        1f
+                    ) else modifier,
+                    expanded = rememberHomeUiContainerState.screenState == ScreenState.PARKMYCAR,
                     containerColor = when (rememberHomeUiContainerState.screenState) {
-                        ScreenState.ADDSPOT -> MaterialTheme.colorScheme.primary
+                        ScreenState.PARKMYCAR -> MaterialTheme.colorScheme.primary
                         else -> MaterialTheme.colorScheme.secondaryContainer
                     },
                     elevation = FloatingActionButtonDefaults.elevation(0.dp)
@@ -167,38 +159,48 @@ fun BottomBarContent(
                 )
 
                 ExtendedFloatingActionButton(
-                    text = { Text(text = stringResource(R.string.home_text_park_your_car)) },
+                    text = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(text = stringResource(R.string.home_text_add_spot))
+                            Spacer(modifier = modifier.width(5.dp))
+                            Text(
+                                text = stringResource(R.string.home_text_more_5creds),
+                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Light),
+                                modifier = Modifier.height(16.dp)
+                            )
+                        }
+                    },
                     icon = {
                         Icon(
-                            imageVector = Icons.Default.DirectionsCar,
-                            contentDescription = Icons.Default.DirectionsCar.toString(),
+                            imageVector = Icons.Default.AddLocationAlt,
+                            contentDescription = Icons.Default.AddLocationAlt.toString(),
                         )
                     },
                     onClick = {
                         when (rememberHomeUiContainerState.screenState) {
-                            ScreenState.PARKMYCAR -> {
-                                onSet {
-                                    rememberHomeUiContainerState.onAnimateCamera(zoom = 16f)
-                                    rememberHomeUiContainerState.onScreenState(ScreenState.MAIN)
-                                }
+                            ScreenState.ADDSPOT -> {
+                                rememberHomeUiContainerState.onVisibleAlertDialog(true)
                             }
 
                             else -> {
+                                rememberHomeUiContainerState.onOpenBottomSheet()
                                 rememberHomeUiContainerState.onAnimateCamera(zoom = 17f)
-                                rememberHomeUiContainerState.onScreenState(ScreenState.PARKMYCAR)
+                                rememberHomeUiContainerState.onScreenState(ScreenState.ADDSPOT)
                             }
                         }
                     },
-                    modifier = if (rememberHomeUiContainerState.screenState == ScreenState.PARKMYCAR) modifier.weight(
-                        1f
-                    ) else modifier,
-                    expanded = rememberHomeUiContainerState.screenState == ScreenState.PARKMYCAR,
+                    modifier = when (rememberHomeUiContainerState.screenState) {
+                        ScreenState.ADDSPOT -> modifier.weight(1f)
+                        else -> modifier
+                    },
+                    expanded = rememberHomeUiContainerState.screenState == ScreenState.ADDSPOT,
                     containerColor = when (rememberHomeUiContainerState.screenState) {
-                        ScreenState.PARKMYCAR -> MaterialTheme.colorScheme.primary
+                        ScreenState.ADDSPOT -> MaterialTheme.colorScheme.primary
                         else -> MaterialTheme.colorScheme.secondaryContainer
                     },
                     elevation = FloatingActionButtonDefaults.elevation(0.dp)
                 )
+
             }
             AdaptiveBanner()
         }

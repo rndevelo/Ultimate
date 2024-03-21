@@ -5,6 +5,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.rndeveloper.ultimate.model.Directions
 import com.rndeveloper.ultimate.model.Spot
 import com.rndeveloper.ultimate.notifications.NotificationAPI
+import com.rndeveloper.ultimate.notifications.PushNotification
 import com.rndeveloper.ultimate.utils.Constants.SPOT_COLLECTION_REFERENCE
 import com.rndeveloper.ultimate.utils.Utils.currentTime
 import kotlinx.coroutines.channels.awaitClose
@@ -12,8 +13,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -21,6 +20,7 @@ class ItemsRepositoryImpl @Inject constructor(
     private val fireAuth: FirebaseAuth,
     private val fireStore: FirebaseFirestore,
     private val userRepository: UserRepository,
+    private val notificationAPI: NotificationAPI,
 ) : ItemsRepository {
 
     override fun getItems(collectionRef: String, directions: Directions): Flow<Result<List<Spot>>> =
@@ -88,10 +88,8 @@ class ItemsRepositoryImpl @Inject constructor(
                 .addOnSuccessListener { _ ->
                     launch {
                         userRepository.setPoints(parameters.second.first, 5).collect {
-//                            notificationAPI.postNotification(parameters.second.second)
+                            notificationAPI.postNotification(PushNotification(parameters.second.second))
                         }
-                        providerRetrofit().create(NotificationAPI::class.java)
-                            .postNotification(parameters.second.second)
                     }
 
                     if (myUid != null) {
@@ -108,12 +106,6 @@ class ItemsRepositoryImpl @Inject constructor(
             awaitClose()
         }
 }
-
-fun providerRetrofit(): Retrofit =
-    Retrofit.Builder()
-        .baseUrl("https://fcm.googleapis.com")
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
 
 interface ItemsRepository {
     fun getItems(collectionRef: String, directions: Directions): Flow<Result<List<Spot>>>

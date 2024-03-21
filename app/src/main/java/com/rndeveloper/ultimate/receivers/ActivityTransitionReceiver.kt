@@ -70,12 +70,12 @@ class ActivityTransitionReceiver : HiltActivityTransitionReceiver() {
             result?.transitionEvents?.forEach { event ->
 
 //                if (user != null) {
-                    sendNotification(
-                        context,
-                        "Actividad actual",
-                        getInfo(event),
-                        NOTIFICATION_ID
-                    )
+//                    sendNotification(
+//                        context,
+//                        "Actividad actual",
+//                        getInfo(event),
+//                        NOTIFICATION_ID
+//                    )
 //                }
 //
 //                when {

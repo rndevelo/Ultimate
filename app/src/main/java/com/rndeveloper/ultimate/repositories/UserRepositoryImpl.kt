@@ -35,36 +35,27 @@ class UserRepositoryImpl @Inject constructor(
                 .addSnapshotListener { snapshot, e ->
                     val user = snapshot?.toObject(User::class.java)
                     if (user != null) {
-                        FirebaseMessaging.getInstance().token.addOnSuccessListener { task ->
-                            MyFirebaseMessagingService.token = task
-                            val userData = userAuthData.copy(
-                                points = user.points,
-                                car = user.car,
-                                token = task
-                            )
-                            launch {
-                                setUserData(userData).collectLatest {
-                                    trySend(Result.success(userData))
-                                }
-                            }
-                        }.addOnFailureListener {
-                            Log.d("GetToken", "${it.message}")
-                        }
+                        val userData = userAuthData.copy(
+                            points = user.points,
+                            car = user.car,
+                        )
+                        trySend(Result.success(userData))
+
                     } else {
 
-                        FirebaseMessaging.getInstance().token.addOnSuccessListener { task ->
-                            MyFirebaseMessagingService.token = task
-                            val userData = userAuthData.copy(token = task)
-                            launch {
-                                setUserData(userData).collectLatest {}
-                            }
-                        }.addOnFailureListener {
-                            Log.d("GetToken", "${it.message}")
-                        }
-
-                        if (e != null) {
-                            trySend(Result.failure(e.fillInStackTrace()))
-                        }
+//                        FirebaseMessaging.getInstance().token.addOnSuccessListener { task ->
+//                            MyFirebaseMessagingService.token = task
+//                            val userData = userAuthData.copy(token = task)
+//                            launch {
+//                                setUserData(userData).collectLatest {}
+//                            }
+//                        }.addOnFailureListener {
+//                            Log.d("GetToken", "${it.message}")
+//                        }
+//
+//                        if (e != null) {
+//                            trySend(Result.failure(e.fillInStackTrace()))
+//                        }
                     }
                 }
         }
