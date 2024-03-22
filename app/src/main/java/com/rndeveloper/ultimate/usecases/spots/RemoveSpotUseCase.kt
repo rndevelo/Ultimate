@@ -2,6 +2,7 @@ package com.rndeveloper.ultimate.usecases.spots
 
 import com.rndeveloper.ultimate.exceptions.CustomException
 import com.rndeveloper.ultimate.model.Spot
+import com.rndeveloper.ultimate.model.User
 import com.rndeveloper.ultimate.repositories.ItemsRepository
 import com.rndeveloper.ultimate.ui.screens.home.uistates.SpotsUiState
 import com.rndeveloper.ultimate.usecases.BaseUseCase
@@ -13,9 +14,9 @@ import javax.inject.Inject
 
 class RemoveSpotUseCase @Inject constructor(
     private val repository: ItemsRepository,
-) : BaseUseCase<Spot, Flow<SpotsUiState>>() {
+) : BaseUseCase<Pair<Triple<String, String, String>, Pair<String, String>>,  Flow<SpotsUiState>>() {
 
-    override suspend fun execute(parameters: Spot): Flow<SpotsUiState> =
+    override suspend fun execute(parameters: Pair<Triple<String, String, String>, Pair<String, String>>): Flow<SpotsUiState> =
         channelFlow {
 
             // TODO: Validate fields: email restriction and empty fields validations

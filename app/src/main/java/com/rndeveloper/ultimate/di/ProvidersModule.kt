@@ -2,6 +2,7 @@ package com.rndeveloper.ultimate.di
 
 import android.content.Context
 import android.location.Geocoder
+import android.net.ConnectivityManager
 import com.google.android.gms.location.ActivityRecognition
 import com.google.android.gms.location.ActivityRecognitionClient
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -25,11 +26,11 @@ object ProvidersModule {
     fun provideLocationClient(@ApplicationContext appContext: Context): FusedLocationProviderClient =
         LocationServices.getFusedLocationProviderClient(appContext)
 
-//    Activity Recognition
+    //    Activity Recognition
     @Singleton
     @Provides
     fun provideActivityRecognitionClient(@ApplicationContext appContext: Context): ActivityRecognitionClient =
-    ActivityRecognition.getClient(appContext)
+        ActivityRecognition.getClient(appContext)
 
 
     //    Geocoder
@@ -49,6 +50,11 @@ object ProvidersModule {
     @Singleton
     @Provides
     fun provideContext(@ApplicationContext appContext: Context): Context = appContext
+
+    @Singleton
+    @Provides
+    fun connectivityManager(@ApplicationContext appContext: Context): ConnectivityManager =
+        appContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
 }
 

@@ -33,12 +33,20 @@ class LoginEmailPassUseCase @Inject constructor(
 
             when {
 
-                !email.isEmailValid() || !pass.isPasswordValid() -> {
+                !email.isEmailValid() -> {
                     send(
                         LoginUiState().copy(
                             screenState = LoginState.Login(),
-                            emailErrorMessage = LoginException.EmailInvalidFormat(),
-                            passErrorMessage = LoginException.PasswordInvalidFormat(),
+                            errorMessage = LoginException.EmailInvalidFormat(),
+                            isLoading = false
+                        )
+                    )
+                }
+                !pass.isPasswordValid() -> {
+                    send(
+                        LoginUiState().copy(
+                            screenState = LoginState.Login(),
+                            errorMessage = LoginException.PasswordInvalidFormat(),
                             isLoading = false
                         )
                     )

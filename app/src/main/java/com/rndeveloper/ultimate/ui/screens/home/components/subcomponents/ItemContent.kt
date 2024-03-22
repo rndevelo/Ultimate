@@ -1,13 +1,9 @@
 package com.rndeveloper.ultimate.ui.screens.home.components.subcomponents
 
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,8 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.Navigation
-import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -31,14 +25,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
-import com.google.android.gms.maps.model.LatLng
-import com.rndeveloper.ultimate.extensions.getFormattedPrettyTime
 import com.rndeveloper.ultimate.model.Spot
 import com.rndeveloper.ultimate.ui.theme.UltimateTheme
 
@@ -47,7 +37,6 @@ fun ItemContent(
     spot: Spot,
     selectedSpot: Spot?,
     onSpotItem: () -> Unit,
-    onRemoveSpot: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
 
@@ -56,8 +45,6 @@ fun ItemContent(
             MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.surface,
         label = "",
     )
-
-    val context = LocalContext.current
 
     var expandedItem by rememberSaveable { mutableStateOf(false) }
 
@@ -92,21 +79,11 @@ fun ItemContent(
                     color = spot.color
                 )
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
-
-                    IconButton(onClick = { expandedItem = !expandedItem }) {
-                        Icon(
-                            imageVector = if (expandedItem) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
-                            contentDescription = if (expandedItem) Icons.Filled.KeyboardArrowUp.toString() else Icons.Filled.KeyboardArrowDown.toString(),
-                        )
-                    }
-
-                    FilledIconButton(onClick = onRemoveSpot) {
-                        Icon(
-                            imageVector = Icons.Filled.Navigation,
-                            contentDescription = Icons.Filled.Navigation.toString(),
-                        )
-                    }
+                IconButton(onClick = { expandedItem = !expandedItem }) {
+                    Icon(
+                        imageVector = if (expandedItem) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                        contentDescription = if (expandedItem) Icons.Filled.KeyboardArrowUp.toString() else Icons.Filled.KeyboardArrowDown.toString(),
+                    )
                 }
             }
 
@@ -129,7 +106,6 @@ fun ItemContentPreview() {
             spot = Spot(),
             selectedSpot = Spot(),
             onSpotItem = { /*TODO*/ },
-            onRemoveSpot = { /*TODO*/ }
         )
     }
 }

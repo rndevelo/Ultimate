@@ -15,7 +15,7 @@ data class User(
     val createdAt: String,
     val usertoken: String,
     val userpoints: Int,
-): Serializable {
+) {
     constructor() : this(
         isLogged = false,
         email = "",

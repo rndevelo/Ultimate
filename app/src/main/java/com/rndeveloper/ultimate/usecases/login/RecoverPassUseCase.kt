@@ -25,7 +25,7 @@ class RecoverPassUseCase @Inject constructor(
             send(
                 LoginUiState().copy(
                     isLoading = false,
-                    emailErrorMessage = LoginException.EmailInvalidFormat()
+                    errorMessage = LoginException.EmailInvalidFormat()
                 )
             )
         } else {

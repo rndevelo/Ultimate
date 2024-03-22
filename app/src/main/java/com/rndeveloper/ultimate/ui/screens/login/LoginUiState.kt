@@ -9,8 +9,6 @@ import com.rndeveloper.ultimate.ui.BaseUiState
 data class LoginUiState(
     val screenState: LoginState,
     val user: User,
-    val emailErrorMessage: CustomException?,
-    val passErrorMessage: CustomException?,
     val isLogged: Boolean,
     val isSendEmailRecovered: Boolean,
     override val isLoading: Boolean,
@@ -20,8 +18,6 @@ data class LoginUiState(
     constructor() : this(
         screenState = LoginState.Login(),
         user = User(),
-        emailErrorMessage = null,
-        passErrorMessage = null,
         isLogged = false,
         isSendEmailRecovered = false,
         isLoading = false,

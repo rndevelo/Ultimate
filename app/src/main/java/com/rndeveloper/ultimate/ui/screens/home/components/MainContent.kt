@@ -1,27 +1,38 @@
 package com.rndeveloper.ultimate.ui.screens.home.components
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.CameraPosition
+import androidx.compose.ui.unit.sp
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.MapType
@@ -29,14 +40,17 @@ import com.rndeveloper.ultimate.R
 import com.rndeveloper.ultimate.ui.screens.home.HomeUiContainerState
 import com.rndeveloper.ultimate.ui.screens.home.ScreenState
 import com.rndeveloper.ultimate.ui.screens.home.components.subcomponents.ButtonsMapContent
+import com.rndeveloper.ultimate.ui.screens.home.components.subcomponents.DropDownMenuContent
 import com.rndeveloper.ultimate.ui.screens.home.components.subcomponents.GoogleMapContent
+import com.rndeveloper.ultimate.ui.screens.home.components.subcomponents.SetAlertDialog
 import com.rndeveloper.ultimate.ui.screens.home.rememberHomeUiContainerState
 import com.rndeveloper.ultimate.ui.screens.home.uistates.AreasUiState
 import com.rndeveloper.ultimate.ui.screens.home.uistates.SpotsUiState
 import com.rndeveloper.ultimate.ui.screens.home.uistates.UserUiState
 import com.rndeveloper.ultimate.ui.theme.UltimateTheme
+import com.rndeveloper.ultimate.utils.Constants
 import com.rndeveloper.ultimate.utils.Constants.DEFAULT_ELAPSED_TIME
-import kotlinx.coroutines.launch
+import com.rndeveloper.ultimate.utils.timeList
 
 @Composable
 fun MainContent(
@@ -46,11 +60,14 @@ fun MainContent(
     uiSpotsState: SpotsUiState,
     uiAreasState: AreasUiState,
     uiElapsedTimeState: Long,
+    uiRouteState: List<LatLng>,
     onCameraLoc: () -> Unit,
     onCameraCar: () -> Unit,
     onCameraCarLoc: () -> Unit,
     onCameraTilt: () -> Unit,
     onSelectSpot: (String) -> Unit,
+    onSet: (onMain: () -> Unit) -> Unit,
+    showRewardedAdmob: () -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -83,9 +100,12 @@ fun MainContent(
                 isElapsedTime = uiElapsedTimeState > DEFAULT_ELAPSED_TIME,
                 mapType = mapType,
                 onSelectSpot = onSelectSpot,
+                uiRouteState = uiRouteState
             )
 
             ButtonsMapContent(
+                rememberHomeUiContainerState = rememberHomeUiContainerState,
+                uiElapsedTimeState = uiElapsedTimeState,
                 car = uiUserState.user.car,
                 isShowLoading = uiSpotsState.isLoading || uiUserState.isLoading,
                 onOpenOrCloseDrawer = { rememberHomeUiContainerState.onOpenDrawer() },
@@ -97,8 +117,8 @@ fun MainContent(
                 onCameraLocation = onCameraLoc,
                 onCameraMyCar = onCameraCar,
                 onCameraCarLoc = onCameraCarLoc,
+                showRewardedAdmob = showRewardedAdmob,
             )
-
 
             Image(
                 painter = painterResource(
@@ -115,14 +135,21 @@ fun MainContent(
                 },
                 modifier = if (rememberHomeUiContainerState.isSetState) modifier.padding(bottom = extraPadding) else modifier,
             )
-            AnimatedVisibility(visible = rememberHomeUiContainerState.isSetState) {
 
+            AnimatedVisibility(visible = rememberHomeUiContainerState.isSetState) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_marker_shadow),
                     contentDescription = R.drawable.ic_marker_shadow.toString(),
                     modifier = modifier
                         .align(Alignment.Center)
                         .padding(bottom = 60.dp),
+                )
+            }
+
+            AnimatedVisibility(visible = rememberHomeUiContainerState.isAlertDialogVisible) {
+                SetAlertDialog(
+                    rememberHomeUiContainerState = rememberHomeUiContainerState,
+                    onSet = onSet
                 )
             }
         }
@@ -141,11 +168,14 @@ fun MainContentPreview() {
             uiSpotsState = SpotsUiState(),
             uiAreasState = AreasUiState(),
             uiElapsedTimeState = 0L,
+            uiRouteState = emptyList(),
             onCameraLoc = {},
             onCameraCar = {},
             onCameraCarLoc = {},
             onCameraTilt = {},
             onSelectSpot = {},
+            onSet = {},
+            showRewardedAdmob = {},
         )
     }
 }

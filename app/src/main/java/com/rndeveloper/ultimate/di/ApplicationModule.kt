@@ -1,16 +1,17 @@
 package com.rndeveloper.ultimate.di
 
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.location.Geocoder
+import android.net.ConnectivityManager
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.location.ActivityRecognitionClient
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.GeofencingClient
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.rndeveloper.ultimate.notifications.NotificationAPI
 import com.rndeveloper.ultimate.repositories.ActivityTransitionRepo
 import com.rndeveloper.ultimate.repositories.ActivityTransitionRepoImpl
 import com.rndeveloper.ultimate.repositories.GeocoderRepository
@@ -23,6 +24,8 @@ import com.rndeveloper.ultimate.repositories.LoginRepository
 import com.rndeveloper.ultimate.repositories.LoginRepositoryImpl
 import com.rndeveloper.ultimate.repositories.ItemsRepository
 import com.rndeveloper.ultimate.repositories.ItemsRepositoryImpl
+import com.rndeveloper.ultimate.repositories.NetworkConnectivity
+import com.rndeveloper.ultimate.repositories.NetworkConnectivityImpl
 import com.rndeveloper.ultimate.repositories.TimerRepository
 import com.rndeveloper.ultimate.repositories.TimerRepositoryImpl
 import com.rndeveloper.ultimate.repositories.UserRepository
@@ -53,8 +56,16 @@ object ApplicationModule {
 
     @Singleton
     @Provides
-    fun provideLoginRepository(firebaseAuth: FirebaseAuth): LoginRepository =
-        LoginRepositoryImpl(firebaseAuth = firebaseAuth)
+    fun provideLoginRepository(
+        firebaseAuth: FirebaseAuth,
+        googleSignInClient: GoogleSignInClient,
+        userRepository: UserRepository
+    ): LoginRepository =
+        LoginRepositoryImpl(
+            firebaseAuth = firebaseAuth,
+            googleSignInClient = googleSignInClient,
+            userRepository = userRepository
+        )
 
     @Singleton
     @Provides
@@ -75,12 +86,23 @@ object ApplicationModule {
     fun provideTimerRepository(userPreferencesRepository: DataStore<Preferences>): TimerRepository =
         TimerRepositoryImpl(userPreferencesRepository = userPreferencesRepository)
 
+    @Provides
+    fun provideNetworkConnectivity(connectivityManager: ConnectivityManager): NetworkConnectivity =
+        NetworkConnectivityImpl(connectivityManager = connectivityManager)
+
     @Singleton
     @Provides
     fun provideSpotsRepository(
         fireAuth: FirebaseAuth,
-        fireStore: FirebaseFirestore
-    ): ItemsRepository = ItemsRepositoryImpl(fireAuth = fireAuth, fireStore = fireStore)
+        fireStore: FirebaseFirestore,
+        userRepository: UserRepository,
+        notificationAPI: NotificationAPI,
+    ): ItemsRepository = ItemsRepositoryImpl(
+        fireAuth = fireAuth,
+        fireStore = fireStore,
+        userRepository = userRepository,
+        notificationAPI = notificationAPI
+    )
 
     @Singleton
     @Provides
@@ -102,9 +124,7 @@ object ApplicationModule {
     @Provides
     fun provideGeofenceClient(
         @ApplicationContext appContext: Context,
-        geofencingClient: GeofencingClient,
-        geofenceIntent: Intent,
-        geofencePendingIntent: PendingIntent
+        geofencingClient: GeofencingClient
     ): GeofenceClient = GeofenceClientImpl(
         appContext = appContext,
         geofencingClient = geofencingClient,
@@ -137,5 +157,4 @@ object ApplicationModule {
         setSpotUseCase = SetSpotUseCase(repo),
         removeSpotUseCase = RemoveSpotUseCase(repo)
     )
-
 }

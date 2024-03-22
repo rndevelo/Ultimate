@@ -1,22 +1,26 @@
 package com.rndeveloper.ultimate.repositories
 
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.rndeveloper.ultimate.model.Directions
 import com.rndeveloper.ultimate.model.Spot
+import com.rndeveloper.ultimate.notifications.NotificationAPI
+import com.rndeveloper.ultimate.notifications.PushNotification
 import com.rndeveloper.ultimate.utils.Constants.SPOT_COLLECTION_REFERENCE
-import com.rndeveloper.ultimate.utils.Constants.USER_REFERENCE
 import com.rndeveloper.ultimate.utils.Utils.currentTime
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class ItemsRepositoryImpl @Inject constructor(
     private val fireAuth: FirebaseAuth,
-    private val fireStore: FirebaseFirestore
+    private val fireStore: FirebaseFirestore,
+    private val userRepository: UserRepository,
+    private val notificationAPI: NotificationAPI,
 ) : ItemsRepository {
 
     override fun getItems(collectionRef: String, directions: Directions): Flow<Result<List<Spot>>> =
@@ -71,46 +75,40 @@ class ItemsRepositoryImpl @Inject constructor(
         awaitClose()
     }
 
-    override fun removeSpot(spot: Spot): Flow<Result<Boolean>> = callbackFlow {
+    override fun removeSpot(parameters: Pair<Triple<String, String, String>, Pair<String, String>>): Flow<Result<Boolean>> =
+        callbackFlow {
 
-        val userRandomPoints = (3..5).random().toLong()
-        val myRandomPoints = (1..2).random().toLong()
-        val myUid = fireAuth.currentUser?.uid
+            val myUid = fireAuth.currentUser?.uid
 
-        fireStore.collection(SPOT_COLLECTION_REFERENCE)
-            .document(spot.directions.country)
-            .collection(spot.directions.area)
-            .document(spot.tag)
-            .delete()
-            .addOnSuccessListener { _ ->
-                setPoints(spot.user.uid, userRandomPoints)
-                if (myUid != null) {
-                    setPoints(myUid, myRandomPoints)
+            fireStore.collection(SPOT_COLLECTION_REFERENCE)
+                .document(parameters.first.first)
+                .collection(parameters.first.second)
+                .document(parameters.first.third)
+                .delete()
+                .addOnSuccessListener { _ ->
+                    launch {
+                        userRepository.setPoints(parameters.second.first, 5).collect {
+                            notificationAPI.postNotification(PushNotification(parameters.second.second))
+                        }
+                    }
+
+                    if (myUid != null) {
+                        launch {
+                            userRepository.setPoints(myUid, 2).collectLatest {}
+                        }
+                    }
                 }
-            }
-            .addOnFailureListener { error ->
-                trySend(Result.failure(error))
-            }
+                .addOnFailureListener { error ->
+                    trySend(Result.failure(error))
 
-        awaitClose()
-    }
+                }
 
-    override fun setPoints(
-        uid: String,
-        incrementPoints: Long
-    ) {
-        fireStore.collection(USER_REFERENCE).document(uid)
-            .update("points", FieldValue.increment(incrementPoints))
-    }
+            awaitClose()
+        }
 }
-
 
 interface ItemsRepository {
     fun getItems(collectionRef: String, directions: Directions): Flow<Result<List<Spot>>>
     fun setSpot(pair: Pair<String, Spot>): Flow<Result<Boolean>>
-    fun removeSpot(spot: Spot): Flow<Result<Boolean>>
-    fun setPoints(
-        uid: String,
-        incrementPoints: Long
-    )
+    fun removeSpot(parameters: Pair<Triple<String, String, String>, Pair<String, String>>): Flow<Result<Boolean>>
 }

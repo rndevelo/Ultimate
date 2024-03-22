@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Gray
+import androidx.compose.ui.graphics.Color.Companion.LightGray
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -60,18 +61,22 @@ fun CountContent(
     var point by remember { mutableStateOf(false) }
     var isExpanded by remember { mutableStateOf(false) }
 
-    LaunchedEffect(key1 = Unit, key2 = uiAreasState.areas, block = {
-        while (true) {
-            delay(
-                when {
-                    uiAreasState.areas.size >= 6 -> 250
-                    uiAreasState.areas.size >= 3 -> 500
-                    else -> 1000
-                }
-            )
-            point = !point
+    LaunchedEffect(
+        key1 = Unit,
+        key2 = uiAreasState.areas,
+        block = {
+            while (true) {
+                delay(
+                    when {
+                        uiAreasState.areas.size >= 6 -> 250
+                        uiAreasState.areas.size >= 3 -> 500
+                        else -> 1000
+                    }
+                )
+                point = !point
+            }
         }
-    })
+    )
 
     val color by animateColorAsState(
         targetValue = if (point) green_place_icon else Color.Transparent,
@@ -81,8 +86,8 @@ fun CountContent(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 18.dp)
-            .padding(bottom = 14.dp)
+            .padding(horizontal = 16.dp)
+            .padding(bottom = 10.dp)
             .clickable(interactionSource = interactionSource, indication = null) { onExpand() },
         verticalArrangement = Arrangement.SpaceBetween
     ) {
@@ -102,18 +107,12 @@ fun CountContent(
                     ScreenState.ADDSPOT -> stringResource(R.string.home_text_add_a_new_spot)
                     ScreenState.PARKMYCAR -> stringResource(R.string.home_text_park_your_car)
                 },
-                style = if (uiSpotsState.spots.isNotEmpty()) {
-                    MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 20.sp
-                    )
-                } else {
-                    MaterialTheme.typography.labelLarge.copy(
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 20.sp
-                    )
-                },
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = if (uiSpotsState.spots.isNotEmpty()) 20.sp else 18.5.sp
+                ),
             )
+
             Column {
 
                 Row(
@@ -125,7 +124,7 @@ fun CountContent(
                         contentDescription = Icons.Filled.Circle.toString(),
                         modifier = Modifier.size(8.dp),
                         tint = when {
-                            uiAreasState.areas.isEmpty() -> Color.Transparent
+                            uiAreasState.areas.isEmpty() -> LightGray
                             uiAreasState.areas.size >= 2 -> color
                             else -> color
                         }
@@ -193,11 +192,11 @@ fun CountContent(
             }
 
         }
-
-        Spacer(modifier = modifier.height(5.dp))
+        Spacer(modifier = modifier.height(3.dp))
         Text(
             text = uiDirectionsState.directions.addressLine,
             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Light),
+            maxLines = 2,
         )
     }
 }
