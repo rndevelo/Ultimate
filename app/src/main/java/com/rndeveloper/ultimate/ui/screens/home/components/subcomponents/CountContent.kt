@@ -98,8 +98,8 @@ fun CountContent(
         ) {
             Text(
                 text = when (screenState) {
-                    ScreenState.MAIN -> if (uiSpotsState.spots.isNotEmpty()) {
-                        stringResource(R.string.home_text_parking_spots, uiSpotsState.spots.size)
+                    ScreenState.MAIN -> if (uiSpotsState.items.isNotEmpty()) {
+                        stringResource(R.string.home_text_parking_spots, uiSpotsState.items.size)
                     } else {
                         stringResource(R.string.home_text_without_parking_spots)
                     }
@@ -109,7 +109,7 @@ fun CountContent(
                 },
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.SemiBold,
-                    fontSize = if (uiSpotsState.spots.isNotEmpty()) 20.sp else 18.5.sp
+                    fontSize = if (uiSpotsState.items.isNotEmpty()) 20.sp else 18.5.sp
                 ),
             )
 
@@ -160,7 +160,7 @@ fun CountContent(
                                         imageVector = Icons.Filled.Circle,
                                         contentDescription = Icons.Filled.Circle.toString(),
                                         modifier = Modifier.size(40.dp),
-                                        tint = area.color
+                                        tint = area.spotColor
                                     )
                                     Spacer(modifier = Modifier.width(5.dp))
                                     Column {

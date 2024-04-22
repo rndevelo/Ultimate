@@ -1,8 +1,6 @@
 package com.rndeveloper.ultimate.usecases.spots
 
 import com.rndeveloper.ultimate.exceptions.CustomException
-import com.rndeveloper.ultimate.model.Spot
-import com.rndeveloper.ultimate.model.User
 import com.rndeveloper.ultimate.repositories.ItemsRepository
 import com.rndeveloper.ultimate.ui.screens.home.uistates.SpotsUiState
 import com.rndeveloper.ultimate.usecases.BaseUseCase

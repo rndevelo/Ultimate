@@ -6,6 +6,8 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.Priority
 import com.rndeveloper.ultimate.MainActivity
 import com.rndeveloper.ultimate.R
 import java.util.Calendar
@@ -13,6 +15,8 @@ import java.util.Calendar
 object Utils {
 
     fun currentTime() = Calendar.getInstance().time.time
+
+    val request = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 2000).build()
 
     @SuppressLint("MissingPermission")
     fun sendNotification(
@@ -36,7 +40,9 @@ object Utils {
             .setContentText(contentText)
             .setPriority(NotificationCompat.PRIORITY_MAX)
 //            .setOngoing(true)
-            .setContentIntent(notifyPendingIntent)
+//            .setContentIntent(notifyPendingIntent)
+            .addAction(R.drawable.ic_add_spot, "Send",
+                notifyPendingIntent)
 
         with(NotificationManagerCompat.from(context)) {
             // notificationId is a unique int for each notification that you must define.

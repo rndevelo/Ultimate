@@ -66,6 +66,7 @@ class HomeUiContainerState @OptIn(ExperimentalMaterial3Api::class) constructor(
     val isSetState: Boolean
         get() = screenState == ScreenState.ADDSPOT || screenState == ScreenState.PARKMYCAR
 
+    var isMapLoaded by mutableStateOf(false)
 
     var isExpandedAdmobButton by mutableStateOf(false)
 
@@ -95,6 +96,10 @@ class HomeUiContainerState @OptIn(ExperimentalMaterial3Api::class) constructor(
         navController.navigate(Routes.PermissionsScreen.route) {
             popUpTo(Routes.HomeScreen.route) { inclusive = true }
         }
+    }
+
+    fun onMapLoaded() {
+        isMapLoaded = true
     }
 
     fun onOpenDrawer() {

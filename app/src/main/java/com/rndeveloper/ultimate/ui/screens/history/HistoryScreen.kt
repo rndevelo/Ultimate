@@ -15,7 +15,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.People
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -31,7 +30,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.rndeveloper.ultimate.extensions.getFormattedPrettyTime
-import com.rndeveloper.ultimate.model.Spot
+import com.rndeveloper.ultimate.model.Item
 import com.rndeveloper.ultimate.ui.screens.home.uistates.UserUiState
 
 @Composable
@@ -68,7 +67,7 @@ fun HistoryContent(uiUserState: UserUiState, uiHistoryState: HistoryUiState) {
 
 @Composable
 fun HistoryItemContent(
-    item: Spot,
+    item: Item,
     showSnackBar: () -> Unit
 ) {
     Row(

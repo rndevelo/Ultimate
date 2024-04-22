@@ -3,7 +3,7 @@ package com.rndeveloper.ultimate.repositories
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.rndeveloper.ultimate.model.Directions
-import com.rndeveloper.ultimate.model.Spot
+import com.rndeveloper.ultimate.model.Item
 import com.rndeveloper.ultimate.notifications.NotificationAPI
 import com.rndeveloper.ultimate.notifications.PushNotification
 import com.rndeveloper.ultimate.utils.Constants.SPOT_COLLECTION_REFERENCE
@@ -23,7 +23,7 @@ class ItemsRepositoryImpl @Inject constructor(
     private val notificationAPI: NotificationAPI,
 ) : ItemsRepository {
 
-    override fun getItems(collectionRef: String, directions: Directions): Flow<Result<List<Spot>>> =
+    override fun getItems(collectionRef: String, directions: Directions): Flow<Result<List<Item>>> =
         callbackFlow {
 
             val collection = fireStore.collection(collectionRef).document(directions.country)
@@ -44,7 +44,7 @@ class ItemsRepositoryImpl @Inject constructor(
                     }
                     collection
                         .addSnapshotListener { snapshotItems, error ->
-                            val items = snapshotItems?.toObjects(Spot::class.java)
+                            val items = snapshotItems?.toObjects(Item::class.java)
                             if (items != null) {
                                 trySend(Result.success(items))
                             } else {
@@ -57,7 +57,7 @@ class ItemsRepositoryImpl @Inject constructor(
             awaitClose()
         }
 
-    override fun setSpot(pair: Pair<String, Spot>): Flow<Result<Boolean>> = callbackFlow {
+    override fun setSpot(pair: Pair<String, Item>): Flow<Result<Boolean>> = callbackFlow {
 
         val tag = fireStore.collection(pair.first).document().id
 
@@ -108,7 +108,7 @@ class ItemsRepositoryImpl @Inject constructor(
 }
 
 interface ItemsRepository {
-    fun getItems(collectionRef: String, directions: Directions): Flow<Result<List<Spot>>>
-    fun setSpot(pair: Pair<String, Spot>): Flow<Result<Boolean>>
+    fun getItems(collectionRef: String, directions: Directions): Flow<Result<List<Item>>>
+    fun setSpot(pair: Pair<String, Item>): Flow<Result<Boolean>>
     fun removeSpot(parameters: Pair<Triple<String, String, String>, Pair<String, String>>): Flow<Result<Boolean>>
 }

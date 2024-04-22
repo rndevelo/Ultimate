@@ -2,13 +2,15 @@ package com.rndeveloper.ultimate.model
 
 import androidx.compose.ui.graphics.Color
 import com.google.android.gms.maps.model.BitmapDescriptor
+import com.rndeveloper.ultimate.ui.theme.green_area
 import com.rndeveloper.ultimate.ui.theme.green_place_icon
 
-data class Spot(
+data class Item(
     val tag: String,
     val position: Position,
     val distance: String,
-    val color: Color,
+    val spotColor: Color,
+    val areaColor: Color,
     val icon: BitmapDescriptor?,
     val directions: Directions,
     val type: SpotType,
@@ -21,7 +23,8 @@ data class Spot(
         tag = "",
         position = Position(),
         distance = "",
-        color = green_place_icon,
+        spotColor = green_place_icon,
+        areaColor = green_area,
         icon = null,
         directions = Directions(),
         type = SpotType.FREE,

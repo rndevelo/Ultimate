@@ -4,12 +4,11 @@ import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Bundle
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
 import com.rndeveloper.ultimate.extensions.fixApi31
-import com.rndeveloper.ultimate.model.Spot
+import com.rndeveloper.ultimate.model.Item
 import com.rndeveloper.ultimate.receivers.GeofenceReceiver
 import com.rndeveloper.ultimate.utils.Constants.RADIUS_IS_NEAR_SPOT
 import com.rndeveloper.ultimate.utils.Constants.REQUEST_CODE
@@ -24,14 +23,14 @@ class GeofenceClientImpl @Inject constructor(
 ) : GeofenceClient {
 
     @SuppressLint("MissingPermission")
-    override fun startGeofence(spot: Spot): Flow<Result<Boolean>> = callbackFlow {
+    override fun startGeofence(item: Item): Flow<Result<Boolean>> = callbackFlow {
 
         val geofenceIntent = Intent(appContext, GeofenceReceiver::class.java)
-        geofenceIntent.putExtra("country", spot.directions.country)
-        geofenceIntent.putExtra("area", spot.directions.area)
-        geofenceIntent.putExtra("tag", spot.tag)
-        geofenceIntent.putExtra("uid", spot.user.uid)
-        geofenceIntent.putExtra("token", spot.user.token)
+        geofenceIntent.putExtra("country", item.directions.country)
+        geofenceIntent.putExtra("area", item.directions.area)
+        geofenceIntent.putExtra("tag", item.tag)
+        geofenceIntent.putExtra("uid", item.user.uid)
+        geofenceIntent.putExtra("token", item.user.token)
 
         val geofencePendingIntent = PendingIntent.getBroadcast(
             appContext,
@@ -41,10 +40,10 @@ class GeofenceClientImpl @Inject constructor(
         )
 
         val geofence = Geofence.Builder()
-            .setRequestId(spot.tag)
+            .setRequestId(item.tag)
             .setCircularRegion(
-                spot.position.lat,
-                spot.position.lng,
+                item.position.lat,
+                item.position.lng,
                 RADIUS_IS_NEAR_SPOT
             )
             .setExpirationDuration(Geofence.NEVER_EXPIRE)
@@ -81,5 +80,5 @@ class GeofenceClientImpl @Inject constructor(
 }
 
 interface GeofenceClient {
-    fun startGeofence(spot: Spot): Flow<Result<Boolean>>
+    fun startGeofence(item: Item): Flow<Result<Boolean>>
 }

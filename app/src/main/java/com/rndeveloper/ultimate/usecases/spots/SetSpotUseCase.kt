@@ -1,7 +1,7 @@
 package com.rndeveloper.ultimate.usecases.spots
 
 import com.rndeveloper.ultimate.exceptions.CustomException
-import com.rndeveloper.ultimate.model.Spot
+import com.rndeveloper.ultimate.model.Item
 import com.rndeveloper.ultimate.repositories.ItemsRepository
 import com.rndeveloper.ultimate.ui.screens.home.uistates.SpotsUiState
 import com.rndeveloper.ultimate.usecases.BaseUseCase
@@ -13,9 +13,9 @@ import javax.inject.Inject
 
 class SetSpotUseCase @Inject constructor(
     private val repository: ItemsRepository,
-) : BaseUseCase<Pair<String, Spot>, Flow<SpotsUiState>>() {
+) : BaseUseCase<Pair<String, Item>, Flow<SpotsUiState>>() {
 
-    override suspend fun execute(parameters: Pair<String, Spot>): Flow<SpotsUiState> =
+    override suspend fun execute(parameters: Pair<String, Item>): Flow<SpotsUiState> =
         channelFlow {
 
             // TODO: Validate fields: email restriction and empty fields validations

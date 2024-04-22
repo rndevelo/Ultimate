@@ -1,4 +1,8 @@
+package com.rndeveloper.ultimate.services
+
+import android.app.Service
 import android.content.Intent
+import android.os.IBinder
 import android.util.Log
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
@@ -6,39 +10,11 @@ import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.ActivityTransitionEvent
 import com.google.android.gms.location.ActivityTransitionResult
 import com.google.android.gms.location.DetectedActivity
-import com.google.android.gms.maps.model.LatLng
 import com.google.common.base.Stopwatch
-import com.rndeveloper.ultimate.model.Item
-import com.rndeveloper.ultimate.model.SpotType
-import com.rndeveloper.ultimate.model.User
-import com.rndeveloper.ultimate.repositories.GeocoderRepository
-import com.rndeveloper.ultimate.repositories.LocationClient
-import com.rndeveloper.ultimate.repositories.UserRepository
-import com.rndeveloper.ultimate.usecases.spots.SetSpotUseCase
-import com.rndeveloper.ultimate.utils.Constants
 import com.rndeveloper.ultimate.utils.Utils
-import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
-import javax.inject.Inject
 
-//@AndroidEntryPoint
-class UploadFirebaseService : LifecycleService() {
-
-//    @Inject
-//    lateinit var setSpotsUseCase: SetSpotUseCase
-//
-//    @Inject
-//    lateinit var userRepository: UserRepository
-//
-//    @Inject
-//    lateinit var locationClient: LocationClient
-//
-//    @Inject
-//    lateinit var geocoderRepository: GeocoderRepository
+class MyService : LifecycleService() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
@@ -113,8 +89,8 @@ class UploadFirebaseService : LifecycleService() {
     private fun setSpotData() =
         lifecycleScope.launch {
 
-        val time = Stopwatch.createUnstarted()
-        time.start()
+            val time = Stopwatch.createUnstarted()
+            time.start()
 
 //        val user = async { userRepository.getUserData().firstOrNull()?.getOrNull() }.await()
 //        val location = async { locationClient.getLocationsRequest().firstOrNull() }.await()
@@ -136,5 +112,5 @@ class UploadFirebaseService : LifecycleService() {
 //                }
 //            }
 //        }
-    }
+        }
 }

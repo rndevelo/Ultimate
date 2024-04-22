@@ -15,10 +15,13 @@ import com.firebase.geofire.GeoLocation
 import com.google.android.gms.maps.model.LatLng
 import com.rndeveloper.ultimate.R
 import com.rndeveloper.ultimate.model.Position
-import com.rndeveloper.ultimate.model.Spot
+import com.rndeveloper.ultimate.model.Item
 import com.rndeveloper.ultimate.ui.theme.blue_place_icon
+import com.rndeveloper.ultimate.ui.theme.green_area
 import com.rndeveloper.ultimate.ui.theme.green_place_icon
+import com.rndeveloper.ultimate.ui.theme.red_area
 import com.rndeveloper.ultimate.ui.theme.red_place_icon
+import com.rndeveloper.ultimate.ui.theme.yellow_area
 import com.rndeveloper.ultimate.ui.theme.yellow_place_icon
 import com.rndeveloper.ultimate.utils.BitmapHelper
 import com.rndeveloper.ultimate.utils.Constants
@@ -54,7 +57,7 @@ fun Context.findActivity(): ComponentActivity? = when (this) {
 }
 
 // SORT SPOTS AND AREAS
-fun List<Spot>.sortItems(
+fun List<Item>.sortItems(
     context: Context,
     positions: Pair<Position, Position>
 ) = this.filter { spot ->
@@ -88,24 +91,30 @@ fun List<Spot>.sortItems(
 
     val timeResult = Utils.currentTime() - spot.timestamp
 
-    val color = when {
+    val spotColor = when {
         timeResult < 0 -> blue_place_icon
         timeResult < Constants.MINUTE * 10 -> green_place_icon
         timeResult < Constants.MINUTE * 20 -> yellow_place_icon
         else -> red_place_icon
     }
+    val areaColor = when {
+        timeResult < Constants.MINUTE * 10 -> green_area
+        timeResult < Constants.MINUTE * 20 -> yellow_area
+        else -> red_area
+    }
     val drawable = when {
-        timeResult < 0 -> R.drawable.ic_add_spot
-        timeResult < Constants.MINUTE * 10 -> R.drawable.ic_green_spot
-        timeResult < Constants.MINUTE * 20 -> R.drawable.ic_yellow_spot
-        else -> R.drawable.ic_red_spot
+        timeResult < 0 -> R.drawable.ic_spot_marker_time
+        timeResult < Constants.MINUTE * 10 -> R.drawable.ic_spot_marker
+        timeResult < Constants.MINUTE * 20 -> R.drawable.ic_spot_marker_yellow
+        else -> R.drawable.ic_spot_marker_red
     }
 
     val icon = BitmapHelper.vectorToBitmap(context = context, id = drawable)
 
     spot.copy(
         distance = "${distance[0].toInt()}m",
-        color = color,
+        spotColor = spotColor,
+        areaColor = areaColor,
         icon = icon,
         time = spot.timestamp.getFormattedPrettyTime()
     )

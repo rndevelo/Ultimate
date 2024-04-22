@@ -12,6 +12,7 @@ import com.google.android.gms.location.GeofencingClient
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.rndeveloper.ultimate.notifications.NotificationAPI
+import com.rndeveloper.ultimate.repositories.ActivityTransitionManager
 import com.rndeveloper.ultimate.repositories.ActivityTransitionRepo
 import com.rndeveloper.ultimate.repositories.ActivityTransitionRepoImpl
 import com.rndeveloper.ultimate.repositories.GeocoderRepository
@@ -80,7 +81,6 @@ object ApplicationModule {
     fun provideLocationRepository(fusedLocationProviderClient: FusedLocationProviderClient): LocationClient =
         LocationClientImpl(fusedLocationProviderClient = fusedLocationProviderClient)
 
-
     @Singleton
     @Provides
     fun provideTimerRepository(userPreferencesRepository: DataStore<Preferences>): TimerRepository =
@@ -114,6 +114,15 @@ object ApplicationModule {
         appContext = appContext
     )
 
+    @Singleton
+    @Provides
+    fun provideActivityTransitionManager(
+        @ApplicationContext appContext: Context,
+        activityRecognitionClient: ActivityRecognitionClient,
+    ): ActivityTransitionManager = ActivityTransitionManager(
+        activityRecognitionClient = activityRecognitionClient,
+        appContext = appContext
+    )
 
     @Singleton
     @Provides
@@ -129,7 +138,6 @@ object ApplicationModule {
         appContext = appContext,
         geofencingClient = geofencingClient,
     )
-
 
     //    USE CASES
     @Provides

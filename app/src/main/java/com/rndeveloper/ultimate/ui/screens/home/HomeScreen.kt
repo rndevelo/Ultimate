@@ -32,7 +32,7 @@ import androidx.navigation.NavController
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.compose.CameraPositionState
-import com.rndeveloper.ultimate.model.Spot
+import com.rndeveloper.ultimate.model.Item
 import com.rndeveloper.ultimate.ui.screens.home.components.BottomBarContent
 import com.rndeveloper.ultimate.ui.screens.home.components.DrawerHeaderContent
 import com.rndeveloper.ultimate.ui.screens.home.components.MainContent
@@ -57,7 +57,7 @@ fun HomeScreen(
     val uiLocationState by homeViewModel.uiLocationState.collectAsStateWithLifecycle()
     val uiUserState by homeViewModel.uiUserState.collectAsStateWithLifecycle()
     val uiSpotsState by homeViewModel.uiSpotsState.collectAsStateWithLifecycle()
-    val uiSpotState by homeViewModel.uiSpotState.collectAsStateWithLifecycle()
+    val uiSpotState by homeViewModel.uiItemState.collectAsStateWithLifecycle()
     val uiAreasState by homeViewModel.uiAreasState.collectAsStateWithLifecycle()
     val uiElapsedTimeState by homeViewModel.uiElapsedTimeState.collectAsStateWithLifecycle()
     val uiDirectionsState by homeViewModel.uiDirectionsState.collectAsStateWithLifecycle()
@@ -69,7 +69,7 @@ fun HomeScreen(
         uiLocationState = uiLocationState,
         uiUserState = uiUserState,
         uiSpotsState = uiSpotsState,
-        uiSpotState = uiSpotState,
+        uiItemState = uiSpotState,
         uiAreasState = uiAreasState,
         uiElapsedTimeState = uiElapsedTimeState,
         uiDirectionsState = uiDirectionsState,
@@ -92,7 +92,7 @@ private fun HomeContent(
     uiLocationState: LocationUiState,
     uiUserState: UserUiState,
     uiSpotsState: SpotsUiState,
-    uiSpotState: Spot?,
+    uiItemState: Item?,
     uiAreasState: AreasUiState,
     uiElapsedTimeState: Long,
     uiDirectionsState: DirectionsUiState,
@@ -110,8 +110,8 @@ private fun HomeContent(
     val context = LocalContext.current
     val snackBarHostState = remember { SnackbarHostState() }
 
-    LaunchedEffect(key1 = isFirstLaunch && uiLocationState.location != null) {
-        if (isFirstLaunch && uiLocationState.location != null) {
+    LaunchedEffect(key1 = isFirstLaunch && uiLocationState.location != null && rememberHomeUiContainerState.isMapLoaded) {
+        if (isFirstLaunch && uiLocationState.location != null && rememberHomeUiContainerState.isMapLoaded) {
             rememberHomeUiContainerState.onAnimateCamera(
                 LatLng(uiLocationState.location.lat, uiLocationState.location.lng),
                 15f,
@@ -123,7 +123,8 @@ private fun HomeContent(
 
     LaunchedEffect(Unit) {
         snapshotFlow {
-            !rememberHomeUiContainerState.camPosState.isMoving && rememberHomeUiContainerState.camPosState.position.zoom >= 12f
+            !rememberHomeUiContainerState.camPosState.isMoving
+                    && rememberHomeUiContainerState.camPosState.position.zoom >= 12f
         }.collect { doLoad ->
             onGetAddressLine(
                 context,
@@ -133,16 +134,16 @@ private fun HomeContent(
         }
     }
 
-    LaunchedEffect(key1 = uiSpotState) {
-        if (!isFirstLaunch && uiSpotState != null && uiElapsedTimeState > DEFAULT_ELAPSED_TIME && uiSpotState.tag.isNotEmpty()) {
+    LaunchedEffect(key1 = uiItemState) {
+        if (!isFirstLaunch && uiItemState != null && uiElapsedTimeState > DEFAULT_ELAPSED_TIME && uiItemState.tag.isNotEmpty()) {
             val latLngBounds = LatLngBounds.Builder()
             uiLocationState.location?.let { loc ->
                 latLngBounds.include(LatLng(loc.lat, loc.lng))
             }
-            latLngBounds.include(LatLng(uiSpotState.position.lat, uiSpotState.position.lng))
+            latLngBounds.include(LatLng(uiItemState.position.lat, uiItemState.position.lng))
             rememberHomeUiContainerState.onAnimateCameraBounds(latLngBounds.build())
             rememberHomeUiContainerState.scrollState.animateScrollToItem(
-                index = uiSpotsState.spots.indexOf(uiSpotsState.spots.find { it.tag == uiSpotState.tag })
+                index = uiSpotsState.items.indexOf(uiSpotsState.items.find { it.tag == uiItemState.tag })
             )
             onCreateRoute()
         }
@@ -205,7 +206,7 @@ private fun HomeContent(
                             uiAreasState = uiAreasState,
                             uiDirectionsState = uiDirectionsState,
                             uiElapsedTimeState = uiElapsedTimeState,
-                            selectedSpot = uiSpotState,
+                            selectedItem = uiItemState,
                             onCameraArea = rememberHomeUiContainerState::onAnimateCamera,
                             onSelectSpot = onSelectSpot,
                         )

@@ -29,19 +29,19 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.rndeveloper.ultimate.model.Spot
+import com.rndeveloper.ultimate.model.Item
 import com.rndeveloper.ultimate.ui.theme.UltimateTheme
 
 @Composable
 fun ItemContent(
-    spot: Spot,
-    selectedSpot: Spot?,
+    spot: Item,
+    selectedItem: Item?,
     onSpotItem: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
 
     val surfaceColor by animateColorAsState(
-        targetValue = if (spot.tag == (selectedSpot?.tag ?: spot.tag))
+        targetValue = if (spot.tag == (selectedItem?.tag ?: spot.tag))
             MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.surface,
         label = "",
     )
@@ -76,7 +76,7 @@ fun ItemContent(
                 Text(
                     text = spot.time,
                     fontWeight = FontWeight.Bold,
-                    color = spot.color
+                    color = spot.spotColor
                 )
 
                 IconButton(onClick = { expandedItem = !expandedItem }) {
@@ -103,8 +103,8 @@ fun ItemContent(
 fun ItemContentPreview() {
     UltimateTheme {
         ItemContent(
-            spot = Spot(),
-            selectedSpot = Spot(),
+            spot = Item(),
+            selectedItem = Item(),
             onSpotItem = { /*TODO*/ },
         )
     }

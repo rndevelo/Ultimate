@@ -1,8 +1,10 @@
 package com.rndeveloper.ultimate
 
+import android.content.IntentSender
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.IntentSenderRequest
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,9 +27,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationSettingsRequest
+import com.google.android.gms.location.LocationSettingsResponse
+import com.google.android.gms.location.SettingsClient
+import com.google.android.gms.tasks.Task
 import com.rndeveloper.ultimate.nav.NavGraph
 import com.rndeveloper.ultimate.repositories.NetworkConnectivity
 import com.rndeveloper.ultimate.ui.theme.UltimateTheme
+import com.rndeveloper.ultimate.utils.Utils.request
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -39,6 +48,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         MobileAds.initialize(this)
+        checkLocationSetting()
 
         setContent {
 
@@ -72,6 +82,31 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+
+    private fun checkLocationSetting() {
+
+        val client: SettingsClient = LocationServices.getSettingsClient(this)
+        val builder: LocationSettingsRequest.Builder = LocationSettingsRequest
+            .Builder()
+            .addLocationRequest(request)
+
+        val gpsSettingTask: Task<LocationSettingsResponse> =
+            client.checkLocationSettings(builder.build())
+
+        gpsSettingTask.addOnSuccessListener {  }
+        gpsSettingTask.addOnFailureListener { exception ->
+            if (exception is ResolvableApiException) {
+                try {
+//                    val intentSenderRequest = IntentSenderRequest
+//                        .Builder(exception.resolution)
+//                        .build()
+//                    onDisabled(intentSenderRequest)
+                } catch (sendEx: IntentSender.SendIntentException) {
+                    // ignore here
                 }
             }
         }

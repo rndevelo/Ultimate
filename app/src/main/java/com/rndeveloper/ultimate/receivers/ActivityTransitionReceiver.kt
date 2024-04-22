@@ -9,25 +9,17 @@ import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.ActivityTransitionEvent
 import com.google.android.gms.location.ActivityTransitionResult
 import com.google.android.gms.location.DetectedActivity
-import com.google.android.gms.maps.model.LatLng
-import com.rndeveloper.ultimate.model.Spot
-import com.rndeveloper.ultimate.model.SpotType
 import com.rndeveloper.ultimate.model.User
 import com.rndeveloper.ultimate.repositories.GeocoderRepository
 import com.rndeveloper.ultimate.repositories.LocationClient
 import com.rndeveloper.ultimate.repositories.UserRepository
 import com.rndeveloper.ultimate.usecases.spots.SetSpotUseCase
 import com.rndeveloper.ultimate.usecases.user.GetUserDataUseCase
-import com.rndeveloper.ultimate.utils.Constants.AREA_COLLECTION_REFERENCE
-import com.rndeveloper.ultimate.utils.Constants.NOTIFICATION_ID
-import com.rndeveloper.ultimate.utils.Utils
 import com.rndeveloper.ultimate.utils.Utils.sendNotification
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -69,49 +61,47 @@ class ActivityTransitionReceiver : HiltActivityTransitionReceiver() {
             val result = ActivityTransitionResult.extractResult(intent)
             result?.transitionEvents?.forEach { event ->
 
-//                if (user != null) {
-//                    sendNotification(
-//                        context,
-//                        "Actividad actual",
-//                        getInfo(event),
-//                        NOTIFICATION_ID
-//                    )
-//                }
-//
-//                when {
-//                    event.activityType == DetectedActivity.IN_VEHICLE &&
-//                            event.transitionType == ActivityTransition.ACTIVITY_TRANSITION_EXIT -> {
-//                        setMyCarData(context, user)
-//                    }
-//
-//                    event.activityType == DetectedActivity.IN_VEHICLE &&
-//                            event.transitionType == ActivityTransition.ACTIVITY_TRANSITION_ENTER -> {
+                when {
+                    event.activityType == DetectedActivity.IN_VEHICLE &&
+                            event.transitionType == ActivityTransition.ACTIVITY_TRANSITION_EXIT -> {
+//                        setMyCarData(context)
+                    }
+
+                    event.activityType == DetectedActivity.STILL &&
+                            event.transitionType == ActivityTransition.ACTIVITY_TRANSITION_ENTER -> {
+//                        setMyCarData(context)
+                    }
+                    event.activityType == DetectedActivity.STILL &&
+                            event.transitionType == ActivityTransition.ACTIVITY_TRANSITION_EXIT -> {
+//                        setMyCarData(context)
+                    }
+
+                    event.activityType == DetectedActivity.IN_VEHICLE &&
+                            event.transitionType == ActivityTransition.ACTIVITY_TRANSITION_ENTER -> {
 //                        setSpotData(context, user)
-//                    }
-//                }
+                    }
+                }
             }
         }
     }
 
 
     @OptIn(DelicateCoroutinesApi::class)
-    private fun setMyCarData(
-        context: Context,
-        user: User?,
-    ) {
+    private fun setMyCarData(context: Context) {
+
         locationClient.getLastLocation { locationData ->
-            user?.copy(car = locationData)?.let { user ->
-                GlobalScope.launch {
-                    userRepository.setUserData(user).collectLatest {
-                        sendNotification(
-                            context = context,
-                            contentTitle = "¿Has aparcado?",
-                            contentText = "¡Toca aquí si quieres corregir tu aparcamiento!",
-                            notificationId = 32
-                        )
-                    }
-                }
-            }
+//            user?.copy(car = locationData)?.let { user ->
+//                GlobalScope.launch {
+//                    userRepository.setUserData(user).collectLatest {
+//                        sendNotification(
+//                            context = context,
+//                            contentTitle = "¿Has aparcado?",
+//                            contentText = "¡Toca aquí si quieres corregir tu aparcamiento!",
+//                            notificationId = 32
+//                        )
+//                    }
+//                }
+//            }
         }
     }
 
@@ -121,33 +111,40 @@ class ActivityTransitionReceiver : HiltActivityTransitionReceiver() {
         user: User?,
     ) {
 
-        GlobalScope.launch {
-            locationClient.getLocationsRequest().cancellable().collectLatest { location ->
-                geocoderRepository.getAddressList(LatLng(location.lat, location.lng)) { directions ->
-                    user?.let { user ->
-                        Spot().copy(
-                            timestamp = Utils.currentTime(),
-                            type = SpotType.BLUE,
-                            directions = directions,
-                            position = location,
-                            user = user
-                        ).let { spot ->
-                            this@launch.launch {
-                                setSpotsUseCase(AREA_COLLECTION_REFERENCE to spot).collectLatest {
-                                    sendNotification(
-                                        context = context,
-                                        contentTitle = "¡Enhorabuena, ${user.username}!",
-                                        contentText = "Has agregado una plaza libre.",
-                                        notificationId = 32
-                                    )
-                                    this.coroutineContext.job.cancel()
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        sendNotification(
+            context = context,
+            contentTitle = "¿Has dejado una plaza libre?",
+            contentText = "Envíala para que otro usuario la obtenga.",
+            notificationId = 32
+        )
+
+//        GlobalScope.launch {
+//            locationClient.getLocationsRequest().cancellable().collectLatest { location ->
+//                geocoderRepository.getAddressList(LatLng(location.lat, location.lng)) { directions ->
+//                    user?.let { user ->
+//                        Spot().copy(
+//                            timestamp = Utils.currentTime(),
+//                            type = SpotType.BLUE,
+//                            directions = directions,
+//                            position = location,
+//                            user = user
+//                        ).let { spot ->
+//                            this@launch.launch {
+//                                setSpotsUseCase(AREA_COLLECTION_REFERENCE to spot).collectLatest {
+//                                    sendNotification(
+//                                        context = context,
+//                                        contentTitle = "¡Enhorabuena, ${user.username}!",
+//                                        contentText = "Has agregado una plaza libre.",
+//                                        notificationId = 32
+//                                    )
+//                                    this.coroutineContext.job.cancel()
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
     }
 
 //    private fun getBundleExtras(bundle: Bundle): User? {

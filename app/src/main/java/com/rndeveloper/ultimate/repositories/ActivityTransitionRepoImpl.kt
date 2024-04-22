@@ -20,7 +20,7 @@ class ActivityTransitionRepoImpl @Inject constructor(
     private val appContext: Context
 ) : ActivityTransitionRepo {
     @SuppressLint("MissingPermission")
-    override fun startActivityTransition(user: User) {
+    override fun startActivityTransition() {
 
         val transitions = mutableListOf<ActivityTransition>()
 
@@ -75,7 +75,7 @@ class ActivityTransitionRepoImpl @Inject constructor(
         val request = ActivityTransitionRequest(transitions)
 
         val task = activityRecognitionClient
-            .requestActivityTransitionUpdates(request, activityTransitionPendingIntent(user))
+            .requestActivityTransitionUpdates(request, activityTransitionPendingIntent())
 
         task.addOnSuccessListener {}
 
@@ -85,7 +85,7 @@ class ActivityTransitionRepoImpl @Inject constructor(
         }
     }
 
-    private fun activityTransitionPendingIntent(user: User): PendingIntent {
+    private fun activityTransitionPendingIntent(): PendingIntent {
         val intent = Intent(appContext, ActivityTransitionReceiver::class.java)
         val bundle = Bundle()
 //        bundle.putSerializable("user", user)
@@ -100,5 +100,5 @@ class ActivityTransitionRepoImpl @Inject constructor(
 }
 
 interface ActivityTransitionRepo {
-    fun startActivityTransition(user: User)
+    fun startActivityTransition()
 }

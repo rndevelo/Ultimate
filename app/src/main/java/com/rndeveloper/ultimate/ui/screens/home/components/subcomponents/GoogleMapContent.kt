@@ -2,9 +2,6 @@ package com.rndeveloper.ultimate.ui.screens.home.components.subcomponents
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Circle
-import androidx.compose.material.icons.filled.Start
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -14,9 +11,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.google.android.gms.maps.model.ButtCap
-import com.google.android.gms.maps.model.CustomCap
-import com.google.android.gms.maps.model.JointType
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.RoundCap
@@ -31,10 +25,9 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.rndeveloper.ultimate.R
-import com.rndeveloper.ultimate.backend.RouteResponse
 import com.rndeveloper.ultimate.extensions.onNavigate
 import com.rndeveloper.ultimate.model.Position
-import com.rndeveloper.ultimate.model.Spot
+import com.rndeveloper.ultimate.model.Item
 import com.rndeveloper.ultimate.ui.screens.home.HomeUiContainerState
 import com.rndeveloper.ultimate.ui.screens.home.rememberHomeUiContainerState
 import com.rndeveloper.ultimate.ui.theme.UltimateTheme
@@ -46,9 +39,8 @@ fun GoogleMapContent(
     rememberHomeUiContainerState: HomeUiContainerState,
     camPosState: CameraPositionState,
     car: Position?,
-    spots: List<Spot>,
-    areas: List<Spot>,
-    onMapLoaded: () -> Unit,
+    spots: List<Item>,
+    areas: List<Item>,
     isElapsedTime: Boolean,
     mapType: MapType,
     onSelectSpot: (String) -> Unit,
@@ -78,13 +70,13 @@ fun GoogleMapContent(
             myLocationButtonEnabled = false,
             zoomControlsEnabled = false,
         ),
-        onMapLoaded = onMapLoaded,
+        onMapLoaded = { rememberHomeUiContainerState.onMapLoaded() },
         onMapClick = { rememberHomeUiContainerState.onExpandedAdmobButton(false) }
     ) {
 
-        if (car != null) {
+        car?.let { carPosition ->
             Marker(
-                state = MarkerState(position = LatLng(car.lat, car.lng)),
+                state = MarkerState(position = LatLng(carPosition.lat, carPosition.lng)),
                 alpha = if (rememberHomeUiContainerState.isSetState || isElapsedTime) 0.4f else 1.0f,
                 icon = BitmapHelper.vectorToBitmap(
                     context = context,
@@ -117,7 +109,7 @@ fun GoogleMapContent(
         areas.forEach { area ->
             Circle(
                 center = LatLng(area.position.lat, area.position.lng),
-                fillColor = area.color,
+                fillColor = area.areaColor,
                 radius = 50.0,
                 strokeColor = Color.Transparent,
                 tag = area.tag,
@@ -145,7 +137,6 @@ fun GoogleMapContentPreview() {
             car = Position(),
             spots = emptyList(),
             areas = emptyList(),
-            onMapLoaded = {},
             isElapsedTime = false,
             mapType = MapType.NORMAL,
             onSelectSpot = {},

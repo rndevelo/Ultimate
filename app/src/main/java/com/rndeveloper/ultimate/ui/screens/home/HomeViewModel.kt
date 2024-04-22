@@ -15,15 +15,16 @@ import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import com.rndeveloper.ultimate.BuildConfig
-import com.rndeveloper.ultimate.annotations.OpenRouteService
 import com.rndeveloper.ultimate.backend.ApiService
 import com.rndeveloper.ultimate.exceptions.CustomException
 import com.rndeveloper.ultimate.extensions.onNavigate
 import com.rndeveloper.ultimate.model.Directions
 import com.rndeveloper.ultimate.model.Position
-import com.rndeveloper.ultimate.model.Spot
+import com.rndeveloper.ultimate.model.Item
 import com.rndeveloper.ultimate.model.SpotType
 import com.rndeveloper.ultimate.model.Timer
+import com.rndeveloper.ultimate.model.User
+import com.rndeveloper.ultimate.repositories.ActivityTransitionManager
 import com.rndeveloper.ultimate.repositories.ActivityTransitionRepo
 import com.rndeveloper.ultimate.repositories.GeocoderRepository
 import com.rndeveloper.ultimate.repositories.GeofenceClient
@@ -53,6 +54,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -67,6 +69,7 @@ class HomeViewModel @Inject constructor(
     private val userUseCases: UserUseCases,
     private val userRepository: UserRepository,
     private val activityTransitionClient: ActivityTransitionRepo,
+    private val activityTransition: ActivityTransitionManager,
     private val geocoderRepository: GeocoderRepository,
     private val apiService: ApiService,
     private val geofenceClient: GeofenceClient,
@@ -93,8 +96,8 @@ class HomeViewModel @Inject constructor(
         initialValue = SpotsUiState()
     )
 
-    private val _spotState = MutableStateFlow(Spot())
-    val uiSpotState: StateFlow<Spot?> = _spotState.asStateFlow().stateIn(
+    private val _itemState = MutableStateFlow(Item())
+    val uiItemState: StateFlow<Item?> = _itemState.asStateFlow().stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
         initialValue = null
@@ -132,6 +135,10 @@ class HomeViewModel @Inject constructor(
     init {
 
         onGetAndStartTimer()
+//        activityTransition.startActivityTransition()
+
+
+
 //        TODO: Refactor this
         viewModelScope.launch {
             awaitAll(
@@ -146,7 +153,7 @@ class HomeViewModel @Inject constructor(
         val call = apiService.getRoute(
             BuildConfig.ROUTES_API_KEY,
             "${_locationState.value.location?.lng},${_locationState.value.location?.lat}",
-            "${_spotState.value.position.lng},${_spotState.value.position.lat}"
+            "${_itemState.value.position.lng},${_itemState.value.position.lat}"
         )
         if (call.isSuccessful) {
             if (call.body() != null) {
@@ -193,7 +200,7 @@ class HomeViewModel @Inject constructor(
 
     fun onSaveGetStartTimer(timerId: String) {
 
-        if (_spotsState.value.spots.isNotEmpty()) {
+        if (_spotsState.value.items.isNotEmpty()) {
             if (_userState.value.user.points >= 5) {
                 val timer = Timer(
                     id = timerId,
@@ -225,7 +232,7 @@ class HomeViewModel @Inject constructor(
             _userState.update {
                 newUserUiState
             }
-            activityTransitionClient.startActivityTransition(user = newUserUiState.user)
+            activityTransitionClient.startActivityTransition()
         }
     }
 
@@ -262,7 +269,7 @@ class HomeViewModel @Inject constructor(
         context: Context,
         camPosState: CameraPositionState,
         doLoad: Boolean,
-    ) {
+    ) = viewModelScope.launch(Dispatchers.IO) {
 
         _spotsState.update {
             it.copy(isLoading = true)
@@ -275,36 +282,40 @@ class HomeViewModel @Inject constructor(
                 camPosState.position.target.longitude
             )
 
-            geocoderRepository.getAddressList(
-                LatLng(
-                    currentPosition.lat,
-                    currentPosition.lng
-                )
-            ) { directions ->
-                onGetSpots(
-                    context = context,
-                    position = currentPosition,
-                    directions = directions
-                )
-                _directionsState.update {
-                    it.copy(directions = directions)
-                }
+            val directions = async {
+                geocoderRepository.getAddressList(
+                    LatLng(
+                        camPosState.position.target.latitude,
+                        camPosState.position.target.longitude,
+                    )
+                ).first()
+            }.await()
+
+            _directionsState.update {
+                it.copy(directions = directions)
             }
-        }
-    }
 
+            _locationState.value.location?.let { locPosition ->
 
-    //    GET SPOTS
-    private fun onGetSpots(
-        context: Context,
-        position: Position,
-        directions: Directions
-    ) = viewModelScope.launch(Dispatchers.IO) {
-        _locationState.value.location?.let { locPosition ->
-            awaitAll(
-                async { getSpotsFlow(context, directions, position, locPosition) },
-                async { getAreasFlow(context, directions, position, locPosition) },
-            )
+                awaitAll(
+                    async {
+                        getSpotsFlow(
+                            context,
+                            directions,
+                            currentPosition,
+                            locPosition
+                        )
+                    },
+                    async {
+                        getAreasFlow(
+                            context,
+                            directions,
+                            currentPosition,
+                            locPosition
+                        )
+                    },
+                )
+            }
         }
     }
 
@@ -329,9 +340,9 @@ class HomeViewModel @Inject constructor(
     }
 
     fun onSelectSpot(tag: String) {
-        val spot = _spotsState.value.spots.find { it.tag == tag }
+        val spot = _spotsState.value.items.find { it.tag == tag }
         if (spot != null) {
-            _spotState.update {
+            _itemState.update {
                 spot
             }
         }
@@ -385,7 +396,7 @@ class HomeViewModel @Inject constructor(
                 when (rememberHomeUiContainerState.screenState) {
                     ScreenState.ADDSPOT -> {
 
-                        Spot().copy(
+                        Item().copy(
                             timestamp = selectTime(rememberHomeUiContainerState.indexSpotTime),
                             type = SpotType.BLUE,
                             directions = _directionsState.value.directions,
@@ -436,14 +447,14 @@ class HomeViewModel @Inject constructor(
             it.copy(isLoading = true)
         }
 
-        if (_userState.value.user.uid != _spotState.value.user.uid) {
-            geofenceClient.startGeofence(_spotState.value.copy(icon = null)).collect {
+        if (_userState.value.user.uid != _itemState.value.user.uid) {
+            geofenceClient.startGeofence(_itemState.value.copy(icon = null)).collect {
                 if (it.isSuccess) {
                     onNavigate(
                         context = context,
                         latLng = LatLng(
-                            _spotState.value.position.lat,
-                            _spotState.value.position.lng
+                            _itemState.value.position.lat,
+                            _itemState.value.position.lng
                         )
                     )
                 } else {
@@ -470,8 +481,8 @@ class HomeViewModel @Inject constructor(
         userRepository.setPoints(uid = _userState.value.user.uid, incrementPoints = points)
             .collectLatest {
                 if (it.isSuccess) {
-                    if (_spotState.value.tag.isEmpty()) {
-                        onSelectSpot(_spotsState.value.spots.first().tag)
+                    if (_itemState.value.tag.isEmpty()) {
+                        onSelectSpot(_spotsState.value.items.first().tag)
                     }
                 }
 //            _userState.update {

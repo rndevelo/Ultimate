@@ -3,24 +3,18 @@ package com.rndeveloper.ultimate.receivers
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.CallSuper
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofenceStatusCodes
 import com.google.android.gms.location.GeofencingEvent
-import com.rndeveloper.ultimate.model.Spot
-import com.rndeveloper.ultimate.model.User
-import com.rndeveloper.ultimate.repositories.ItemsRepository
 import com.rndeveloper.ultimate.usecases.spots.RemoveSpotUseCase
-import com.rndeveloper.ultimate.usecases.spots.SpotsUseCases
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

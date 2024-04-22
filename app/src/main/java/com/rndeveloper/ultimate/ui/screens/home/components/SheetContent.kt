@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.google.android.gms.maps.model.LatLng
-import com.rndeveloper.ultimate.model.Spot
+import com.rndeveloper.ultimate.model.Item
 import com.rndeveloper.ultimate.ui.screens.home.HomeUiContainerState
 import com.rndeveloper.ultimate.ui.screens.home.ScreenState
 import com.rndeveloper.ultimate.ui.screens.home.components.subcomponents.CountContent
@@ -26,7 +26,7 @@ fun SheetContent(
     uiAreasState: AreasUiState,
     uiDirectionsState: DirectionsUiState,
     uiElapsedTimeState: Long,
-    selectedSpot: Spot?,
+    selectedItem: Item?,
     onCameraArea: (LatLng) -> Unit,
     onSelectSpot: (String) -> Unit,
     modifier: Modifier = Modifier
@@ -47,9 +47,9 @@ fun SheetContent(
                     && ScreenState.MAIN == rememberHomeUiContainerState.screenState
         ) {
             ListsContent(
-                spots = uiSpotsState.spots,
+                spots = uiSpotsState.items,
                 scrollState = rememberHomeUiContainerState.scrollState,
-                selectedSpot = selectedSpot,
+                selectedItem = selectedItem,
                 onSpot = onSelectSpot
             )
         }
@@ -67,7 +67,7 @@ fun SheetContentPreview() {
             uiAreasState = AreasUiState(),
             uiDirectionsState = DirectionsUiState(),
             uiElapsedTimeState = 0L,
-            selectedSpot = Spot(),
+            selectedItem = Item(),
             onCameraArea = {},
             onSelectSpot = {}
         )

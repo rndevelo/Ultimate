@@ -20,12 +20,12 @@ class MainViewModel @Inject constructor(
 ) : ViewModel() {
 
 
-    private val _networkConnectivityState = MutableStateFlow(NetworkConnectivity.Status.Unavailable)
+    private val _networkConnectivityState = MutableStateFlow(NetworkConnectivity.Status.Available)
     val uiNetworkConnectivityState: StateFlow<NetworkConnectivity.Status> =
         _networkConnectivityState.asStateFlow().stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
-            initialValue = NetworkConnectivity.Status.Unavailable
+            initialValue = NetworkConnectivity.Status.Available
         )
 
     init {

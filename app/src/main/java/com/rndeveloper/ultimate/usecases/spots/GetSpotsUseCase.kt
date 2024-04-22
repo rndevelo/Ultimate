@@ -41,7 +41,7 @@ class GetSpotsUseCase @Inject constructor(
                         onSuccess = { spots ->
                             trySend(
                                 SpotsUiState().copy(
-                                    spots = spots.sortItems(pair.first, positions),
+                                    items = spots.sortItems(pair.first, positions),
                                     isLoading = false
                                 )
                             )
