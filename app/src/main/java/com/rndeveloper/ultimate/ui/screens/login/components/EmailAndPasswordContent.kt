@@ -14,11 +14,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -31,6 +28,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -39,14 +37,17 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.rndeveloper.ultimate.R
-import com.rndeveloper.ultimate.ui.screens.login.LoginUiState
+import com.rndeveloper.ultimate.ui.screens.login.uistates.LoginUiState
+import com.rndeveloper.ultimate.ui.screens.login.uistates.RecoverPassUiState
 
 @Composable
 fun EmailAndPasswordContent(
     uiLoginState: LoginUiState,
     onChangeScreenState: () -> Unit,
     onClickGoogleButton: () -> Unit,
-    onClick: (String, String) -> Unit
+    onClickLoginOrRegister: (String, String) -> Unit,
+    recoverPassUIState: RecoverPassUiState,
+    onRecoveryPassUpdate: (RecoverPassUiState) -> Unit,
 ) {
 
     var email by rememberSaveable { mutableStateOf(uiLoginState.user.email) }
@@ -96,8 +97,28 @@ fun EmailAndPasswordContent(
         )
     }
 
+    Text(
+        modifier = Modifier.clickable {
+            onRecoveryPassUpdate(
+                recoverPassUIState.copy(
+                    isDialogVisible = true,
+                    emailErrorMessage = null,
+                    errorMessage = null,
+                ),
+            )
+        },
+        text = stringResource(R.string.login_text_forgot_your_password),
+        color = MaterialTheme.colorScheme.primary,
+        fontWeight = FontWeight.Bold,
+    )
+
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     Button(
-        onClick = { onClick(email, pass) },
+        onClick = {
+            onClickLoginOrRegister(email, pass)
+            keyboardController?.hide()
+        },
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 3.dp),

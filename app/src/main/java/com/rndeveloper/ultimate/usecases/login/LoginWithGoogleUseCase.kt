@@ -2,8 +2,8 @@ package com.rndeveloper.ultimate.usecases.login
 
 import com.rndeveloper.ultimate.exceptions.CustomException
 import com.rndeveloper.ultimate.repositories.LoginRepository
-import com.rndeveloper.ultimate.ui.screens.login.LoginState
-import com.rndeveloper.ultimate.ui.screens.login.LoginUiState
+import com.rndeveloper.ultimate.ui.screens.login.uistates.LoginState
+import com.rndeveloper.ultimate.ui.screens.login.uistates.LoginUiState
 import com.rndeveloper.ultimate.usecases.BaseUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch

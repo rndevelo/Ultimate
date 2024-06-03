@@ -1,4 +1,4 @@
-package com.rndeveloper.ultimate.ui.screens.login
+package com.rndeveloper.ultimate.ui.screens.login.uistates
 
 import androidx.annotation.StringRes
 import com.rndeveloper.ultimate.R
@@ -10,7 +10,9 @@ data class LoginUiState(
     val screenState: LoginState,
     val user: User,
     val isLogged: Boolean,
-    val isSendEmailRecovered: Boolean,
+    val isRegistered: Boolean,
+    val isEmailSent: Boolean,
+    val isEmailVerified: Boolean,
     override val isLoading: Boolean,
     override val errorMessage: CustomException?,
 ) : BaseUiState(isLoading, errorMessage) {
@@ -19,7 +21,9 @@ data class LoginUiState(
         screenState = LoginState.Login(),
         user = User(),
         isLogged = false,
-        isSendEmailRecovered = false,
+        isRegistered = false,
+        isEmailSent = false,
+        isEmailVerified = false,
         isLoading = false,
         errorMessage = null,
     )

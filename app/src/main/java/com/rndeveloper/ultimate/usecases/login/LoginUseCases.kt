@@ -6,4 +6,6 @@ data class LoginUseCases(
     val loginWithGoogleUseCase: LoginWithGoogleUseCase,
     val registerUseCase: RegisterUseCase,
     val recoverPassUseCase: RecoverPassUseCase,
+    val sendEmailVerificationUseCase: SendEmailVerificationUseCase,
+    val verifyEmailIsVerifiedUseCase: VerifyEmailIsVerifiedUseCase,
 )

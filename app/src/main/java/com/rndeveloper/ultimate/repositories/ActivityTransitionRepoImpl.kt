@@ -87,9 +87,6 @@ class ActivityTransitionRepoImpl @Inject constructor(
 
     private fun activityTransitionPendingIntent(): PendingIntent {
         val intent = Intent(appContext, ActivityTransitionReceiver::class.java)
-        val bundle = Bundle()
-//        bundle.putSerializable("user", user)
-//        intent.putExtra("bundle", bundle)
         return PendingIntent.getBroadcast(
             appContext,
             3,

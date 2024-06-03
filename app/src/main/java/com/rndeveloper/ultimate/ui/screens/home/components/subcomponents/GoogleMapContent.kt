@@ -116,13 +116,15 @@ fun GoogleMapContent(
             )
         }
 
-        Polyline(
-            points = uiRouteState,
-            color = MaterialTheme.colorScheme.primary,
-            endCap = RoundCap(),
-            startCap = RoundCap(),
-            width = 17f
-        )
+        if (isElapsedTime) {
+            Polyline(
+                points = uiRouteState,
+                color = MaterialTheme.colorScheme.primary,
+                endCap = RoundCap(),
+                startCap = RoundCap(),
+                width = 17f
+            )
+        }
     }
 }
 

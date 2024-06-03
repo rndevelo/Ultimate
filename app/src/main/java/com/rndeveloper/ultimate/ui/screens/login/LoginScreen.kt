@@ -1,6 +1,7 @@
 package com.rndeveloper.ultimate.ui.screens.login
 
 import android.app.Activity
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -13,13 +14,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -36,6 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -48,7 +47,10 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.tasks.Task
 import com.rndeveloper.ultimate.R
 import com.rndeveloper.ultimate.nav.Routes
+import com.rndeveloper.ultimate.ui.screens.login.components.AlertRecoverPassDialog
 import com.rndeveloper.ultimate.ui.screens.login.components.EmailAndPasswordContent
+import com.rndeveloper.ultimate.ui.screens.login.uistates.LoginUiState
+import com.rndeveloper.ultimate.ui.screens.login.uistates.RecoverPassUiState
 import com.rndeveloper.ultimate.ui.theme.UltimateTheme
 import kotlinx.coroutines.delay
 
@@ -58,9 +60,15 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
 
     val snackBarHostState = remember { SnackbarHostState() }
     val loginUiState by viewModel.state.collectAsStateWithLifecycle()
+    val recoverPassUIState by viewModel.recoverPassUIState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(key1 = loginUiState.isLogged) {
-        if (loginUiState.isLogged) {
+    Log.d(
+        "Login check",
+        "LoginScreen: loginUiState.isLogged ${loginUiState.isLogged} loginUiState.isEmailVerified ${loginUiState.isEmailVerified}"
+    )
+
+    LaunchedEffect(key1 = loginUiState) {
+        if (loginUiState.isLogged && loginUiState.isEmailVerified) {
             delay(1000)
             navController.navigate(Routes.PermissionsScreen.route) {
                 popUpTo(navController.graph.id) { inclusive = true }
@@ -69,7 +77,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
     }
 
     if (!loginUiState.errorMessage?.error.isNullOrBlank()) {
-        LaunchedEffect(snackBarHostState) {
+        LaunchedEffect(key1 = snackBarHostState, key2 = loginUiState.errorMessage?.error) {
             snackBarHostState.showSnackbar(
                 loginUiState.errorMessage!!.error,
                 "Close",
@@ -91,6 +99,8 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
             }
         }
 
+
+
     Scaffold(snackbarHost = { SnackbarHost(snackBarHostState) }) { innerPadding ->
         Box(
             modifier = Modifier
@@ -100,12 +110,14 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
         ) {
             LoginContent(
                 uiLoginState = loginUiState,
-                onClickLogin = viewModel::signInOrSignUp,
+                recoverPassUIState = recoverPassUIState,
+                onClickLoginOrRegister = viewModel::signInOrSignUp,
                 onCLickRecoverPassword = viewModel::recoverPassword,
                 onChangeScreenState = viewModel::changeScreenState,
                 onClickGoogleButton = {
                     startForResult.launch(viewModel.googleSignInClient.signInIntent)
-                }
+                },
+                onRecoveryPassUpdate = viewModel::updateRecoveryPasswordState,
             )
         }
     }
@@ -114,10 +126,12 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
 @Composable
 fun LoginContent(
     uiLoginState: LoginUiState,
-    onClickLogin: (String, String) -> Unit,
+    recoverPassUIState: RecoverPassUiState,
+    onClickLoginOrRegister: (String, String) -> Unit,
     onCLickRecoverPassword: (String) -> Unit,
     onChangeScreenState: () -> Unit,
     onClickGoogleButton: () -> Unit,
+    onRecoveryPassUpdate: (RecoverPassUiState) -> Unit,
     modifier: Modifier = Modifier,
 ) {
 
@@ -158,7 +172,7 @@ fun LoginContent(
                     modifier = Modifier.size(160.dp)
                 )
                 Text(
-                    text = "Bienvenido a Paparcar",
+                    text = stringResource(R.string.login_text_paparcar),
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Black),
                     modifier = modifier.padding(bottom = 6.dp)
                 )
@@ -176,11 +190,34 @@ fun LoginContent(
                         uiLoginState = uiLoginState,
                         onChangeScreenState = onChangeScreenState,
                         onClickGoogleButton = onClickGoogleButton,
-                        onClick = onClickLogin,
+                        onClickLoginOrRegister = onClickLoginOrRegister,
+                        recoverPassUIState = recoverPassUIState,
+                        onRecoveryPassUpdate = onRecoveryPassUpdate,
                     )
                 }
             }
         }
+    }
+    if (recoverPassUIState.isDialogVisible) {
+        AlertRecoverPassDialog(
+            onCLickSend = onCLickRecoverPassword,
+            recoverPassUIState = recoverPassUIState,
+            dismissDialog = {
+                onRecoveryPassUpdate(
+                    recoverPassUIState.copy(
+                        isDialogVisible = false,
+                    ),
+                )
+            },
+        )
+    }
+    if (uiLoginState.isEmailSent) {
+        AlertDialog(
+            onDismissRequest = { /*TODO*/ },
+            confirmButton = { /*TODO*/ },
+            title = { Text("We have sent a email to verify your account.") },
+            text = { Text("Access your email to verify it") },
+        )
     }
 }
 

@@ -3,6 +3,7 @@ package com.rndeveloper.ultimate.ui.screens.home.components.subcomponents
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -23,7 +24,8 @@ fun ListsContent(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .heightIn(max = 160.dp),
+            .heightIn(max = 160.dp)
+            .padding(bottom = 5.dp),
     ) {
         HorizontalDivider()
         LazyColumn(state = scrollState) {

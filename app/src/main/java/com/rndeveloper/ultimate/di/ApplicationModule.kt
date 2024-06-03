@@ -37,6 +37,8 @@ import com.rndeveloper.ultimate.usecases.login.LoginUseCases
 import com.rndeveloper.ultimate.usecases.login.LoginWithGoogleUseCase
 import com.rndeveloper.ultimate.usecases.login.RecoverPassUseCase
 import com.rndeveloper.ultimate.usecases.login.RegisterUseCase
+import com.rndeveloper.ultimate.usecases.login.SendEmailVerificationUseCase
+import com.rndeveloper.ultimate.usecases.login.VerifyEmailIsVerifiedUseCase
 import com.rndeveloper.ultimate.usecases.spots.GetAreasUseCase
 import com.rndeveloper.ultimate.usecases.spots.GetSpotsUseCase
 import com.rndeveloper.ultimate.usecases.spots.RemoveSpotUseCase
@@ -142,13 +144,16 @@ object ApplicationModule {
     //    USE CASES
     @Provides
     fun provideLoginUseCases(
-        repo: LoginRepository
+        repo: LoginRepository,
+        repoImpl: LoginRepositoryImpl,
     ) = LoginUseCases(
         checkUserLoggedInUseCase = CheckUserLoggedInUseCase(repo),
         loginEmailPassUseCase = LoginEmailPassUseCase(repo),
         loginWithGoogleUseCase = LoginWithGoogleUseCase(repo),
         registerUseCase = RegisterUseCase(repo),
         recoverPassUseCase = RecoverPassUseCase(repo),
+        sendEmailVerificationUseCase = SendEmailVerificationUseCase(repo),
+        verifyEmailIsVerifiedUseCase = VerifyEmailIsVerifiedUseCase(repoImpl),
     )
 
     @Provides

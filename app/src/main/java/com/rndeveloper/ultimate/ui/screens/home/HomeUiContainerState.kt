@@ -81,9 +81,11 @@ class HomeUiContainerState @OptIn(ExperimentalMaterial3Api::class) constructor(
     fun onExpandedAdmobButton(isVisible: Boolean) {
         isExpandedAdmobButton = isVisible
     }
+
     fun onVisibleAlertDialog(isVisible: Boolean) {
         isAlertDialogVisible = isVisible
     }
+
     fun onSpotTime(spotTime: Int) {
         indexSpotTime = spotTime
     }
@@ -134,11 +136,7 @@ class HomeUiContainerState @OptIn(ExperimentalMaterial3Api::class) constructor(
 
     fun onAnimateCameraBounds(latLngBounds: LatLngBounds) {
         scope.launch {
-            camPosState.animate(
-                CameraUpdateFactory.newLatLngBounds(
-                    latLngBounds, 350
-                )
-            )
+            camPosState.animate(CameraUpdateFactory.newLatLngBounds(latLngBounds, 420))
         }
     }
 

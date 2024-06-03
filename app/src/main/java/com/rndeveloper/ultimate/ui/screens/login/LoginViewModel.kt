@@ -1,13 +1,19 @@
 package com.rndeveloper.ultimate.ui.screens.login
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.tasks.Task
 import com.rndeveloper.ultimate.exceptions.CustomException
+import com.rndeveloper.ultimate.ui.screens.login.uistates.LoginState
+import com.rndeveloper.ultimate.ui.screens.login.uistates.LoginUiState
+import com.rndeveloper.ultimate.ui.screens.login.uistates.RecoverPassUiState
 import com.rndeveloper.ultimate.usecases.login.LoginUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -32,12 +38,37 @@ class LoginViewModel @Inject constructor(
         initialValue = LoginUiState()
     )
 
+    private val _recoverPassUIState = MutableStateFlow(RecoverPassUiState())
+    val recoverPassUIState = _recoverPassUIState.asStateFlow().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = RecoverPassUiState(),
+    )
+
     init {
         viewModelScope.launch {
-            loginUseCases.checkUserLoggedInUseCase(Unit).collectLatest { newLoginUiState ->
+            awaitAll(
+                async { checkUserLogged() },
+                async { verifyEmail() },
+            )
+        }
+    }
+
+    private suspend fun checkUserLogged() {
+        loginUseCases.checkUserLoggedInUseCase(Unit).collectLatest { newLoginUiState ->
+            _state.update {
+                it.copy(isLogged = newLoginUiState.isLogged)
+            }
+        }
+    }
+
+    private suspend fun verifyEmail() {
+        loginUseCases.verifyEmailIsVerifiedUseCase(Unit).collectLatest { newLoginUiState ->
+            if (newLoginUiState.isEmailVerified) {
                 _state.update {
-                    newLoginUiState
+                    it.copy(isEmailSent = false, isEmailVerified = true)
                 }
+                checkUserLogged()
             }
         }
     }
@@ -54,25 +85,42 @@ class LoginViewModel @Inject constructor(
     fun signInOrSignUp(email: String, password: String) = viewModelScope.launch {
         when (_state.value.screenState) {
             is LoginState.Login -> loginUseCases.loginEmailPassUseCase(email to password)
+                .catch { error ->
+                    _state.update { loginState ->
+                        loginState.copy(
+                            errorMessage = CustomException.GenericException(
+                                error.message ?: "Login Error"
+                            )
+                        )
+                    }
+                }.collectLatest { newLoginUIState ->
+                    _state.update {
+                        newLoginUIState
+                    }
+                }
+
             is LoginState.Register -> loginUseCases.registerUseCase(email to password)
-        }.catch { error ->
-            _state.update { loginState ->
-                loginState.copy(
-                    errorMessage = CustomException.GenericException(
-                        error.message ?: "Login Error"
-                    )
-                )
-            }
-        }.collectLatest { newLoginUIState ->
-            _state.update {
-                newLoginUIState
-            }
+                .collectLatest { newLoginUIState ->
+
+                    if (newLoginUIState.isRegistered) {
+                        loginUseCases.sendEmailVerificationUseCase(Unit)
+                            .collectLatest { newEmailSentLoginUIState ->
+                                _state.update {
+                                    newEmailSentLoginUIState
+                                }
+                            }
+                    }
+                }
         }
+    }
+
+    fun updateRecoveryPasswordState(newRecoverPassUiState: RecoverPassUiState) {
+        _recoverPassUIState.update { newRecoverPassUiState }
     }
 
     fun recoverPassword(email: String) = viewModelScope.launch {
         loginUseCases.recoverPassUseCase(email).catch { error ->
-            _state.update {
+            _recoverPassUIState.update {
                 it.copy(
                     errorMessage = CustomException.GenericException(
                         error.message ?: "Recover Pass Error"
@@ -80,12 +128,13 @@ class LoginViewModel @Inject constructor(
                 )
             }
         }.collectLatest { newLoginUIState ->
-            _state.update {
+            _recoverPassUIState.update {
                 newLoginUIState
             }
         }
     }
 
+    //    Google sing in
     fun handleGoogleSignInResult(task: Task<GoogleSignInAccount>) = viewModelScope.launch {
         val account = task.result as GoogleSignInAccount
         loginUseCases.loginWithGoogleUseCase(account.idToken!!).let { result ->

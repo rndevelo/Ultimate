@@ -149,20 +149,21 @@ private fun HomeContent(
         }
     }
 
-    if (!uiUserState.errorMessage?.error.isNullOrBlank()) {
-        LaunchedEffect(snackBarHostState) {
+    if (uiUserState.errorMessage?.error?.isNotEmpty() == true) {
+        LaunchedEffect(snackBarHostState, uiUserState.errorMessage.error) {
             snackBarHostState.showSnackbar(
-                uiUserState.errorMessage!!.error,
+                uiUserState.errorMessage.error,
                 "Close",
                 false,
                 SnackbarDuration.Long
             )
         }
     }
-    if (!uiSpotsState.errorMessage?.error.isNullOrBlank()) {
-        LaunchedEffect(snackBarHostState) {
+
+    if (uiSpotsState.errorMessage?.error?.isNotEmpty() == true) {
+        LaunchedEffect(snackBarHostState, uiSpotsState.errorMessage.error) {
             snackBarHostState.showSnackbar(
-                uiSpotsState.errorMessage!!.error,
+                uiSpotsState.errorMessage.error,
                 "Close",
                 false,
                 SnackbarDuration.Long
@@ -203,11 +204,9 @@ private fun HomeContent(
                         SheetContent(
                             rememberHomeUiContainerState = rememberHomeUiContainerState,
                             uiSpotsState = uiSpotsState,
-                            uiAreasState = uiAreasState,
                             uiDirectionsState = uiDirectionsState,
                             uiElapsedTimeState = uiElapsedTimeState,
                             selectedItem = uiItemState,
-                            onCameraArea = rememberHomeUiContainerState::onAnimateCamera,
                             onSelectSpot = onSelectSpot,
                         )
                     },

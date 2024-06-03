@@ -48,6 +48,8 @@
     <string name="home_text_more_2creds">(+2creds.)</string>
     <string name="home_text_navigate">Navigate</string>
     <string name="home_text_show_add">Show add</string>
+    <string name="login_text_paparcar">Welcome to Paparcar</string>
+    <string name="home_text_ten_minutes">10:00</string>
 
 
 </resources>

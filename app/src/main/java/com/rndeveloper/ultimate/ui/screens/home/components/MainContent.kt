@@ -87,7 +87,6 @@ fun MainContent(
 
             ButtonsMapContent(
                 rememberHomeUiContainerState = rememberHomeUiContainerState,
-                uiElapsedTimeState = uiElapsedTimeState,
                 car = uiUserState.user.car,
                 isShowLoading = uiSpotsState.isLoading || uiUserState.isLoading,
                 onOpenOrCloseDrawer = { rememberHomeUiContainerState.onOpenDrawer() },

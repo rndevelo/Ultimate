@@ -1,5 +1,6 @@
 package com.rndeveloper.ultimate.ui.screens.home.components
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -28,11 +29,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import com.rndeveloper.ultimate.R
 import com.rndeveloper.ultimate.model.MenuItem
 import com.rndeveloper.ultimate.nav.Routes
 import com.rndeveloper.ultimate.ui.screens.home.uistates.UserUiState
@@ -54,13 +57,18 @@ fun DrawerHeaderContent(
                 modifier = modifier.align(Alignment.TopStart),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+
                 Image(
-                    rememberAsyncImagePainter(
-                        ImageRequest.Builder(LocalContext.current)
-                            .data(data = uiUserState.user.photo)
-                            .allowHardware(false)
-                            .build()
-                    ),
+                    painter = if (uiUserState.user.photo == "null") {
+                        painterResource(id = R.drawable.user_photo)
+                    } else {
+                        rememberAsyncImagePainter(
+                            ImageRequest.Builder(LocalContext.current)
+                                .data(data = uiUserState.user.photo)
+                                .allowHardware(false)
+                                .build()
+                        )
+                    },
                     contentDescription = null,
                     modifier = Modifier
                         .clip(RoundedCornerShape(percent = 50))

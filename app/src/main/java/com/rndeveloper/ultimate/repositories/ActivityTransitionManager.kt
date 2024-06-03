@@ -1,6 +1,5 @@
 package com.rndeveloper.ultimate.repositories
 
-import UploadFirebaseService
 import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
@@ -10,7 +9,7 @@ import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.ActivityTransitionRequest
 import com.google.android.gms.location.DetectedActivity
 import com.rndeveloper.ultimate.extensions.fixApi31
-import com.rndeveloper.ultimate.receivers.ActivityTransitionReceiver
+import com.rndeveloper.ultimate.services.MyService
 import javax.inject.Inject
 
 class ActivityTransitionManager @Inject constructor(
@@ -25,7 +24,7 @@ class ActivityTransitionManager @Inject constructor(
         val pendingIntent = PendingIntent.getService(
             appContext,
             3,
-            Intent(appContext, ActivityTransitionReceiver::class.java),
+            Intent(appContext, MyService::class.java),
             PendingIntent.FLAG_UPDATE_CURRENT.fixApi31()
         )
 

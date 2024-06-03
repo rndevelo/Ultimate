@@ -18,9 +18,7 @@ class SetSpotUseCase @Inject constructor(
     override suspend fun execute(parameters: Pair<String, Item>): Flow<SpotsUiState> =
         channelFlow {
 
-            // TODO: Validate fields: email restriction and empty fields validations
-
-            // Do login if fields are valid
+            send(SpotsUiState().copy(isLoading = true))
 
             repository.setSpot(parameters)
                 .catch { exception ->

@@ -1,6 +1,7 @@
 package com.rndeveloper.ultimate.receivers
 
 import android.annotation.SuppressLint
+import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -9,17 +10,22 @@ import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.ActivityTransitionEvent
 import com.google.android.gms.location.ActivityTransitionResult
 import com.google.android.gms.location.DetectedActivity
+import com.google.common.base.Stopwatch
+import com.rndeveloper.ultimate.extensions.fixApi31
 import com.rndeveloper.ultimate.model.User
 import com.rndeveloper.ultimate.repositories.GeocoderRepository
 import com.rndeveloper.ultimate.repositories.LocationClient
 import com.rndeveloper.ultimate.repositories.UserRepository
+import com.rndeveloper.ultimate.services.MyService
 import com.rndeveloper.ultimate.usecases.spots.SetSpotUseCase
 import com.rndeveloper.ultimate.usecases.user.GetUserDataUseCase
 import com.rndeveloper.ultimate.utils.Utils.sendNotification
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -34,9 +40,6 @@ abstract class HiltActivityTransitionReceiver : BroadcastReceiver() {
 
 @AndroidEntryPoint
 class ActivityTransitionReceiver : HiltActivityTransitionReceiver() {
-
-    @Inject
-    lateinit var setSpotsUseCase: SetSpotUseCase
 
     @Inject
     lateinit var getUserDataUseCase: GetUserDataUseCase
@@ -61,47 +64,51 @@ class ActivityTransitionReceiver : HiltActivityTransitionReceiver() {
             val result = ActivityTransitionResult.extractResult(intent)
             result?.transitionEvents?.forEach { event ->
 
+                sendNotification(
+                    context = context,
+                    contentTitle = "Hola",
+                    contentText = getInfo(event),
+                    34
+                )
+
                 when {
                     event.activityType == DetectedActivity.IN_VEHICLE &&
                             event.transitionType == ActivityTransition.ACTIVITY_TRANSITION_EXIT -> {
-//                        setMyCarData(context)
-                    }
-
-                    event.activityType == DetectedActivity.STILL &&
-                            event.transitionType == ActivityTransition.ACTIVITY_TRANSITION_ENTER -> {
-//                        setMyCarData(context)
-                    }
-                    event.activityType == DetectedActivity.STILL &&
-                            event.transitionType == ActivityTransition.ACTIVITY_TRANSITION_EXIT -> {
-//                        setMyCarData(context)
+                        setMyCarData(context)
                     }
 
                     event.activityType == DetectedActivity.IN_VEHICLE &&
                             event.transitionType == ActivityTransition.ACTIVITY_TRANSITION_ENTER -> {
-//                        setSpotData(context, user)
+                        sendNotification(
+                            context = context,
+                            contentTitle = "¿Has dejado una plaza libre?",
+                            contentText = "¡Toca aquí para añadir tu aparcamiento!",
+                            35
+                        )
                     }
                 }
             }
         }
     }
 
-
     @OptIn(DelicateCoroutinesApi::class)
     private fun setMyCarData(context: Context) {
 
-        locationClient.getLastLocation { locationData ->
-//            user?.copy(car = locationData)?.let { user ->
-//                GlobalScope.launch {
-//                    userRepository.setUserData(user).collectLatest {
-//                        sendNotification(
-//                            context = context,
-//                            contentTitle = "¿Has aparcado?",
-//                            contentText = "¡Toca aquí si quieres corregir tu aparcamiento!",
-//                            notificationId = 32
-//                        )
-//                    }
-//                }
-//            }
+        GlobalScope.launch {
+
+            val userData = async { userRepository.getUserData().firstOrNull()?.getOrNull() }.await()
+            val locationData = async { locationClient.getLocationsRequest().firstOrNull() }.await()
+
+            userData?.copy(car = locationData)?.let { user ->
+                userRepository.setUserData(user).collectLatest {
+                    sendNotification(
+                        context = context,
+                        contentTitle = "¿Has aparcado?",
+                        contentText = "¡Toca aquí si quieres corregir tu aparcamiento!",
+                        notificationId = 32
+                    )
+                }
+            }
         }
     }
 

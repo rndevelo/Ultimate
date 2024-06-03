@@ -1,14 +1,19 @@
 package com.rndeveloper.ultimate.repositories
 
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.messaging.FirebaseMessaging
 import com.rndeveloper.ultimate.model.Item
 import com.rndeveloper.ultimate.model.User
+import com.rndeveloper.ultimate.services.MyFirebaseMessagingService
 import com.rndeveloper.ultimate.utils.Constants.USER_REFERENCE
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class UserRepositoryImpl @Inject constructor(
@@ -19,9 +24,10 @@ class UserRepositoryImpl @Inject constructor(
     override fun getUserData(): Flow<Result<User>> = callbackFlow {
 
         firebaseAuth.currentUser?.apply {
+
             val userAuthData = User().copy(
-                username = displayName ?: "User",
-                email = email ?: "user@gmail.com",
+                username = displayName ?: email!!,
+                email = email!!,
                 uid = uid,
                 photo = photoUrl.toString(),
             )
@@ -30,27 +36,32 @@ class UserRepositoryImpl @Inject constructor(
                 .addSnapshotListener { snapshot, e ->
                     val user = snapshot?.toObject(User::class.java)
                     if (user != null) {
-                        val userData = userAuthData.copy(
-                            points = user.points,
-                            car = user.car,
-                        )
-                        trySend(Result.success(userData))
+
+                        FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
+                            MyFirebaseMessagingService.token = token
+                            userAuthData.copy(
+                                points = user.points,
+                                car = user.car,
+                                token = token
+                            ).let { userData ->
+                                trySend(Result.success(userData))
+                                launch {
+                                    setUserData(userData).collectLatest {}
+                                }
+                            }
+                        }.addOnFailureListener {
+                            trySend(Result.failure(it.fillInStackTrace()))
+                        }
 
                     } else {
 
-//                        FirebaseMessaging.getInstance().token.addOnSuccessListener { task ->
-//                            MyFirebaseMessagingService.token = task
-//                            val userData = userAuthData.copy(token = task)
-//                            launch {
-//                                setUserData(userData).collectLatest {}
-//                            }
-//                        }.addOnFailureListener {
-//                            Log.d("GetToken", "${it.message}")
-//                        }
-//
-//                        if (e != null) {
-//                            trySend(Result.failure(e.fillInStackTrace()))
-//                        }
+                        launch {
+                            setUserData(userAuthData).collectLatest {}
+                        }
+
+                        if (e != null) {
+                            trySend(Result.failure(e.fillInStackTrace()))
+                        }
                     }
                 }
         }
@@ -59,7 +70,6 @@ class UserRepositoryImpl @Inject constructor(
 
     override fun getHistoryData(): Flow<Result<List<Item>>> = callbackFlow {
 
-//        FIXME: getAddressList? and getSpots?
         firebaseAuth.currentUser?.let {
             fireStore
                 .collection(USER_REFERENCE)

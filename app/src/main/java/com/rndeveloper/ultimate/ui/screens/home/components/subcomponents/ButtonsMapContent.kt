@@ -1,9 +1,7 @@
 package com.rndeveloper.ultimate.ui.screens.home.components.subcomponents
 
-import android.text.format.DateUtils
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,18 +18,11 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PanoramaPhotosphere
 import androidx.compose.material.icons.filled.Slideshow
 import androidx.compose.material.icons.filled.Terrain
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -48,12 +39,10 @@ import com.rndeveloper.ultimate.ui.screens.home.HomeUiContainerState
 import com.rndeveloper.ultimate.ui.screens.home.ScreenState
 import com.rndeveloper.ultimate.ui.screens.home.rememberHomeUiContainerState
 import com.rndeveloper.ultimate.ui.theme.UltimateTheme
-import com.rndeveloper.ultimate.utils.Constants
 
 @Composable
 fun ButtonsMapContent(
     rememberHomeUiContainerState: HomeUiContainerState,
-    uiElapsedTimeState: Long,
     car: Position?,
     isShowLoading: Boolean,
     onOpenOrCloseDrawer: () -> Unit,
@@ -146,29 +135,6 @@ fun ButtonsMapContent(
             containerColor = MaterialTheme.colorScheme.tertiary,
         )
 
-
-        Card(
-            modifier = Modifier.align(Alignment.BottomCenter),
-            colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface)
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(5.dp),
-            ) {
-                Icon(
-                    imageVector = if (uiElapsedTimeState > Constants.DEFAULT_ELAPSED_TIME) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                    contentDescription = Icons.Default.Visibility.toString()
-                )
-                Spacer(modifier = Modifier.width(2.dp))
-                Text(
-                    text = if (uiElapsedTimeState > Constants.DEFAULT_ELAPSED_TIME) DateUtils.formatElapsedTime(
-                        uiElapsedTimeState.div(1000)
-                    ) else "05:00"
-                )
-            }
-        }
-
         LocCarButtonsContent(
             rememberHomeUiContainerState = rememberHomeUiContainerState,
             surfaceColor = surfaceColor,
@@ -246,7 +212,6 @@ fun ButtonsMapContentPreview() {
     UltimateTheme {
         ButtonsMapContent(
             rememberHomeUiContainerState = rememberHomeUiContainerState(),
-            uiElapsedTimeState = 0L,
             car = Position(),
             isShowLoading = true,
             onOpenOrCloseDrawer = { /*TODO*/ },

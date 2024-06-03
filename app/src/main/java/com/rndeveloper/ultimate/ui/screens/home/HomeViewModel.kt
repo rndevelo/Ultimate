@@ -135,9 +135,6 @@ class HomeViewModel @Inject constructor(
     init {
 
         onGetAndStartTimer()
-//        activityTransition.startActivityTransition()
-
-
 
 //        TODO: Refactor this
         viewModelScope.launch {
@@ -179,7 +176,6 @@ class HomeViewModel @Inject constructor(
                     INTERVAL
                 ) {
                     override fun onTick(millisUntilFinished: Long) {
-
                         _elapsedTimeState.update {
                             millisUntilFinished
                         }
@@ -229,10 +225,10 @@ class HomeViewModel @Inject constructor(
 
     private suspend fun onGetUserData() {
         userUseCases.getUserDataUseCase(Unit).collectLatest { newUserUiState ->
+            activityTransitionClient.startActivityTransition()
             _userState.update {
                 newUserUiState
             }
-            activityTransitionClient.startActivityTransition()
         }
     }
 
@@ -296,7 +292,6 @@ class HomeViewModel @Inject constructor(
             }
 
             _locationState.value.location?.let { locPosition ->
-
                 awaitAll(
                     async {
                         getSpotsFlow(
@@ -340,8 +335,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun onSelectSpot(tag: String) {
-        val spot = _spotsState.value.items.find { it.tag == tag }
-        if (spot != null) {
+        _spotsState.value.items.find { it.tag == tag }?.let { spot   ->
             _itemState.update {
                 spot
             }
@@ -371,63 +365,55 @@ class HomeViewModel @Inject constructor(
     fun onSet(
         rememberHomeUiContainerState: HomeUiContainerState,
         onMainState: () -> Unit
-    ) =
-        viewModelScope.launch {
+    ) = viewModelScope.launch {
 
-            _spotsState.update {
-                it.copy(isLoading = true)
-            }
+        _spotsState.update {
+            it.copy(isLoading = true)
+        }
 
-            val camPosState = rememberHomeUiContainerState.camPosState
-            if (!camPosState.isMoving && camPosState.position.zoom > 12f) {
+        val camPosState = rememberHomeUiContainerState.camPosState
+        if (!camPosState.isMoving && camPosState.position.zoom > 12f) {
 
-//            _spotsState.update {
-//                it.copy(isLoading = true)
-//            }
+            val currentPosition = Position(
+                camPosState.position.target.latitude,
+                camPosState.position.target.longitude
+            )
 
-                val currentPosition = Position(
-                    camPosState.position.target.latitude,
-                    camPosState.position.target.longitude
-                )
+            when (rememberHomeUiContainerState.screenState) {
+                ScreenState.ADDSPOT -> {
 
-
-//            FIXME: HANDLER THIS
-
-                when (rememberHomeUiContainerState.screenState) {
-                    ScreenState.ADDSPOT -> {
-
-                        Item().copy(
-                            timestamp = selectTime(rememberHomeUiContainerState.indexSpotTime),
-                            type = SpotType.BLUE,
-                            directions = _directionsState.value.directions,
-                            position = currentPosition,
-                            user = _userState.value.user
-                        ).let { spot ->
-                            spotsUseCases.setSpotUseCase(SPOT_COLLECTION_REFERENCE to spot)
-                        }.collectLatest { newHomeUiState ->
-                            onMainState()
-                            _spotsState.update {
-                                it.copy(errorMessage = newHomeUiState.errorMessage)
-                            }
+                    Item().copy(
+                        timestamp = selectTime(rememberHomeUiContainerState.indexSpotTime),
+                        type = SpotType.BLUE,
+                        directions = _directionsState.value.directions,
+                        position = currentPosition,
+                        user = _userState.value.user
+                    ).let { spot ->
+                        spotsUseCases.setSpotUseCase(SPOT_COLLECTION_REFERENCE to spot)
+                    }.collectLatest { newHomeUiState ->
+                        onMainState()
+                        _spotsState.update {
+                            it.copy(errorMessage = CustomException.GenericException("Enviado"))
                         }
                     }
-
-                    ScreenState.PARKMYCAR -> {
-
-                        _userState.value.user.copy(car = currentPosition).let { user ->
-                            userRepository.setUserData(user)
-                        }.collectLatest { newHomeUiState ->
-                            onMainState()
-                            _userState.update {
-                                it
-                            }
-                        }
-                    }
-
-                    else -> {}
                 }
+
+                ScreenState.PARKMYCAR -> {
+
+                    _userState.value.user.copy(car = currentPosition).let { user ->
+                        userRepository.setUserData(user)
+                    }.collectLatest { newHomeUiState ->
+                        onMainState()
+                        _userState.update {
+                            it
+                        }
+                    }
+                }
+
+                else -> {}
             }
         }
+    }
 
     private fun selectTime(timerLengthSelection: Int): Long {
         val selectedInterval = when (timerLengthSelection) {
@@ -458,7 +444,6 @@ class HomeViewModel @Inject constructor(
                         )
                     )
                 } else {
-
                     _spotsState.update {
                         _spotsState.value.copy(
                             isLoading = false,
@@ -485,9 +470,6 @@ class HomeViewModel @Inject constructor(
                         onSelectSpot(_spotsState.value.items.first().tag)
                     }
                 }
-//            _userState.update {
-//                it.copy(errorMessage = CustomException.GenericException("Nice, you has gotten 1 cred.!"))
-//            }
             }
     }
 
@@ -496,7 +478,11 @@ class HomeViewModel @Inject constructor(
 
         RewardedAd.load(
             context,
-            BuildConfig.ADMOB_REWARDED_ID,
+            if (BuildConfig.DEBUG) {
+                BuildConfig.ADMOB_REWARDED_ID
+            } else {
+                BuildConfig.ADMOB_REWARDED_ID_RELEASE
+            },
             adRequest,
             object : RewardedAdLoadCallback() {
                 override fun onAdFailedToLoad(adError: LoadAdError) {

@@ -4,10 +4,9 @@ import com.rndeveloper.ultimate.exceptions.CustomException
 import com.rndeveloper.ultimate.exceptions.LoginException
 import com.rndeveloper.ultimate.extensions.isEmailValid
 import com.rndeveloper.ultimate.extensions.isPasswordValid
-import com.rndeveloper.ultimate.model.User
 import com.rndeveloper.ultimate.repositories.LoginRepository
-import com.rndeveloper.ultimate.ui.screens.login.LoginState
-import com.rndeveloper.ultimate.ui.screens.login.LoginUiState
+import com.rndeveloper.ultimate.ui.screens.login.uistates.LoginState
+import com.rndeveloper.ultimate.ui.screens.login.uistates.LoginUiState
 import com.rndeveloper.ultimate.usecases.BaseUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch

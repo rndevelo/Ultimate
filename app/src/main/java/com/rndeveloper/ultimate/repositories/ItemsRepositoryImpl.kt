@@ -100,7 +100,6 @@ class ItemsRepositoryImpl @Inject constructor(
                 }
                 .addOnFailureListener { error ->
                     trySend(Result.failure(error))
-
                 }
 
             awaitClose()

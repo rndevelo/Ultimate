@@ -129,10 +129,12 @@ fun BottomBarContent(
                     onClick = {
                         when (rememberHomeUiContainerState.screenState) {
                             ScreenState.MAIN -> {
-                                if (isElapsedTime) {
-                                    onRemoveSpot()
-                                }else{
-                                    onStartTimer()
+                                if (!rememberHomeUiContainerState.camPosState.isMoving) {
+                                    if (isElapsedTime) {
+                                        onRemoveSpot()
+                                    } else {
+                                        onStartTimer()
+                                    }
                                 }
                             }
 
@@ -215,14 +217,13 @@ fun AdaptiveBanner() {
                 setAdSize(
                     AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(
                         context,
-                        deviceCurrentWidthDp  // works if replaced with 300
+                        deviceCurrentWidthDp
                     )
                 )
                 adUnitId = if (BuildConfig.DEBUG) {
                     BuildConfig.ADMOB_BANNER_ID
                 } else {
-//                    FIXME: Add the release one
-                    BuildConfig.ADMOB_BANNER_ID
+                    BuildConfig.ADMOB_BANNER_ID_RELEASE
                 }
                 loadAd(AdRequest.Builder().build())
             }
