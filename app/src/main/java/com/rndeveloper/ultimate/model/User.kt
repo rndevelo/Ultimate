@@ -10,7 +10,7 @@ data class User(
     val uid: String,
     val photo: String,
     val token: String,
-    val points: Int,
+    val points: Long,
     val car: Position?,
     val createdAt: String,
     val usertoken: String,

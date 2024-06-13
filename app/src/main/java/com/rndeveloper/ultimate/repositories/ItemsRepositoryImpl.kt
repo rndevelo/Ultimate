@@ -87,14 +87,23 @@ class ItemsRepositoryImpl @Inject constructor(
                 .delete()
                 .addOnSuccessListener { _ ->
                     launch {
-                        userRepository.setPoints(parameters.second.first, 5).collect {
-                            notificationAPI.postNotification(PushNotification(parameters.second.second))
+                        userRepository.getUserData(parameters.second.first).collectLatest { result ->
+                            result.onSuccess { user ->
+                                userRepository.setUserData(user.copy(points = user.points + 5), parameters.second.first).collectLatest {
+                                    notificationAPI.postNotification(PushNotification(parameters.second.second))
+                                }
+                            }
                         }
                     }
 
                     if (myUid != null) {
                         launch {
-                            userRepository.setPoints(myUid, 2).collectLatest {}
+                            userRepository.getUserData(myUid).collectLatest { result ->
+                                result.onSuccess { user ->
+                                    userRepository.setUserData(user.copy(points = user.points + 2), myUid).collectLatest {}
+                                }
+                            }
+
                         }
                     }
                 }

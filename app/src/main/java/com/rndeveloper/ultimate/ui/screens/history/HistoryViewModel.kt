@@ -49,7 +49,7 @@ class HistoryViewModel @Inject constructor(
     }
 
     private fun onGetUserData() = viewModelScope.launch {
-        getUserDataUseCase(Unit).collectLatest { newUserUiState ->
+        getUserDataUseCase(_userState.value.user.uid).collectLatest { newUserUiState ->
             _userState.update {
                 newUserUiState
             }

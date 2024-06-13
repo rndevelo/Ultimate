@@ -11,6 +11,7 @@ import com.google.android.gms.location.ActivityTransitionEvent
 import com.google.android.gms.location.ActivityTransitionResult
 import com.google.android.gms.location.DetectedActivity
 import com.google.common.base.Stopwatch
+import com.google.firebase.auth.FirebaseAuth
 import com.rndeveloper.ultimate.extensions.fixApi31
 import com.rndeveloper.ultimate.model.User
 import com.rndeveloper.ultimate.repositories.GeocoderRepository
@@ -52,6 +53,9 @@ class ActivityTransitionReceiver : HiltActivityTransitionReceiver() {
 
     @Inject
     lateinit var geocoderRepository: GeocoderRepository
+
+    @Inject
+    lateinit var firebaseAuth: FirebaseAuth
 
     @SuppressLint("MissingPermission")
     override fun onReceive(context: Context, intent: Intent) {
@@ -96,17 +100,19 @@ class ActivityTransitionReceiver : HiltActivityTransitionReceiver() {
 
         GlobalScope.launch {
 
-            val userData = async { userRepository.getUserData().firstOrNull()?.getOrNull() }.await()
+            val userData = async { firebaseAuth.currentUser?.let { userRepository.getUserData(it.uid).firstOrNull()?.getOrNull() } }.await()
             val locationData = async { locationClient.getLocationsRequest().firstOrNull() }.await()
 
             userData?.copy(car = locationData)?.let { user ->
-                userRepository.setUserData(user).collectLatest {
-                    sendNotification(
-                        context = context,
-                        contentTitle = "¿Has aparcado?",
-                        contentText = "¡Toca aquí si quieres corregir tu aparcamiento!",
-                        notificationId = 32
-                    )
+                firebaseAuth.currentUser?.let {
+                    userRepository.setUserData(user, it.uid).collectLatest {
+                        sendNotification(
+                            context = context,
+                            contentTitle = "¿Has aparcado?",
+                            contentText = "¡Toca aquí si quieres corregir tu aparcamiento!",
+                            notificationId = 32
+                        )
+                    }
                 }
             }
         }

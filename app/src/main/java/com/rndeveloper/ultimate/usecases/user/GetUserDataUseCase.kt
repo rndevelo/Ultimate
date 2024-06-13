@@ -12,15 +12,15 @@ import javax.inject.Inject
 
 class GetUserDataUseCase @Inject constructor(
     private val repository: UserRepository,
-) : BaseUseCase<Unit, Flow<UserUiState>>() {
+) : BaseUseCase<String, Flow<UserUiState>>() {
 
-    override suspend fun execute(parameters: Unit): Flow<UserUiState> =
+    override suspend fun execute(parameters: String): Flow<UserUiState> =
         channelFlow {
 
             // Loading
             send(UserUiState().copy(isLoading = true))
 
-            repository.getUserData()
+            repository.getUserData(parameters)
                 .catch { exception ->
                     send(
                         UserUiState().copy(

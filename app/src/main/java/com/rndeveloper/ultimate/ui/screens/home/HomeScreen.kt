@@ -153,8 +153,8 @@ private fun HomeContent(
         LaunchedEffect(snackBarHostState, uiUserState.errorMessage.error) {
             snackBarHostState.showSnackbar(
                 uiUserState.errorMessage.error,
-                "Close",
-                false,
+                "",
+                true,
                 SnackbarDuration.Long
             )
         }
@@ -164,8 +164,8 @@ private fun HomeContent(
         LaunchedEffect(snackBarHostState, uiSpotsState.errorMessage.error) {
             snackBarHostState.showSnackbar(
                 uiSpotsState.errorMessage.error,
-                "Close",
-                false,
+                "",
+                true,
                 SnackbarDuration.Long
             )
         }
@@ -212,7 +212,7 @@ private fun HomeContent(
                     },
                     modifier = Modifier.padding(contentPadding),
                     scaffoldState = rememberHomeUiContainerState.bsScaffoldState,
-                    sheetPeekHeight = 128.dp,
+                    sheetPeekHeight = 130.dp,
                     sheetShape = BottomSheetDefaults.HiddenShape,
                     sheetTonalElevation = 3.dp,
                     sheetSwipeEnabled = rememberHomeUiContainerState.screenState == ScreenState.MAIN

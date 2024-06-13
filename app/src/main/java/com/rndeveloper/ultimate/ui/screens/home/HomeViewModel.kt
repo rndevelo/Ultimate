@@ -23,7 +23,6 @@ import com.rndeveloper.ultimate.model.Position
 import com.rndeveloper.ultimate.model.Item
 import com.rndeveloper.ultimate.model.SpotType
 import com.rndeveloper.ultimate.model.Timer
-import com.rndeveloper.ultimate.model.User
 import com.rndeveloper.ultimate.repositories.ActivityTransitionManager
 import com.rndeveloper.ultimate.repositories.ActivityTransitionRepo
 import com.rndeveloper.ultimate.repositories.GeocoderRepository
@@ -133,10 +132,7 @@ class HomeViewModel @Inject constructor(
 
 
     init {
-
         onGetAndStartTimer()
-
-//        TODO: Refactor this
         viewModelScope.launch {
             awaitAll(
                 async { onGetUserData() },
@@ -167,7 +163,6 @@ class HomeViewModel @Inject constructor(
 
     //    TIMER
     private fun onGetAndStartTimer() = viewModelScope.launch {
-//        _spotsState.value.spots.firstOrNull()?.let { onSpotSelected(it.tag) }
         timerRepository.getTimer(Constants.SPOTS_TIMER).collectLatest { timer ->
 
             if (timer.endTime > currentTime()) {
@@ -224,7 +219,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun onGetUserData() {
-        userUseCases.getUserDataUseCase(Unit).collectLatest { newUserUiState ->
+        userUseCases.getUserDataUseCase(_userState.value.user.uid).collectLatest { newUserUiState ->
             activityTransitionClient.startActivityTransition()
             _userState.update {
                 newUserUiState
@@ -238,8 +233,6 @@ class HomeViewModel @Inject constructor(
         }
 
         locationClient.getLocationsRequest().collectLatest { newLocation ->
-            Log.d("LocationUpdates", "onGetLocationData: $newLocation")
-//            loc = newLocation
 
 //            _spotsState.update {
 //                it.copy(spots = _spotsState.value.spots.map { spot ->
@@ -253,7 +246,6 @@ class HomeViewModel @Inject constructor(
 //                    spot.copy(distance = "${distance[0].toInt()}m")
 //                })
 //            }
-
 
             _locationState.update {
                 it.copy(location = newLocation, isLoading = false)
@@ -335,7 +327,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun onSelectSpot(tag: String) {
-        _spotsState.value.items.find { it.tag == tag }?.let { spot   ->
+        _spotsState.value.items.find { it.tag == tag }?.let { spot ->
             _itemState.update {
                 spot
             }
@@ -401,7 +393,7 @@ class HomeViewModel @Inject constructor(
                 ScreenState.PARKMYCAR -> {
 
                     _userState.value.user.copy(car = currentPosition).let { user ->
-                        userRepository.setUserData(user)
+                        userRepository.setUserData(user, _userState.value.user.uid)
                     }.collectLatest { newHomeUiState ->
                         onMainState()
                         _userState.update {
@@ -463,14 +455,16 @@ class HomeViewModel @Inject constructor(
     }
 
     fun onSetPoint(points: Long) = viewModelScope.launch {
-        userRepository.setPoints(uid = _userState.value.user.uid, incrementPoints = points)
-            .collectLatest {
-                if (it.isSuccess) {
-                    if (_itemState.value.tag.isEmpty()) {
-                        onSelectSpot(_spotsState.value.items.first().tag)
-                    }
+
+        _userState.value.user.copy(points = _userState.value.user.points + points).let { user ->
+            userRepository.setUserData(user, _userState.value.user.uid)
+        }.collectLatest { newHomeUiState ->
+            if (newHomeUiState.isSuccess) {
+                if (_itemState.value.tag.isEmpty()) {
+                    onSelectSpot(_spotsState.value.items.first().tag)
                 }
             }
+        }
     }
 
     fun showRewardedAdmob(context: Context) {

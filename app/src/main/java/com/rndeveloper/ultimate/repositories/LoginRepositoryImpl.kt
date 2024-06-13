@@ -136,23 +136,13 @@ class LoginRepositoryImpl @Inject constructor(
 
     override fun deleteUser(): Flow<Result<Boolean>> = channelFlow {
 
-        userRepository.deleteUserData().collectLatest {
-            if (it.isSuccess) {
-                firebaseAuth.currentUser?.delete()?.addOnSuccessListener {
-                    launch {
-                        send(Result.success(true))
-                    }
-                }?.addOnFailureListener {
-                    launch {
-                        send(Result.failure(it))
-                    }
-                }
-            } else {
-                it.exceptionOrNull()?.let { exception ->
-                    launch {
-                        send(Result.failure(exception))
-                    }
-                }
+        firebaseAuth.currentUser?.delete()?.addOnSuccessListener {
+            launch {
+                send(Result.success(true))
+            }
+        }?.addOnFailureListener {
+            launch {
+                send(Result.failure(it))
             }
         }
         awaitClose()

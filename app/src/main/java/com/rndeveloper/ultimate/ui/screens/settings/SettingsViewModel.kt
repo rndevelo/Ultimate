@@ -1,9 +1,11 @@
 package com.rndeveloper.ultimate.ui.screens.settings
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.rndeveloper.ultimate.repositories.LoginRepository
+import com.rndeveloper.ultimate.repositories.UserRepository
 import com.rndeveloper.ultimate.usecases.login.LoginUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,10 +17,12 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val loginUseCases: LoginUseCases,
     private val loginRepository: LoginRepository,
+    private val userRepository: UserRepository,
 ) : ViewModel() {
 
     private val _settingsState = MutableStateFlow(SettingsUiState())
@@ -55,7 +59,16 @@ class SettingsViewModel @Inject constructor(
     fun logOut() {
         loginRepository.logout()
     }
+
     fun deleteUser() = viewModelScope.launch {
-        loginRepository.deleteUser().collectLatest {  }
+        loginRepository.deleteUser().collectLatest { result ->
+            result.onSuccess {
+                if (it){
+                    userRepository.deleteUserData().collectLatest {
+
+                    }
+                }
+            }
+        }
     }
 }

@@ -1,5 +1,7 @@
 package com.rndeveloper.ultimate.ui.screens.settings
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -27,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -107,6 +110,7 @@ fun SettingsContent(
             Spacer(modifier = Modifier.width(10.dp))
             Icon(imageVector = Icons.Default.Logout, contentDescription = "Logout")
         }
+
         Button(
             onClick = onClickDeleteUser,
             modifier = Modifier.padding(top = 80.dp),
