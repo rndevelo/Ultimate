@@ -1,6 +1,5 @@
 package com.rndeveloper.ultimate.repositories
 
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
@@ -125,9 +124,7 @@ class LoginRepositoryImpl @Inject constructor(
     }
 
     override fun logout() {
-//        googleSignInClient.signOut().addOnSuccessListener {
-//            firebaseAuth.signOut()
-//        }
+        firebaseAuth.signOut()
     }
 
     override fun deleteUser(): Flow<Result<Boolean>> = channelFlow {

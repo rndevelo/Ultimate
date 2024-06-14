@@ -5,7 +5,6 @@ import android.location.Geocoder
 import android.net.ConnectivityManager
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.location.ActivityRecognitionClient
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.GeofencingClient
@@ -19,12 +18,12 @@ import com.rndeveloper.ultimate.repositories.GeocoderRepository
 import com.rndeveloper.ultimate.repositories.GeocoderRepositoryImpl
 import com.rndeveloper.ultimate.repositories.GeofenceClient
 import com.rndeveloper.ultimate.repositories.GeofenceClientImpl
+import com.rndeveloper.ultimate.repositories.ItemsRepository
+import com.rndeveloper.ultimate.repositories.ItemsRepositoryImpl
 import com.rndeveloper.ultimate.repositories.LocationClient
 import com.rndeveloper.ultimate.repositories.LocationClientImpl
 import com.rndeveloper.ultimate.repositories.LoginRepository
 import com.rndeveloper.ultimate.repositories.LoginRepositoryImpl
-import com.rndeveloper.ultimate.repositories.ItemsRepository
-import com.rndeveloper.ultimate.repositories.ItemsRepositoryImpl
 import com.rndeveloper.ultimate.repositories.NetworkConnectivity
 import com.rndeveloper.ultimate.repositories.NetworkConnectivityImpl
 import com.rndeveloper.ultimate.repositories.TimerRepository

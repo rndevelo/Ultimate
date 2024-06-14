@@ -55,11 +55,12 @@ class SettingsViewModel @Inject constructor(
     }
 
     private suspend fun onGetUserData() {
-        userUseCases.getUserDataUseCase(_settingsState.value.user.uid).collectLatest { newUserUiState ->
-            _settingsState.update {
-                it.copy(user = newUserUiState.user)
+        userUseCases.getUserDataUseCase(_settingsState.value.user.uid)
+            .collectLatest { newUserUiState ->
+                _settingsState.update {
+                    it.copy(user = newUserUiState.user)
+                }
             }
-        }
     }
 
     fun logOut() {
@@ -69,15 +70,15 @@ class SettingsViewModel @Inject constructor(
     fun deleteUser() = viewModelScope.launch {
         userRepository.deleteUserData().collectLatest { result ->
             if (result.getOrNull() == true) {
-                loginRepository.deleteUser().collectLatest {
-                    _settingsState.update {
-                        it.copy(errorMessage = CustomException.GenericException("User deleted"))
-                    }
-                }
-            }else{
-                loginRepository.deleteUser().collectLatest {
-                    _settingsState.update {
-                        it.copy(errorMessage = CustomException.GenericException("User deleted"))
+                loginRepository.deleteUser().collectLatest { isUserDeleted ->
+                    isUserDeleted.onSuccess {
+                        _settingsState.update {
+                            it.copy(errorMessage = CustomException.GenericException("User deleted"))
+                        }
+                    }.onFailure { fail ->
+                        _settingsState.update {
+                            it.copy(errorMessage = CustomException.GenericException(fail.message!!))
+                        }
                     }
                 }
             }

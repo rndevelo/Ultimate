@@ -2,6 +2,7 @@ package com.rndeveloper.ultimate.ui.screens.login
 
 import android.content.Context
 import android.util.Log
+import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
@@ -161,7 +162,6 @@ class LoginViewModel @Inject constructor(
         )
 
         val credential = credentialResponse.credential
-
 
         if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
             try {

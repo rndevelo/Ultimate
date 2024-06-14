@@ -34,7 +34,7 @@ import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.compose.CameraPositionState
 import com.rndeveloper.ultimate.model.Item
 import com.rndeveloper.ultimate.ui.screens.home.components.BottomBarContent
-import com.rndeveloper.ultimate.ui.screens.home.components.DrawerHeaderContent
+import com.rndeveloper.ultimate.ui.screens.home.components.DrawerContent
 import com.rndeveloper.ultimate.ui.screens.home.components.MainContent
 import com.rndeveloper.ultimate.ui.screens.home.components.SheetContent
 import com.rndeveloper.ultimate.ui.screens.home.uistates.AreasUiState
@@ -179,7 +179,7 @@ private fun HomeContent(
         drawerState = rememberHomeUiContainerState.drawerState,
         drawerContent = {
             ModalDrawerSheet(modifier = Modifier.fillMaxWidth(0.8f)) {
-                DrawerHeaderContent(uiUserState = uiUserState, onNavigate = onNavigate)
+                DrawerContent(uiUserState = uiUserState, onNavigate = onNavigate)
             }
         },
         gesturesEnabled = rememberHomeUiContainerState.drawerState.isOpen

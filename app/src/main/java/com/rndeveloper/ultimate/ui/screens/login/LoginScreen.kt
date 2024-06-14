@@ -85,18 +85,6 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
         }
     }
 
-//    val startForResult =
-//        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
-//            if (result.resultCode == Activity.RESULT_OK) {
-//                val intent = result.data
-//                if (intent != null) {
-//                    val task: Task<GoogleSignInAccount> =
-//                        GoogleSignIn.getSignedInAccountFromIntent(intent)
-//                    viewModel.handleGoogleSignInResult(task)
-//                }
-//            }
-//        }
-
     Scaffold(snackbarHost = { SnackbarHost(snackBarHostState) }) { innerPadding ->
         Box(
             modifier = Modifier
@@ -110,9 +98,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                 onClickLoginOrRegister = viewModel::signInOrSignUp,
                 onCLickRecoverPassword = viewModel::recoverPassword,
                 onChangeScreenState = viewModel::changeScreenState,
-                onClickGoogleButton = {
-                    viewModel.handleSignIn(context = context)
-                },
+                onClickGoogleButton = { viewModel.handleSignIn(context = context) },
                 onRecoveryPassUpdate = viewModel::updateRecoveryPasswordState,
             )
         }
