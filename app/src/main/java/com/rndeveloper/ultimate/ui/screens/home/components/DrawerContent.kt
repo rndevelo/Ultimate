@@ -1,6 +1,5 @@
 package com.rndeveloper.ultimate.ui.screens.home.components
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,7 +16,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.GroupAdd
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.HorizontalDivider
@@ -88,56 +86,27 @@ fun DrawerHeaderContent(
             )
         }
         HorizontalDivider(modifier = modifier.padding(horizontal = 15.dp))
-        DrawerMenuItemContent(
-            navigateToHistoryScreen = { onNavigate(Routes.HistoryScreen.route) },
-            navigateToSettingsScreen = { onNavigate(Routes.SettingsScreen.route) },
-            uid = uiUserState.user.uid
+        DrawerMenuItemListContent(
+            items = listOf(
+                MenuItem(
+//                id = 2,
+                    title = "Settings",
+//                contentDescription = "Get help",
+                    icon = Icons.Outlined.Settings,
+//                color = Blue500,
+                    unit = { onNavigate(Routes.SettingsScreen.route) }
+                ),
+                MenuItem(
+//                id = 3,
+                    title = "Ayuda",
+//                contentDescription = "Logout",
+                    icon = Icons.Outlined.Info,
+//                color = Blue500,
+                    unit = {}
+                ),
+            )
         )
     }
-}
-
-@Composable
-fun DrawerMenuItemContent(
-    navigateToHistoryScreen: () -> Unit,
-    navigateToSettingsScreen: () -> Unit,
-    uid: String?
-) {
-    val context = LocalContext.current
-    DrawerMenuItemListContent(
-        items = listOf(
-            MenuItem(
-//                id = 1,
-                title = "Invita a tus amigos  +3",
-//                contentDescription = "Invite Friends",
-                icon = Icons.Outlined.GroupAdd,
-//                color = Blue500,
-                unit = {
-                    uid?.let { it1 ->
-//                        ShareDynamicLink().onShareClicked(
-//                            context = context,
-//                            uid = it1
-//                        )
-                    }
-                }
-            ),
-            MenuItem(
-//                id = 2,
-                title = "Settings",
-//                contentDescription = "Get help",
-                icon = Icons.Outlined.Settings,
-//                color = Blue500,
-                unit = { navigateToSettingsScreen() }
-            ),
-            MenuItem(
-//                id = 3,
-                title = "Ayuda",
-//                contentDescription = "Logout",
-                icon = Icons.Outlined.Info,
-//                color = Blue500,
-                unit = {}
-            ),
-        )
-    )
 }
 
 

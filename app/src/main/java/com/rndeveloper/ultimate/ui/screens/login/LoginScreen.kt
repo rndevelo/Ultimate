@@ -45,6 +45,7 @@ import androidx.navigation.NavController
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.tasks.Task
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.rndeveloper.ultimate.R
 import com.rndeveloper.ultimate.nav.Routes
 import com.rndeveloper.ultimate.ui.screens.login.components.AlertRecoverPassDialog
@@ -61,11 +62,8 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
     val snackBarHostState = remember { SnackbarHostState() }
     val loginUiState by viewModel.state.collectAsStateWithLifecycle()
     val recoverPassUIState by viewModel.recoverPassUIState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
-    Log.d(
-        "Login check",
-        "LoginScreen: loginUiState.isLogged ${loginUiState.isLogged} loginUiState.isEmailVerified ${loginUiState.isEmailVerified}"
-    )
 
     LaunchedEffect(key1 = loginUiState) {
         if (loginUiState.isLogged && loginUiState.isEmailVerified) {
@@ -87,19 +85,17 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
         }
     }
 
-    val startForResult =
-        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val intent = result.data
-                if (intent != null) {
-                    val task: Task<GoogleSignInAccount> =
-                        GoogleSignIn.getSignedInAccountFromIntent(intent)
-                    viewModel.handleGoogleSignInResult(task)
-                }
-            }
-        }
-
-
+//    val startForResult =
+//        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+//            if (result.resultCode == Activity.RESULT_OK) {
+//                val intent = result.data
+//                if (intent != null) {
+//                    val task: Task<GoogleSignInAccount> =
+//                        GoogleSignIn.getSignedInAccountFromIntent(intent)
+//                    viewModel.handleGoogleSignInResult(task)
+//                }
+//            }
+//        }
 
     Scaffold(snackbarHost = { SnackbarHost(snackBarHostState) }) { innerPadding ->
         Box(
@@ -115,7 +111,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                 onCLickRecoverPassword = viewModel::recoverPassword,
                 onChangeScreenState = viewModel::changeScreenState,
                 onClickGoogleButton = {
-                    startForResult.launch(viewModel.googleSignInClient.signInIntent)
+                    viewModel.handleSignIn(context = context)
                 },
                 onRecoveryPassUpdate = viewModel::updateRecoveryPasswordState,
             )

@@ -1,6 +1,5 @@
 package com.rndeveloper.ultimate.repositories
 
-import android.util.Log
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
@@ -9,7 +8,6 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -19,8 +17,6 @@ import javax.inject.Singleton
 @Singleton
 class LoginRepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
-    private val googleSignInClient: GoogleSignInClient,
-    private val userRepository: UserRepository,
 ) : LoginRepository {
 
     val verifiedAccount: Flow<Boolean> = flow {
@@ -129,9 +125,9 @@ class LoginRepositoryImpl @Inject constructor(
     }
 
     override fun logout() {
-        googleSignInClient.signOut().addOnSuccessListener {
-            firebaseAuth.signOut()
-        }
+//        googleSignInClient.signOut().addOnSuccessListener {
+//            firebaseAuth.signOut()
+//        }
     }
 
     override fun deleteUser(): Flow<Result<Boolean>> = channelFlow {

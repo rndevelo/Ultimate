@@ -61,14 +61,7 @@ object ApplicationModule {
     @Provides
     fun provideLoginRepository(
         firebaseAuth: FirebaseAuth,
-        googleSignInClient: GoogleSignInClient,
-        userRepository: UserRepository
-    ): LoginRepository =
-        LoginRepositoryImpl(
-            firebaseAuth = firebaseAuth,
-            googleSignInClient = googleSignInClient,
-            userRepository = userRepository
-        )
+    ): LoginRepository = LoginRepositoryImpl(firebaseAuth = firebaseAuth)
 
     @Singleton
     @Provides

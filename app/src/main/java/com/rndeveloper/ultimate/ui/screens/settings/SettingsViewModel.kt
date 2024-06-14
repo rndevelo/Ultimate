@@ -1,13 +1,17 @@
 package com.rndeveloper.ultimate.ui.screens.settings
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
+import com.rndeveloper.ultimate.exceptions.CustomException
+import com.rndeveloper.ultimate.model.User
 import com.rndeveloper.ultimate.repositories.LoginRepository
 import com.rndeveloper.ultimate.repositories.UserRepository
+import com.rndeveloper.ultimate.ui.screens.home.uistates.UserUiState
 import com.rndeveloper.ultimate.usecases.login.LoginUseCases
+import com.rndeveloper.ultimate.usecases.user.UserUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -23,6 +27,7 @@ class SettingsViewModel @Inject constructor(
     private val loginUseCases: LoginUseCases,
     private val loginRepository: LoginRepository,
     private val userRepository: UserRepository,
+    private val userUseCases: UserUseCases,
 ) : ViewModel() {
 
     private val _settingsState = MutableStateFlow(SettingsUiState())
@@ -33,26 +38,27 @@ class SettingsViewModel @Inject constructor(
     )
 
     init {
-
         viewModelScope.launch {
-            loginUseCases.checkUserLoggedInUseCase(Unit).collectLatest { newSettingsUiState ->
-                _settingsState.update {
-                    it.copy(isLogged = newSettingsUiState.isLogged)
-                }
+            awaitAll(
+                async { onGetAuthState() },
+                async { onGetUserData() },
+            )
+        }
+    }
+
+    private suspend fun onGetAuthState() {
+        loginUseCases.checkUserLoggedInUseCase(Unit).collectLatest { newSettingsUiState ->
+            _settingsState.update {
+                it.copy(isLogged = newSettingsUiState.isLogged)
             }
         }
+    }
 
-        viewModelScope.launch {
-//            _state.update { st ->
-//                st.copy(
-//                    userData = User(
-//                        email = firebaseAuth.currentUser?.email.toString(),
-//                        name = firebaseAuth.currentUser?.displayName.toString(),
-//                        pass = "",
-//                        photo = firebaseAuth.currentUser?.photoUrl.toString(),
-//                    ),
-//                )
-//            }
+    private suspend fun onGetUserData() {
+        userUseCases.getUserDataUseCase(_settingsState.value.user.uid).collectLatest { newUserUiState ->
+            _settingsState.update {
+                it.copy(user = newUserUiState.user)
+            }
         }
     }
 
@@ -61,11 +67,17 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun deleteUser() = viewModelScope.launch {
-        loginRepository.deleteUser().collectLatest { result ->
-            result.onSuccess {
-                if (it){
-                    userRepository.deleteUserData().collectLatest {
-
+        userRepository.deleteUserData().collectLatest { result ->
+            if (result.getOrNull() == true) {
+                loginRepository.deleteUser().collectLatest {
+                    _settingsState.update {
+                        it.copy(errorMessage = CustomException.GenericException("User deleted"))
+                    }
+                }
+            }else{
+                loginRepository.deleteUser().collectLatest {
+                    _settingsState.update {
+                        it.copy(errorMessage = CustomException.GenericException("User deleted"))
                     }
                 }
             }

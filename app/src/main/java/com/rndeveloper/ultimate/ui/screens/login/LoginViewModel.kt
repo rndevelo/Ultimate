@@ -1,11 +1,16 @@
 package com.rndeveloper.ultimate.ui.screens.login
 
+import android.content.Context
 import android.util.Log
+import androidx.credentials.CredentialManager
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.GetCredentialResponse
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.tasks.Task
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.rndeveloper.ultimate.exceptions.CustomException
 import com.rndeveloper.ultimate.ui.screens.login.uistates.LoginState
 import com.rndeveloper.ultimate.ui.screens.login.uistates.LoginUiState
@@ -28,7 +33,8 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val loginUseCases: LoginUseCases,
-    val googleSignInClient: GoogleSignInClient,
+    private val credentialManager: CredentialManager,
+    private val credentialRequest: GetCredentialRequest,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(LoginUiState())
@@ -143,6 +149,40 @@ class LoginViewModel @Inject constructor(
                     newLoginUIState
                 }
             }
+        }
+    }
+
+    fun handleSignIn(context: Context)= viewModelScope.launch {
+        // Handle the successfully returned credential.
+
+        val credentialResponse = credentialManager.getCredential(
+            request = credentialRequest,
+            context = context,
+        )
+
+        val credential = credentialResponse.credential
+
+
+        if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+            try {
+                // Use googleIdTokenCredential and extract id to validate and
+                // authenticate on your server.
+                val googleIdTokenCredential = GoogleIdTokenCredential
+                    .createFrom(credential.data)
+
+                loginUseCases.loginWithGoogleUseCase(googleIdTokenCredential.idToken).let { result ->
+                    result.collectLatest { newLoginUIState ->
+                        _state.update {
+                            newLoginUIState
+                        }
+                    }
+                }
+            } catch (e: GoogleIdTokenParsingException) {
+                Log.e("TAG", "Received an invalid google id token response", e)
+            }
+        } else {
+            // Catch any unrecognized custom credential type here.
+            Log.e("TAG", "Unexpected type of credential")
         }
     }
 }

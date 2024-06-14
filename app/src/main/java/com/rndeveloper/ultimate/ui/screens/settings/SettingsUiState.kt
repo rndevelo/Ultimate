@@ -1,7 +1,5 @@
 package com.rndeveloper.ultimate.ui.screens.settings
 
-import androidx.annotation.StringRes
-import com.rndeveloper.ultimate.R
 import com.rndeveloper.ultimate.exceptions.CustomException
 import com.rndeveloper.ultimate.model.User
 import com.rndeveloper.ultimate.ui.BaseUiState
