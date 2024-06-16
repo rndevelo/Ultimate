@@ -47,6 +47,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.tasks.Task
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.rndeveloper.ultimate.R
+import com.rndeveloper.ultimate.extensions.customSnackBar
 import com.rndeveloper.ultimate.nav.Routes
 import com.rndeveloper.ultimate.ui.screens.login.components.AlertRecoverPassDialog
 import com.rndeveloper.ultimate.ui.screens.login.components.EmailAndPasswordContent
@@ -76,12 +77,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
 
     if (!loginUiState.errorMessage?.error.isNullOrBlank()) {
         LaunchedEffect(key1 = snackBarHostState, key2 = loginUiState.errorMessage?.error) {
-            snackBarHostState.showSnackbar(
-                loginUiState.errorMessage!!.error,
-                "Close",
-                false,
-                SnackbarDuration.Long
-            )
+            snackBarHostState.customSnackBar(loginUiState.errorMessage!!.error)
         }
     }
 

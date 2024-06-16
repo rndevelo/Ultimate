@@ -9,6 +9,8 @@ import android.location.Location
 import android.net.Uri
 import android.os.Build
 import androidx.activity.ComponentActivity
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.core.content.ContextCompat
 import com.firebase.geofire.GeoFireUtils
 import com.firebase.geofire.GeoLocation
@@ -30,6 +32,15 @@ import org.ocpsoft.prettytime.PrettyTime
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+
+suspend fun SnackbarHostState.customSnackBar(message: String){
+    this.showSnackbar(
+        message,
+        "",
+        true,
+        SnackbarDuration.Long
+    )
+}
 
 fun Int.fixApi31(): Int {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {

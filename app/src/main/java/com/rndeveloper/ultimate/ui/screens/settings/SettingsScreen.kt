@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,11 +22,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -42,9 +42,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.rndeveloper.ultimate.R
+import com.rndeveloper.ultimate.extensions.customSnackBar
 import com.rndeveloper.ultimate.nav.Routes
 import com.rndeveloper.ultimate.ui.screens.home.components.subcomponents.ProfileHeaderContent
-import com.rndeveloper.ultimate.ui.screens.home.components.subcomponents.SetAlertDialog
 import com.rndeveloper.ultimate.ui.theme.UltimateTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,6 +59,9 @@ fun SettingsScreen(
     val interactionSource = remember { MutableInteractionSource() }
     var isShowAlertDialog by remember { mutableStateOf(false) }
 
+    var dialogImageVector by remember { mutableStateOf(Icons.Default.Output) }
+    var dialogText by remember { mutableStateOf("") }
+
     if (!uiSettingsState.isLogged) {
         LaunchedEffect(key1 = Unit) {
             navController.navigate(Routes.LoginScreen.route) {
@@ -69,12 +72,7 @@ fun SettingsScreen(
 
     if (!uiSettingsState.errorMessage?.error.isNullOrBlank()) {
         LaunchedEffect(snackBarHostState) {
-            snackBarHostState.showSnackbar(
-                uiSettingsState.errorMessage!!.error,
-                "Close",
-                false,
-                SnackbarDuration.Long
-            )
+            snackBarHostState.customSnackBar(uiSettingsState.errorMessage!!.error)
         }
     }
 
@@ -105,9 +103,11 @@ fun SettingsScreen(
     ) { paddingValues ->
         SettingsContent(
             uiSettingsState = uiSettingsState,
-            onClickLogOut = settingsViewModel::logOut,
-            onClickDeleteUser = settingsViewModel::deleteUser,
-            onShowAlertDialog = { isShowAlertDialog = true },
+            onShowAlertDialog = { imageVector, text ->
+                isShowAlertDialog = true
+                dialogImageVector = imageVector
+                dialogText = text
+            },
             modifier = Modifier.padding(paddingValues),
         )
         AnimatedVisibility(visible = isShowAlertDialog) {
@@ -115,23 +115,32 @@ fun SettingsScreen(
             AlertDialog(
                 onDismissRequest = { isShowAlertDialog = false },
                 confirmButton = {
-                    Button(onClick = { isShowAlertDialog = false }) {
-                        Text(text = "Confirm")
+                    Button(
+                        onClick = {
+                            isShowAlertDialog = false
+                            if (dialogImageVector == Icons.Default.Output) {
+                                settingsViewModel.logOut()
+                            } else {
+                                settingsViewModel.deleteUser()
+                            }
+                        }
+                    ) {
+                        Text(text = stringResource(R.string.settings_text_dialog_confirm))
                     }
                 },
                 dismissButton = {
                     Button(onClick = { isShowAlertDialog = false }) {
-                        Text(text = "Cancel")
+                        Text(text = stringResource(R.string.settings_text_dialog_cancel))
                     }
                 },
                 icon = {
                     Icon(
-                        imageVector = Icons.Default.DeleteForever,
+                        imageVector = dialogImageVector,
                         contentDescription = Icons.Default.DeleteForever.toString()
                     )
                 },
                 text = {
-                    Text(text = "Desea eliminar su cuenta de forma permanente?")
+                    Text(text = dialogText)
                 }
             )
         }
@@ -141,11 +150,12 @@ fun SettingsScreen(
 @Composable
 fun SettingsContent(
     uiSettingsState: SettingsUiState,
-    onClickLogOut: () -> Unit,
-    onClickDeleteUser: () -> Unit,
-    onShowAlertDialog: () -> Unit,
+    onShowAlertDialog: (ImageVector, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+
+    val textLogout = stringResource(R.string.settings_text_do_you_want_to_log_out)
+    val textDeleteUser = stringResource(R.string.settings_text_do_you_want_to_delete_your_account)
 
     Column(
         modifier = modifier
@@ -164,32 +174,47 @@ fun SettingsContent(
             )
         }
 
-        Card(modifier = Modifier.padding(top = 25.dp)) {
-            TextButton(
-                onClick = onShowAlertDialog,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text(text = "Logout")
-                Spacer(modifier = Modifier.width(10.dp))
-                Icon(imageVector = Icons.Default.Output, contentDescription = "Logout")
-            }
+        SettingButtonContent(imageVector = Icons.Default.Output, text = stringResource(R.string.settings_text_logout), {
+            onShowAlertDialog(
+                Icons.Default.Output,
+                textLogout
+            )
+        }, modifier = Modifier.padding(top = 25.dp))
+
+        SettingButtonContent(imageVector = Icons.Default.DeleteForever, text = stringResource(R.string.settings_text_delete_user), {
+            onShowAlertDialog(
+                Icons.Default.DeleteForever,
+                textDeleteUser
+            )
+        }, modifier = Modifier.padding(top = 7.dp))
+    }
+}
+
+@Composable
+private fun SettingButtonContent(
+    imageVector: ImageVector,
+    text: String,
+    onShowAlertDialog: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        onClick = onShowAlertDialog,
+        modifier = modifier
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = text)
+            Spacer(modifier = Modifier.width(10.dp))
+            Icon(
+                imageVector = imageVector,
+                contentDescription = imageVector.toString()
+            )
         }
-
-        Card(modifier = Modifier.padding(top = 7.dp)) {
-            TextButton(
-                onClick = onShowAlertDialog,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text(text = "Delete user")
-                Spacer(modifier = Modifier.width(10.dp))
-                Icon(
-                    imageVector = Icons.Default.DeleteForever,
-                    contentDescription = Icons.Default.DeleteForever.toString()
-                )
-            }
-        }
-
-
     }
 }
 
@@ -199,9 +224,7 @@ private fun ProfileScreenPreview() {
     UltimateTheme {
         SettingsContent(
             uiSettingsState = SettingsUiState(),
-            onClickLogOut = { /*TODO*/ },
-            onClickDeleteUser = { /*TODO*/ },
-            onShowAlertDialog = { }
+            onShowAlertDialog = { _, _ -> },
         )
     }
 }

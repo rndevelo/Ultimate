@@ -32,6 +32,7 @@ import androidx.navigation.NavController
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.compose.CameraPositionState
+import com.rndeveloper.ultimate.extensions.customSnackBar
 import com.rndeveloper.ultimate.model.Item
 import com.rndeveloper.ultimate.ui.screens.home.components.BottomBarContent
 import com.rndeveloper.ultimate.ui.screens.home.components.DrawerContent
@@ -151,23 +152,13 @@ private fun HomeContent(
 
     if (uiUserState.errorMessage?.error?.isNotEmpty() == true) {
         LaunchedEffect(snackBarHostState, uiUserState.errorMessage.error) {
-            snackBarHostState.showSnackbar(
-                uiUserState.errorMessage.error,
-                "",
-                true,
-                SnackbarDuration.Long
-            )
+            snackBarHostState.customSnackBar(uiUserState.errorMessage.error)
         }
     }
 
     if (uiSpotsState.errorMessage?.error?.isNotEmpty() == true) {
         LaunchedEffect(snackBarHostState, uiSpotsState.errorMessage.error) {
-            snackBarHostState.showSnackbar(
-                uiSpotsState.errorMessage.error,
-                "",
-                true,
-                SnackbarDuration.Long
-            )
+            snackBarHostState.customSnackBar(uiSpotsState.errorMessage.error)
         }
     }
 
