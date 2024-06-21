@@ -155,6 +155,20 @@ class HomeViewModel @Inject constructor(
                 _routeState.update {
                     mapRoute
                 }
+            }else{
+                _routeState.update {
+                    emptyList()
+                }
+                _spotsState.update {
+                    it.copy(errorMessage = CustomException.GenericException("The route could not be calculated"))
+                }
+            }
+        }else{
+            _routeState.update {
+                emptyList()
+            }
+            _spotsState.update {
+                it.copy(errorMessage = CustomException.GenericException("The route could not be calculated"))
             }
         }
     }
@@ -165,6 +179,8 @@ class HomeViewModel @Inject constructor(
         timerRepository.getTimer(Constants.SPOTS_TIMER).collectLatest { timer ->
 
             if (timer.endTime > currentTime()) {
+
+                onSelectSpot(_spotsState.value.items.first().tag)
                 object : CountDownTimer(
                     timer.endTime - currentTime(),
                     INTERVAL
@@ -372,7 +388,7 @@ class HomeViewModel @Inject constructor(
                     }.collectLatest { newHomeUiState ->
                         onMainState()
                         _spotsState.update {
-                            it.copy(errorMessage = CustomException.GenericException("Enviado"))
+                            it.copy(errorMessage = CustomException.GenericException("Sent"))
                         }
                     }
                 }
@@ -407,7 +423,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun onRemoveSpot(context: Context) = viewModelScope.launch {
-//        FIXME : THIS
+
         _spotsState.update {
             it.copy(isLoading = true)
         }
@@ -442,13 +458,7 @@ class HomeViewModel @Inject constructor(
 
         _userState.value.user.copy(points = _userState.value.user.points + points).let { user ->
             userRepository.setUserData(user)
-        }.collectLatest { newHomeUiState ->
-            if (newHomeUiState.isSuccess) {
-                if (_itemState.value.tag.isEmpty()) {
-                    onSelectSpot(_spotsState.value.items.first().tag)
-                }
-            }
-        }
+        }.collectLatest { newHomeUiState -> }
     }
 
     fun showRewardedAdmob(context: Context) {
@@ -465,7 +475,7 @@ class HomeViewModel @Inject constructor(
             object : RewardedAdLoadCallback() {
                 override fun onAdFailedToLoad(adError: LoadAdError) {
                     _spotsState.update {
-                        it.copy(errorMessage = CustomException.GenericException("AD ERROR: $adError"))
+                        it.copy(errorMessage = CustomException.GenericException("AD ERROR: ${adError.message}"))
                     }
                 }
 

@@ -1,5 +1,7 @@
 package com.rndeveloper.ultimate.ui.screens.login.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -44,21 +46,22 @@ fun AlertRecoverPassDialog(
             Text(text = stringResource(id = R.string.login_text_recover_password))
         },
         text = {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it.trim() },
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text(text = stringResource(R.string.login_text_field_email)) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                    shape = RoundedCornerShape(25.dp),
-                    isError = !recoverPassUIState.emailErrorMessage?.error.isNullOrBlank(),
-                    supportingText = {
-                        SupportingErrorText(recoverPassUIState.emailErrorMessage?.error)
-                    },
-                )
-
-                if (recoverPassUIState.isLoading) {
+            Box(contentAlignment = Alignment.Center) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    OutlinedTextField(
+                        value = email,
+                        onValueChange = { email = it.trim() },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text(text = stringResource(R.string.login_text_field_email)) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                        shape = RoundedCornerShape(25.dp),
+                        isError = !recoverPassUIState.emailErrorMessage?.error.isNullOrBlank(),
+                        supportingText = {
+                            SupportingErrorText(recoverPassUIState.emailErrorMessage?.error)
+                        },
+                    )
+                }
+                AnimatedVisibility (recoverPassUIState.isLoading) {
                     CircularProgressIndicator()
                 }
             }

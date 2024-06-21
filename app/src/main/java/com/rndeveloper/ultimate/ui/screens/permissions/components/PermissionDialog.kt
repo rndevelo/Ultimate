@@ -1,5 +1,6 @@
 package com.rndeveloper.ultimate.ui.screens.permissions.components
 
+import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,9 +11,12 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.rndeveloper.ultimate.R
 
 @Composable
 fun PermissionDialog(
@@ -24,6 +28,8 @@ fun PermissionDialog(
     onDismiss: () -> Unit = {},
 ) {
 
+    val context = LocalContext.current
+
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
@@ -31,9 +37,9 @@ fun PermissionDialog(
                 HorizontalDivider()
                 Text(
                     text = if (isPermanentlyDeclined) {
-                        "Grant permission"
+                        stringResource(R.string.permission_text_grant_permission)
                     } else {
-                        "OK"
+                        stringResource(R.string.permission_text_ok)
                     },
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
@@ -51,10 +57,10 @@ fun PermissionDialog(
             }
         },
         title = {
-            Text(text = "Permission required")
+            Text(text = stringResource(R.string.permission_text_permission_required))
         },
         text = {
-            Text(text = permissionTextProvider.getDescription(isPermanentlyDeclined = isPermanentlyDeclined))
+            Text(text = permissionTextProvider.getDescription(isPermanentlyDeclined = isPermanentlyDeclined, context = context))
         },
         modifier = modifier
     )
@@ -62,49 +68,49 @@ fun PermissionDialog(
 }
 
 interface PermissionTextProvider {
-    fun getDescription(isPermanentlyDeclined: Boolean): String
+    fun getDescription(isPermanentlyDeclined: Boolean, context: Context): String
 }
 
 class ActivityRecognitionPermissionTextProvider : PermissionTextProvider {
-    override fun getDescription(isPermanentlyDeclined: Boolean): String {
+    override fun getDescription(isPermanentlyDeclined: Boolean, context: Context): String {
         return if (isPermanentlyDeclined) {
-            "It seems you permanently declined activity recognition permission. " +
-                    "You can go to the app settings to grant it."
+            context.getString(R.string.permission_text_permanently_declined_activity_recognition) +
+                    context.getString(R.string.permission_text_app_settings)
         } else {
-            "This application requires activity recognition permission for full functionality."
+            context.getString(R.string.permission_text_app_requires_functionality)
         }
     }
 }
 
 class PostNotificationsPermissionTextProvider : PermissionTextProvider {
-    override fun getDescription(isPermanentlyDeclined: Boolean): String {
+    override fun getDescription(isPermanentlyDeclined: Boolean, context: Context): String {
         return if (isPermanentlyDeclined) {
-            "It seems you permanently declined post notifications permission. " +
-                    "You can go to the app settings to grant it."
+            context.getString(R.string.permission_text_permanently_declined_post_notifications) +
+                    context.getString(R.string.permission_text_app_settings)
         } else {
-            "This application requires post notifications permission for full functionality."
+            context.getString(R.string.permission_text_app_requires_functionality)
         }
     }
 }
 
 class FineLocationPermissionTextProvider : PermissionTextProvider {
-    override fun getDescription(isPermanentlyDeclined: Boolean): String {
+    override fun getDescription(isPermanentlyDeclined: Boolean, context: Context): String {
         return if (isPermanentlyDeclined) {
-            "It seems you permanently declined fine location permission. " +
-                    "You can go to the app settings to grant it."
+            context.getString(R.string.permission_text_permanently_declined_fine) +
+                    context.getString(R.string.permission_text_app_settings)
         } else {
-            "This application requires fine location permission for full functionality."
+            context.getString(R.string.permission_text_app_requires_functionality)
         }
     }
 }
 
 class BackGroundLocationPermissionTextProvider : PermissionTextProvider {
-    override fun getDescription(isPermanentlyDeclined: Boolean): String {
+    override fun getDescription(isPermanentlyDeclined: Boolean, context: Context): String {
         return if (isPermanentlyDeclined) {
-            "It seems you permanently declined background location permission. " +
-                    "You can go to the app settings to grant it."
+            context.getString(R.string.permission_text_permanently_declined_background) +
+                    context.getString(R.string.permission_text_app_settings)
         } else {
-            "This application requires background location permission for full functionality."
+            context.getString(R.string.permission_text_app_requires_functionality)
         }
     }
 }

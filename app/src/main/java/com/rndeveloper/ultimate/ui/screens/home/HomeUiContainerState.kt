@@ -24,6 +24,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.rndeveloper.ultimate.model.Position
 import com.rndeveloper.ultimate.nav.Routes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -134,9 +135,16 @@ class HomeUiContainerState @OptIn(ExperimentalMaterial3Api::class) constructor(
         onAnimateCamera(zoom = camPosState.position.zoom, tilt = if (isTilt) 90f else 0f)
     }
 
-    fun onAnimateCameraBounds(latLngBounds: LatLngBounds) {
+    fun onAnimateCameraBounds(from: Position?, to: Position?) {
         scope.launch {
-            camPosState.animate(CameraUpdateFactory.newLatLngBounds(latLngBounds, 420))
+            val latLngBounds = LatLngBounds.Builder()
+            from?.let { loc ->
+                latLngBounds.include(LatLng(loc.lat, loc.lng))
+            }
+            to?.let {
+                latLngBounds.include(LatLng(to.lat, to.lng))
+            }
+            camPosState.animate(CameraUpdateFactory.newLatLngBounds(latLngBounds.build(), 420))
         }
     }
 

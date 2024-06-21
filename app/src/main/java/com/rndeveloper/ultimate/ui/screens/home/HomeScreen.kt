@@ -136,12 +136,11 @@ private fun HomeContent(
 
     LaunchedEffect(key1 = uiItemState) {
         if (!isFirstLaunch && uiItemState != null && uiElapsedTimeState > DEFAULT_ELAPSED_TIME && uiItemState.tag.isNotEmpty()) {
-            val latLngBounds = LatLngBounds.Builder()
-            uiLocationState.location?.let { loc ->
-                latLngBounds.include(LatLng(loc.lat, loc.lng))
-            }
-            latLngBounds.include(LatLng(uiItemState.position.lat, uiItemState.position.lng))
-            rememberHomeUiContainerState.onAnimateCameraBounds(latLngBounds.build())
+
+            rememberHomeUiContainerState.onAnimateCameraBounds(
+                uiLocationState.location,
+                uiItemState.position
+            )
             rememberHomeUiContainerState.scrollState.animateScrollToItem(
                 index = uiSpotsState.items.indexOf(uiSpotsState.items.find { it.tag == uiItemState.tag })
             )
@@ -236,14 +235,10 @@ private fun HomeContent(
                             }
                         },
                         onCameraCarLoc = {
-                            val latLngBounds = LatLngBounds.Builder()
-                            uiLocationState.location?.let { loc ->
-                                latLngBounds.include(LatLng(loc.lat, loc.lng))
-                            }
-                            uiUserState.user.car?.let { car ->
-                                latLngBounds.include(LatLng(car.lat, car.lng))
-                            }
-                            rememberHomeUiContainerState.onAnimateCameraBounds(latLngBounds.build())
+                            rememberHomeUiContainerState.onAnimateCameraBounds(
+                                uiLocationState.location,
+                                uiUserState.user.car
+                            )
                         },
                         onCameraTilt = rememberHomeUiContainerState::onAnimateCameraTilt,
                         onSelectSpot = onSelectSpot,

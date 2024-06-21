@@ -1,10 +1,5 @@
 package com.rndeveloper.ultimate.ui.screens.login
 
-import android.app.Activity
-import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -14,12 +9,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -42,10 +39,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.tasks.Task
-import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.rndeveloper.ultimate.R
 import com.rndeveloper.ultimate.extensions.customSnackBar
 import com.rndeveloper.ultimate.nav.Routes
@@ -64,7 +57,6 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
     val loginUiState by viewModel.state.collectAsStateWithLifecycle()
     val recoverPassUIState by viewModel.recoverPassUIState.collectAsStateWithLifecycle()
     val context = LocalContext.current
-
 
     LaunchedEffect(key1 = loginUiState) {
         if (loginUiState.isLogged && loginUiState.isEmailVerified) {
@@ -157,9 +149,9 @@ fun LoginContent(
 
                 AnimatedVisibility(uiLoginState.isLogged) {
                     Text(
-                        text = "Esta es una aplicación basada en una gran comunidad de conductores en la que crecemos día a día",
+                        text = stringResource(R.string.login_text_description),
                         textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.padding(bottom = 5.dp)
                     )
                 }
@@ -193,17 +185,30 @@ fun LoginContent(
         AlertDialog(
             onDismissRequest = { /*TODO*/ },
             confirmButton = { /*TODO*/ },
-            title = { Text("We have sent a email to verify your account.") },
-            text = { Text("Access your email to verify it") },
+            title = { Text(stringResource(R.string.login_text_verify_email_title)) },
+            text = { Text(stringResource(R.string.login_text_verify_email_text)) },
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.Email,
+                    contentDescription = Icons.Default.Email.toString()
+                )
+            }
         )
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
 fun LoginPreview() {
     UltimateTheme {
-        LoginScreen(navController = NavController(LocalContext.current))
+        LoginContent(
+            uiLoginState = LoginUiState(),
+            recoverPassUIState = RecoverPassUiState(),
+            onClickLoginOrRegister = { _, _ -> },
+            onCLickRecoverPassword = {},
+            onChangeScreenState = { /*TODO*/ },
+            onClickGoogleButton = { /*TODO*/ },
+            onRecoveryPassUpdate = {}
+        )
     }
 }

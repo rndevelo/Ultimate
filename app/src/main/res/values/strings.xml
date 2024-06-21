@@ -17,6 +17,9 @@
     <string name="login_text_send_recover_password">Send</string>
     <string name="login_text_recover_password_cancel">Cancel</string>
     <string name="login_text_paparcar">Welcome to Paparcar</string>
+    <string name="login_text_description">The app helps you find and manage parking spaces</string>
+    <string name="login_text_verify_email_title">We have sent a email to verify your account</string>
+    <string name="login_text_verify_email_text">Access your email to verify it</string>
 
 
 
@@ -27,6 +30,11 @@
     <string name="permissions_text_background_description">In order to fulfill the full functionality of this application.\n
         We need you to set the location permission to "Always Allow". </string>
     <string name="permissions_text_activate">Activate</string>
+
+    <string name="permission_text_permanently_declined_background">"It seems you permanently declined background location permission. "</string>
+    <string name="permission_text_permanently_declined_fine">"It seems you permanently declined fine location permission. "</string>
+    <string name="permission_text_permanently_declined_post_notifications">"It seems you permanently declined post notifications permission. "</string>
+    <string name="permission_text_permanently_declined_activity_recognition">"It seems you permanently declined activity recognition permission. "</string>
 
 
     <!-- HOME-->
@@ -63,6 +71,11 @@
     <string name="settings_text_delete_user">Delete user</string>
     <string name="settings_text_dialog_confirm">Confirm</string>
     <string name="settings_text_dialog_cancel">Cancel</string>
+    <string name="permission_text_grant_permission">Grant permission</string>
+    <string name="permission_text_ok">OK</string>
+    <string name="permission_text_permission_required">Permission required</string>
+    <string name="permission_text_app_settings">You can go to the app settings to grant it.</string>
+    <string name="permission_text_app_requires_functionality">This application requires this permission for full functionality.</string>
 
 
 </resources>
