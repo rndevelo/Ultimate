@@ -105,7 +105,7 @@ class ActivityTransitionReceiver : HiltActivityTransitionReceiver() {
 
             userData?.copy(car = locationData)?.let { user ->
                 firebaseAuth.currentUser?.let {
-                    userRepository.setUserData(user, it.uid).collectLatest {
+                    userRepository.setUserData(user).collectLatest {
                         sendNotification(
                             context = context,
                             contentTitle = "¿Has aparcado?",

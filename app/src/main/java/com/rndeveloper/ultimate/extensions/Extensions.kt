@@ -50,10 +50,10 @@ fun Int.fixApi31(): Int {
     }
 }
 
-fun onNavigate(context: Context, latLng: LatLng?) {
-    if (latLng != null) {
+fun LatLng?.onNavigate(context: Context) {
+    if (this != null) {
         val navigationIntentUri =
-            Uri.parse("google.navigation:q=" + latLng.latitude + "," + latLng.longitude) //creating intent with latlng
+            Uri.parse("google.navigation:q=" + this.latitude + "," + this.longitude) //creating intent with latlng
 
         val mapIntent = Intent(Intent.ACTION_VIEW, navigationIntentUri)
         mapIntent.setPackage("com.google.android.apps.maps")

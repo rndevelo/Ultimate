@@ -163,7 +163,11 @@ private fun LocCarButtonsContent(
     ) {
         FloatingActionButton(
             modifier = modifier.size(40.dp),
-            onClick = onCameraCarLoc,
+            onClick = {
+                if (car != null) {
+                    onCameraCarLoc()
+                }
+            },
             containerColor = surfaceColor
 
         ) {

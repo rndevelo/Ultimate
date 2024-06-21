@@ -1,6 +1,7 @@
 package com.rndeveloper.ultimate.repositories
 
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.rndeveloper.ultimate.model.Directions
 import com.rndeveloper.ultimate.model.Item
@@ -8,10 +9,13 @@ import com.rndeveloper.ultimate.notifications.NotificationAPI
 import com.rndeveloper.ultimate.notifications.PushNotification
 import com.rndeveloper.ultimate.utils.Constants.SPOT_COLLECTION_REFERENCE
 import com.rndeveloper.ultimate.utils.Utils.currentTime
+import kotlinx.coroutines.async
+import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -35,37 +39,48 @@ class ItemsRepositoryImpl @Inject constructor(
                 .addSnapshotListener { snapshot, e ->
                     if (snapshot != null && !snapshot.isEmpty) {
                         snapshot.documents.forEach { document ->
-//                            document.reference.delete().addOnSuccessListener {}
+                            document.reference.delete().addOnSuccessListener {
+                                getItemsBeforeDelete(collection)
+                            }.addOnFailureListener {
+                                getItemsBeforeDelete(collection)
+                            }
                         }
                     } else {
+                        getItemsBeforeDelete(collection)
                         if (e != null) {
                             return@addSnapshotListener
                         }
                     }
-                    collection
-                        .addSnapshotListener { snapshotItems, error ->
-                            val items = snapshotItems?.toObjects(Item::class.java)
-                            if (items != null) {
-                                trySend(Result.success(items))
-                            } else {
-                                if (error != null) {
-                                    trySend(Result.failure(error.fillInStackTrace()))
-                                }
-                            }
-                        }
+
                 }
             awaitClose()
         }
 
-    override fun setSpot(pair: Pair<String, Item>): Flow<Result<Boolean>> = callbackFlow {
+    private fun ProducerScope<Result<List<Item>>>.getItemsBeforeDelete(
+        collection: CollectionReference
+    ) {
+        collection
+            .addSnapshotListener { snapshotItems, error ->
+                val items = snapshotItems?.toObjects(Item::class.java)
+                if (items != null) {
+                    trySend(Result.success(items))
+                } else {
+                    if (error != null) {
+                        trySend(Result.failure(error.fillInStackTrace()))
+                    }
+                }
+            }
+    }
 
-        val tag = fireStore.collection(pair.first).document().id
+    override fun setSpot(parameters: Pair<String, Item>): Flow<Result<Boolean>> = callbackFlow {
 
-        fireStore.collection(pair.first)
-            .document(pair.second.directions.country)
-            .collection(pair.second.directions.area)
+        val tag = fireStore.collection(parameters.first).document().id
+
+        fireStore.collection(parameters.first)
+            .document(parameters.second.directions.country)
+            .collection(parameters.second.directions.area)
             .document(tag)
-            .set(pair.second.copy(tag = tag))
+            .set(parameters.second.copy(tag = tag))
             .addOnSuccessListener { _ ->
                 trySend(Result.success(true))
             }
@@ -87,23 +102,26 @@ class ItemsRepositoryImpl @Inject constructor(
                 .delete()
                 .addOnSuccessListener { _ ->
                     launch {
-                        userRepository.getUserData(parameters.second.first).collectLatest { result ->
-                            result.onSuccess { user ->
-                                userRepository.setUserData(user.copy(points = user.points + 5), parameters.second.first).collectLatest {
-                                    notificationAPI.postNotification(PushNotification(parameters.second.second))
-                                }
+                        val user = async {
+                            userRepository.getUserData(parameters.second.first).firstOrNull()
+                                ?.getOrNull()
+                        }.await()
+                        user?.copy(points = user.points + 5)?.let { userData->
+                            userRepository.setUserData(userData).collectLatest {
+                                notificationAPI.postNotification(PushNotification(parameters.second.second))
                             }
                         }
                     }
 
                     if (myUid != null) {
                         launch {
-                            userRepository.getUserData(myUid).collectLatest { result ->
-                                result.onSuccess { user ->
-                                    userRepository.setUserData(user.copy(points = user.points + 2), myUid).collectLatest {}
-                                }
+                            val user = async {
+                                userRepository.getUserData(myUid).firstOrNull()
+                                    ?.getOrNull()
+                            }.await()
+                            user?.copy(points = user.points + 2)?.let { userData->
+                                userRepository.setUserData(userData).collectLatest {}
                             }
-
                         }
                     }
                 }
@@ -117,6 +135,6 @@ class ItemsRepositoryImpl @Inject constructor(
 
 interface ItemsRepository {
     fun getItems(collectionRef: String, directions: Directions): Flow<Result<List<Item>>>
-    fun setSpot(pair: Pair<String, Item>): Flow<Result<Boolean>>
+    fun setSpot(parameters: Pair<String, Item>): Flow<Result<Boolean>>
     fun removeSpot(parameters: Pair<Triple<String, String, String>, Pair<String, String>>): Flow<Result<Boolean>>
 }

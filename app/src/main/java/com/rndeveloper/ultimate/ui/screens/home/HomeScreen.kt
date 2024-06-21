@@ -11,7 +11,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -244,7 +243,6 @@ private fun HomeContent(
                             uiUserState.user.car?.let { car ->
                                 latLngBounds.include(LatLng(car.lat, car.lng))
                             }
-
                             rememberHomeUiContainerState.onAnimateCameraBounds(latLngBounds.build())
                         },
                         onCameraTilt = rememberHomeUiContainerState::onAnimateCameraTilt,

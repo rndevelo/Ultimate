@@ -100,10 +100,10 @@ class UserRepositoryImpl @Inject constructor(
         awaitClose()
     }
 
-    override fun setUserData(user: User, uid: String): Flow<Result<Boolean?>> = callbackFlow {
+    override fun setUserData(user: User): Flow<Result<Boolean?>> = callbackFlow {
 
         firebaseAuth.currentUser?.apply {
-            fireStore.collection(USER_REFERENCE).document(uid)
+            fireStore.collection(USER_REFERENCE).document(user.uid)
                 .set(user).addOnSuccessListener {
                     trySend(Result.success(true))
                 }.addOnFailureListener {
@@ -130,6 +130,6 @@ class UserRepositoryImpl @Inject constructor(
 interface UserRepository {
     fun getUserData(userUid: String): Flow<Result<User>>
     fun getHistoryData(): Flow<Result<List<Item>>>
-    fun setUserData(user: User, uid: String): Flow<Result<Boolean?>>
+    fun setUserData(user: User): Flow<Result<Boolean?>>
     fun deleteUserData(): Flow<Result<Boolean?>>
 }

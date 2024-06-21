@@ -85,10 +85,8 @@ fun GoogleMapContent(
                 title = stringResource(R.string.home_text_your_parked_car),
                 snippet = stringResource(R.string.home_text_navigate_my_car),
                 onInfoWindowClick = { marker ->
-                    onNavigate(
-                        context,
-                        LatLng(marker.position.latitude, marker.position.longitude),
-                    )
+                    LatLng(marker.position.latitude, marker.position.longitude)
+                        .onNavigate(context)
                 }
             )
         }

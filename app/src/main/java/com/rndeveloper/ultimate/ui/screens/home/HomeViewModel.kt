@@ -2,6 +2,7 @@ package com.rndeveloper.ultimate.ui.screens.home
 
 import android.app.Activity
 import android.content.Context
+import android.location.Location
 import android.os.CountDownTimer
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -23,7 +24,6 @@ import com.rndeveloper.ultimate.model.Position
 import com.rndeveloper.ultimate.model.Item
 import com.rndeveloper.ultimate.model.SpotType
 import com.rndeveloper.ultimate.model.Timer
-import com.rndeveloper.ultimate.repositories.ActivityTransitionManager
 import com.rndeveloper.ultimate.repositories.ActivityTransitionRepo
 import com.rndeveloper.ultimate.repositories.GeocoderRepository
 import com.rndeveloper.ultimate.repositories.GeofenceClient
@@ -68,7 +68,6 @@ class HomeViewModel @Inject constructor(
     private val userUseCases: UserUseCases,
     private val userRepository: UserRepository,
     private val activityTransitionClient: ActivityTransitionRepo,
-    private val activityTransition: ActivityTransitionManager,
     private val geocoderRepository: GeocoderRepository,
     private val apiService: ApiService,
     private val geofenceClient: GeofenceClient,
@@ -207,13 +206,13 @@ class HomeViewModel @Inject constructor(
 
             } else {
                 _spotsState.update {
-                    it.copy(errorMessage = CustomException.GenericException("No tienes suficientes créditos"))
+                    it.copy(errorMessage = CustomException.GenericException("You don't have enough credits."))
                 }
             }
 
         } else {
             _spotsState.update {
-                it.copy(errorMessage = CustomException.GenericException("No hay aparcamientos en esta zona"))
+                it.copy(errorMessage = CustomException.GenericException("There are no parking in this area"))
             }
         }
     }
@@ -234,18 +233,18 @@ class HomeViewModel @Inject constructor(
 
         locationClient.getLocationsRequest().collectLatest { newLocation ->
 
-//            _spotsState.update {
-//                it.copy(spots = _spotsState.value.spots.map { spot ->
-//                    val distance = FloatArray(2)
-//                    _locationState.value.location?.let { it1 ->
-//                        Location.distanceBetween(
-//                            spot.position.lat, spot.position.lng,
-//                            it1.lat, it1.lng, distance
-//                        )
-//                    }
-//                    spot.copy(distance = "${distance[0].toInt()}m")
-//                })
-//            }
+            _spotsState.update {
+                it.copy(items = _spotsState.value.items.map { spot ->
+                    val distance = FloatArray(2)
+                    _locationState.value.location?.let { it1 ->
+                        Location.distanceBetween(
+                            spot.position.lat, spot.position.lng,
+                            it1.lat, it1.lng, distance
+                        )
+                    }
+                    spot.copy(distance = "${distance[0].toInt()}m")
+                })
+            }
 
             _locationState.update {
                 it.copy(location = newLocation, isLoading = false)
@@ -284,23 +283,11 @@ class HomeViewModel @Inject constructor(
             }
 
             _locationState.value.location?.let { locPosition ->
-                awaitAll(
-                    async {
-                        getSpotsFlow(
-                            context,
-                            directions,
-                            currentPosition,
-                            locPosition
-                        )
-                    },
-                    async {
-                        getAreasFlow(
-                            context,
-                            directions,
-                            currentPosition,
-                            locPosition
-                        )
-                    },
+                getSpotsFlow(
+                    context,
+                    directions,
+                    currentPosition,
+                    locPosition
                 )
             }
         }
@@ -393,7 +380,7 @@ class HomeViewModel @Inject constructor(
                 ScreenState.PARKMYCAR -> {
 
                     _userState.value.user.copy(car = currentPosition).let { user ->
-                        userRepository.setUserData(user, _userState.value.user.uid)
+                        userRepository.setUserData(user)
                     }.collectLatest { newHomeUiState ->
                         onMainState()
                         _userState.update {
@@ -402,7 +389,7 @@ class HomeViewModel @Inject constructor(
                     }
                 }
 
-                else -> {}
+                ScreenState.MAIN -> {}
             }
         }
     }
@@ -428,13 +415,10 @@ class HomeViewModel @Inject constructor(
         if (_userState.value.user.uid != _itemState.value.user.uid) {
             geofenceClient.startGeofence(_itemState.value.copy(icon = null)).collect {
                 if (it.isSuccess) {
-                    onNavigate(
-                        context = context,
-                        latLng = LatLng(
-                            _itemState.value.position.lat,
-                            _itemState.value.position.lng
-                        )
-                    )
+                    LatLng(
+                        _itemState.value.position.lat,
+                        _itemState.value.position.lng
+                    ).onNavigate(context = context)
                 } else {
                     _spotsState.update {
                         _spotsState.value.copy(
@@ -457,7 +441,7 @@ class HomeViewModel @Inject constructor(
     fun onSetPoint(points: Long) = viewModelScope.launch {
 
         _userState.value.user.copy(points = _userState.value.user.points + points).let { user ->
-            userRepository.setUserData(user, _userState.value.user.uid)
+            userRepository.setUserData(user)
         }.collectLatest { newHomeUiState ->
             if (newHomeUiState.isSuccess) {
                 if (_itemState.value.tag.isEmpty()) {
@@ -480,44 +464,13 @@ class HomeViewModel @Inject constructor(
             adRequest,
             object : RewardedAdLoadCallback() {
                 override fun onAdFailedToLoad(adError: LoadAdError) {
-                    Log.i("showRewardedAdmob", "error $adError")
-                    //rewarded = null
+                    _spotsState.update {
+                        it.copy(errorMessage = CustomException.GenericException("AD ERROR: $adError"))
+                    }
                 }
 
                 override fun onAdLoaded(rewardedAd: RewardedAd) {
-                    Log.i("showRewardedAdmob", "Ad was loaded.")
-                    //rewarded = rewardedAd
 
-                    rewardedAd.fullScreenContentCallback = object : FullScreenContentCallback() {
-
-                        override fun onAdShowedFullScreenContent() {
-                            // Called when ad is shown.
-                            Log.i("showRewardedAdmob", "Ad showed fullscreen content.")
-                        }
-
-                        override fun onAdImpression() {
-                            // Called when an impression is recorded for an ad.
-                            Log.i("showRewardedAdmob", "Ad recorded an impression.")
-                        }
-
-                        override fun onAdClicked() {
-                            // Called when a click is recorded for an ad.
-                            Log.i("showRewardedAdmob", "Ad was clicked.")
-                        }
-
-                        override fun onAdDismissedFullScreenContent() {
-                            // Called when ad is dismissed.
-                            // Set the ad reference to null so you don't show the ad a second time.
-                            Log.i("showRewardedAdmob", "Ad dismissed fullscreen content.")
-                            //rewarded = null
-                        }
-
-                        override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-                            // Called when ad fails to show.
-                            Log.e("showRewardedAdmob", "Ad failed to show fullscreen content.")
-                            //rewarded = null
-                        }
-                    }
                     rewardedAd.show(context as Activity) { rewardItem ->
                         val amount = rewardItem.amount
                         val type = rewardItem.type
