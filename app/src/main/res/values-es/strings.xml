@@ -76,10 +76,10 @@
     <string name="home_text_in_30_minutes">En 30 minutos</string>
 
     <!-- HELP-->
-    <string name="home_text_help_description_one">¡Los estacionamientos no se agregan solos! Así que para asegurar la completa funcionalidad de la aplicación hemos creado un sistema de créditos para que tanto tú como el resto de usuarios también incluyas tu espacio libre al salir. Podrás consultar cuando quieras el número de plazas libres en la zona.</string>
+    <string name="home_text_help_description_one">¡Los estacionamientos no se agregan solos! Así que para asegurar la completa funcionalidad de la aplicación hemos creado un sistema de créditos para que tanto tú como el resto de usuarios también incluyáis vuestro espacio libre al salir. Podrás consultar cuando quieras el número de plazas libres en la zona.</string>
     <string name="home_text_help_description_two">Para poder ver dónde están tendrás que tener un mínimo de 5 creds. y pulsar el botón "Mostrar plazas".</string>
     <string name="home_text_help_description_three">Al navegar al lugar seleccionado recibirás automáticamente 2 créds.</string>
-    <string name="home_text_help_description_four">Para agregar una nueva plaza, presione el botón "Agregar plaza". Cuando un usuario obtenga su plaza recibirá 5 créds.</string>
+    <string name="home_text_help_description_four">Para agregar una nueva plaza, presione el botón "Agregar plaza". Cuando un usuario obtenga tu plaza recibirá 5 créds.</string>
     <string name="home_text_help_description_five">Para estacionar su vehículo presione el botón Estacionar vehículo (esta función también se realiza de manera automática).</string>
     <string name="home_text_help">Ayuda</string>
     <string name="home_text_skip">SALTAR</string>

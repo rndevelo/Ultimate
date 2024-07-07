@@ -74,7 +74,7 @@ fun HelpContent(onSetHelpValue: (Boolean) -> Unit) {
             imageVector = Icons.Default.Navigation
         ),
         HelpExample(
-            title = R.string.home_text_add_a_new_spot,
+            title = R.string.home_text_add_spot,
             description = R.string.home_text_help_description_four,
             image = R.drawable.tutorial_3_add_spot,
             imageVector = Icons.Default.AddLocationAlt
@@ -91,13 +91,14 @@ fun HelpContent(onSetHelpValue: (Boolean) -> Unit) {
     Surface(
         modifier = Modifier
             .fillMaxSize()
-            .padding(20.dp),
+            .padding(24.dp),
         shape = RoundedCornerShape(20.dp),
+        tonalElevation = 20.dp
     ) {
         Box {
             HorizontalPager(state = pagerState) {
 
-                if(pagerState.currentPage == 0) {
+                if (pagerState.currentPage == 0) {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -136,7 +137,10 @@ fun HelpContent(onSetHelpValue: (Boolean) -> Unit) {
                     GifImage(
                         idImage = onBoarding[it].image,
                     )
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(top = 5.dp)
+                    ) {
                         Icon(
                             imageVector = onBoarding[it].imageVector,
                             contentDescription = onBoarding[it].imageVector.toString(),
@@ -147,8 +151,7 @@ fun HelpContent(onSetHelpValue: (Boolean) -> Unit) {
                             Text(
                                 text = stringResource(id = title),
                                 style = MaterialTheme.typography.titleLarge.copy(
-                                    fontWeight = FontWeight.SemiBold, fontSize = 18.5.sp,
-                                    color = Color.DarkGray
+                                    fontWeight = FontWeight.SemiBold, fontSize = 20.sp,
                                 ),
                             )
                         }
@@ -189,7 +192,7 @@ fun HelpContent(onSetHelpValue: (Boolean) -> Unit) {
                     ElevatedButton(
                         onClick = { onSetHelpValue(false) },
                     ) {
-                        Text(text = stringResource(R.string.home_text_let_s_go))
+                        Text(text = stringResource(R.string.home_text_let_s_go), fontSize = 20.sp)
                     }
                 }
             }
@@ -256,7 +259,7 @@ fun GifImage(
         ),
         contentDescription = null,
         modifier = Modifier
-            .size(500.dp)
+            .size(480.dp)
             .padding(top = 12.dp, bottom = 12.dp, start = 25.dp, end = 25.dp),
 //            .border(border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.primary)),
         contentScale = ContentScale.Crop
