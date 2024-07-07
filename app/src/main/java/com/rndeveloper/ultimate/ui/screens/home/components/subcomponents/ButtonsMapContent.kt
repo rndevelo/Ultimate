@@ -107,7 +107,7 @@ fun ButtonsMapContent(
         ExtendedFloatingActionButton(
             text = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = stringResource(R.string.home_text_show_add))
+                    Text(text = stringResource(R.string.home_text_show_ad))
                     Spacer(modifier = modifier.width(5.dp))
                     Text(
                         text = stringResource(R.string.home_text_more_1creds),

@@ -37,6 +37,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.rndeveloper.ultimate.R
+import com.rndeveloper.ultimate.ui.screens.login.uistates.LoginSignState
 import com.rndeveloper.ultimate.ui.screens.login.uistates.LoginUiState
 import com.rndeveloper.ultimate.ui.screens.login.uistates.RecoverPassUiState
 
@@ -82,21 +83,6 @@ fun EmailAndPasswordContent(
         shape = RoundedCornerShape(15.dp),
     )
 
-//    Spacer(modifier = Modifier.height(10.dp))
-
-    Row(modifier = Modifier.padding(6.dp)) {
-        Text(
-            text = stringResource(uiLoginState.screenState.accountText),
-            modifier = Modifier.padding(end = 4.dp),
-        )
-        Text(
-            text = stringResource(uiLoginState.screenState.signText),
-            color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.clickable { onChangeScreenState() }
-        )
-    }
-
     Text(
         modifier = Modifier.clickable {
             onRecoveryPassUpdate(
@@ -112,6 +98,18 @@ fun EmailAndPasswordContent(
         fontWeight = FontWeight.Bold,
     )
 
+    Text(
+        text = stringResource(uiLoginState.loginSignState.accountText),
+        modifier = Modifier.padding(end = 4.dp),
+    )
+
+    Text(
+        text = stringResource(uiLoginState.loginSignState.signText),
+        color = MaterialTheme.colorScheme.primary,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.clickable { onChangeScreenState() }
+    )
+
     val keyboardController = LocalSoftwareKeyboardController.current
 
     Button(
@@ -122,9 +120,10 @@ fun EmailAndPasswordContent(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 3.dp),
-        shape = RoundedCornerShape(15.dp)
+        shape = RoundedCornerShape(15.dp),
+        colors = ButtonDefaults.buttonColors(if (uiLoginState.loginSignState == LoginSignState.SignIn()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary)
     ) {
-        Text(text = stringResource(id = uiLoginState.screenState.buttonText))
+        Text(text = stringResource(id = uiLoginState.loginSignState.buttonText))
     }
 
     OutlinedButton(
@@ -137,20 +136,6 @@ fun EmailAndPasswordContent(
     ) {
         GoogleButtonContent(isLoading = uiLoginState.isLoading)
     }
-
-//    Text(
-//        modifier = Modifier.clickable {
-//            onRecoveryPassUpdate(
-//                recoverPassUIState.copy(
-//                    isDialogVisible = true,
-//                    emailErrorMessage = null,
-//                    errorMessage = null,
-//                ),
-//            )
-//        },
-//        text = stringResource(R.string.login_text_forgot_your_password),
-//        color = MaterialTheme.colorScheme.outline,
-//    )
 }
 
 @Composable
@@ -176,7 +161,9 @@ private fun GoogleButtonContent(isLoading: Boolean) {
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
-            text = if (isLoading) "Signing in..." else "Sign in with Google",
+            text = if (isLoading) stringResource(R.string.login_text_signing_in) else stringResource(
+                R.string.login_text_sign_in_with_google
+            ),
             color = MaterialTheme.colorScheme.onSurface
         )
     }

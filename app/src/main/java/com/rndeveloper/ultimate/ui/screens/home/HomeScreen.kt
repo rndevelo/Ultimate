@@ -1,18 +1,37 @@
 package com.rndeveloper.ultimate.ui.screens.home
 
 import android.content.Context
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -21,21 +40,27 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.compose.CameraPositionState
+import com.rndeveloper.ultimate.R
 import com.rndeveloper.ultimate.extensions.customSnackBar
 import com.rndeveloper.ultimate.model.Item
 import com.rndeveloper.ultimate.ui.screens.home.components.BottomBarContent
 import com.rndeveloper.ultimate.ui.screens.home.components.DrawerContent
-import com.rndeveloper.ultimate.ui.screens.home.components.MainContent
+import com.rndeveloper.ultimate.ui.screens.home.components.HomeMainContent
 import com.rndeveloper.ultimate.ui.screens.home.components.SheetContent
 import com.rndeveloper.ultimate.ui.screens.home.uistates.AreasUiState
 import com.rndeveloper.ultimate.ui.screens.home.uistates.DirectionsUiState
@@ -60,28 +85,38 @@ fun HomeScreen(
     val uiSpotState by homeViewModel.uiItemState.collectAsStateWithLifecycle()
     val uiAreasState by homeViewModel.uiAreasState.collectAsStateWithLifecycle()
     val uiElapsedTimeState by homeViewModel.uiElapsedTimeState.collectAsStateWithLifecycle()
+    val uiHelpState by homeViewModel.uiHelpState.collectAsStateWithLifecycle()
     val uiDirectionsState by homeViewModel.uiDirectionsState.collectAsStateWithLifecycle()
     val uiRouteState by homeViewModel.uiRouteState.collectAsStateWithLifecycle()
 
-    HomeContent(
-        onNavigate = navController::navigate,
-        rememberHomeUiContainerState = rememberHomeUiContainerState,
-        uiLocationState = uiLocationState,
-        uiUserState = uiUserState,
-        uiSpotsState = uiSpotsState,
-        uiItemState = uiSpotState,
-        uiAreasState = uiAreasState,
-        uiElapsedTimeState = uiElapsedTimeState,
-        uiDirectionsState = uiDirectionsState,
-        uiRouteState = uiRouteState,
-        onSet = homeViewModel::onSet,
-        onSelectSpot = homeViewModel::onSelectSpot,
-        onCreateRoute = homeViewModel::onCreateRoute,
-        onRemoveSpot = homeViewModel::onRemoveSpot,
-        onStartTimer = { homeViewModel.onSaveGetStartTimer(SPOTS_TIMER) },
-        onGetAddressLine = homeViewModel::onGetAddressLine,
-        showRewardedAdmob = homeViewModel::showRewardedAdmob,
-    )
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        HomeContent(
+            onNavigate = navController::navigate,
+            rememberHomeUiContainerState = rememberHomeUiContainerState,
+            uiLocationState = uiLocationState,
+            uiUserState = uiUserState,
+            uiSpotsState = uiSpotsState,
+            uiItemState = uiSpotState,
+            uiAreasState = uiAreasState,
+            uiElapsedTimeState = uiElapsedTimeState,
+            uiDirectionsState = uiDirectionsState,
+            uiRouteState = uiRouteState,
+            onSet = homeViewModel::onSet,
+            onSelectSpot = homeViewModel::onSelectSpot,
+            onCreateRoute = homeViewModel::onCreateRoute,
+            onRemoveSpot = homeViewModel::onRemoveSpot,
+            onStartTimer = homeViewModel::onSaveGetStartTimer,
+            onGetAddressLine = homeViewModel::onGetAddressLine,
+            onShowRewardedAdmob = homeViewModel::onShowRewardedAdmob,
+            onSetHelpValue = homeViewModel::onSetHelpValue
+        )
+        AnimatedVisibility(uiHelpState) {
+            HelpContent(onSetHelpValue = homeViewModel::onSetHelpValue)
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -97,13 +132,14 @@ private fun HomeContent(
     uiElapsedTimeState: Long,
     uiDirectionsState: DirectionsUiState,
     uiRouteState: List<LatLng>,
-    onSet: (HomeUiContainerState, () -> Unit) -> Unit,
+    onSet: (Context, HomeUiContainerState, () -> Unit) -> Unit,
     onSelectSpot: (String) -> Unit,
-    onCreateRoute: () -> Unit,
+    onCreateRoute: (Context) -> Unit,
     onRemoveSpot: (Context) -> Unit,
-    onStartTimer: () -> Unit,
+    onStartTimer: (Context, String) -> Unit,
     onGetAddressLine: (Context, CameraPositionState, Boolean) -> Unit,
-    showRewardedAdmob: (Context) -> Unit,
+    onShowRewardedAdmob: (Context) -> Unit,
+    onSetHelpValue: (Boolean) -> Unit,
 ) {
 
     var isFirstLaunch by rememberSaveable { mutableStateOf(true) }
@@ -134,7 +170,7 @@ private fun HomeContent(
         }
     }
 
-    LaunchedEffect(key1 = uiItemState) {
+    LaunchedEffect(key1 = uiItemState, key2 = uiElapsedTimeState > DEFAULT_ELAPSED_TIME) {
         if (!isFirstLaunch && uiItemState != null && uiElapsedTimeState > DEFAULT_ELAPSED_TIME && uiItemState.tag.isNotEmpty()) {
 
             rememberHomeUiContainerState.onAnimateCameraBounds(
@@ -144,7 +180,7 @@ private fun HomeContent(
             rememberHomeUiContainerState.scrollState.animateScrollToItem(
                 index = uiSpotsState.items.indexOf(uiSpotsState.items.find { it.tag == uiItemState.tag })
             )
-            onCreateRoute()
+            onCreateRoute(context)
         }
     }
 
@@ -168,7 +204,11 @@ private fun HomeContent(
         drawerState = rememberHomeUiContainerState.drawerState,
         drawerContent = {
             ModalDrawerSheet(modifier = Modifier.fillMaxWidth(0.8f)) {
-                DrawerContent(uiUserState = uiUserState, onNavigate = onNavigate)
+                DrawerContent(
+                    uiUserState = uiUserState,
+                    onNavigate = onNavigate,
+                    onSetHelpValue = onSetHelpValue
+                )
             }
         },
         gesturesEnabled = rememberHomeUiContainerState.drawerState.isOpen
@@ -178,10 +218,10 @@ private fun HomeContent(
                 BottomBarContent(
                     rememberHomeUiContainerState = rememberHomeUiContainerState,
                     isElapsedTime = uiElapsedTimeState > DEFAULT_ELAPSED_TIME,
-                    onStartTimer = onStartTimer,
+                    onStartTimer = { onStartTimer(context, SPOTS_TIMER) },
                     onRemoveSpot = { onRemoveSpot(context) },
                     onSet = { onMain ->
-                        onSet(rememberHomeUiContainerState, onMain)
+                        onSet(context, rememberHomeUiContainerState, onMain)
                     }
                 )
             },
@@ -206,7 +246,7 @@ private fun HomeContent(
                     sheetTonalElevation = 3.dp,
                     sheetSwipeEnabled = rememberHomeUiContainerState.screenState == ScreenState.MAIN
                 ) {
-                    MainContent(
+                    HomeMainContent(
                         rememberHomeUiContainerState = rememberHomeUiContainerState,
                         camPosState = rememberHomeUiContainerState.camPosState,
                         uiUserState = uiUserState,
@@ -243,9 +283,9 @@ private fun HomeContent(
                         onCameraTilt = rememberHomeUiContainerState::onAnimateCameraTilt,
                         onSelectSpot = onSelectSpot,
                         onSet = { onMain ->
-                            onSet(rememberHomeUiContainerState, onMain)
+                            onSet(context, rememberHomeUiContainerState, onMain)
                         },
-                        showRewardedAdmob = { showRewardedAdmob(context) },
+                        showRewardedAdmob = { onShowRewardedAdmob(context) },
                         modifier = Modifier.height(
                             (rememberHomeUiContainerState.bsScaffoldState.bottomSheetState.requireOffset()
                                     / LocalContext.current.resources.displayMetrics.density).dp

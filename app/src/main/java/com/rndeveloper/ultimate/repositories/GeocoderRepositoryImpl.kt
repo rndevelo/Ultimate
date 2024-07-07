@@ -53,9 +53,7 @@ class GeocoderRepositoryImpl @Inject constructor(
         } catch (ex: Exception) {
             ex.printStackTrace()
         }
-        awaitClose {
-            channel.close()
-        }
+        awaitClose()
     }
 }
 

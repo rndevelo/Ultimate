@@ -73,7 +73,7 @@ fun AlertRecoverPassDialog(
                 },
             ) {
                 Text(
-                    text = stringResource(R.string.login_text_send_recover_password),
+                    text = stringResource(R.string.app_text_send),
                     fontSize = 20.sp,
                 )
             }
@@ -83,7 +83,7 @@ fun AlertRecoverPassDialog(
                 onClick = dismissDialog,
             ) {
                 Text(
-                    text = stringResource(R.string.login_text_recover_password_cancel),
+                    text = stringResource(R.string.login_text_cancel),
                     fontSize = 20.sp,
                 )
             }

@@ -68,12 +68,12 @@ class ActivityTransitionReceiver : HiltActivityTransitionReceiver() {
             val result = ActivityTransitionResult.extractResult(intent)
             result?.transitionEvents?.forEach { event ->
 
-                sendNotification(
-                    context = context,
-                    contentTitle = "Hola",
-                    contentText = getInfo(event),
-                    34
-                )
+//                sendNotification(
+//                    context = context,
+//                    contentTitle = "Hola",
+//                    contentText = getInfo(event),
+//                    34
+//                )
 
                 when {
                     event.activityType == DetectedActivity.IN_VEHICLE &&

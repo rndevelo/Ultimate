@@ -5,7 +5,7 @@ import com.rndeveloper.ultimate.exceptions.LoginException
 import com.rndeveloper.ultimate.extensions.isEmailValid
 import com.rndeveloper.ultimate.extensions.isPasswordValid
 import com.rndeveloper.ultimate.repositories.LoginRepository
-import com.rndeveloper.ultimate.ui.screens.login.uistates.LoginState
+import com.rndeveloper.ultimate.ui.screens.login.uistates.LoginSignState
 import com.rndeveloper.ultimate.ui.screens.login.uistates.LoginUiState
 import com.rndeveloper.ultimate.usecases.BaseUseCase
 import kotlinx.coroutines.flow.Flow
@@ -25,7 +25,7 @@ class RegisterUseCase @Inject constructor(
             // Loading
             send(
                 LoginUiState().copy(
-                    screenState = LoginState.Register(),
+                    loginSignState = LoginSignState.SignUp(),
                     isLoading = true
                 )
             )
@@ -35,7 +35,7 @@ class RegisterUseCase @Inject constructor(
                 !email.isEmailValid() -> {
                     send(
                         LoginUiState().copy(
-                            screenState = LoginState.Login(),
+                            loginSignState = LoginSignState.SignIn(),
                             errorMessage = LoginException.EmailInvalidFormat(),
                             isLoading = false,
                             isRegistered = false,
@@ -45,7 +45,7 @@ class RegisterUseCase @Inject constructor(
                 !pass.isPasswordValid() -> {
                     send(
                         LoginUiState().copy(
-                            screenState = LoginState.Login(),
+                            loginSignState = LoginSignState.SignIn(),
                             errorMessage = LoginException.PasswordInvalidFormat(),
                             isLoading = false,
                             isRegistered = false,
@@ -58,7 +58,7 @@ class RegisterUseCase @Inject constructor(
                         .catch { exception ->
                             send(
                                 LoginUiState().copy(
-                                    screenState = LoginState.Register(),
+                                    loginSignState = LoginSignState.SignUp(),
                                     isRegistered = false,
                                     isLoading = false,
                                     errorMessage = CustomException.GenericException(
@@ -72,7 +72,7 @@ class RegisterUseCase @Inject constructor(
                                 onSuccess = { authResult ->
                                     send(
                                         LoginUiState().copy(
-                                            screenState = LoginState.Register(),
+                                            loginSignState = LoginSignState.SignUp(),
                                             isRegistered = true,
                                             isLoading = false
                                         )
@@ -81,7 +81,7 @@ class RegisterUseCase @Inject constructor(
                                 onFailure = { exception ->
                                     send(
                                         LoginUiState().copy(
-                                            screenState = LoginState.Register(),
+                                            loginSignState = LoginSignState.SignUp(),
                                             isRegistered = false,
                                             isLoading = false,
                                             errorMessage = CustomException.GenericException(

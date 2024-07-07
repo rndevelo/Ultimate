@@ -1,13 +1,11 @@
 package com.rndeveloper.ultimate.ui.screens.home.components.subcomponents
 
-import android.widget.Space
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -58,7 +56,7 @@ fun ProfileHeaderContent(
             )
             Spacer(modifier = Modifier.width(8.dp))
             Column {
-                Text(text = stringResource(R.string.profile_text_welcome))
+                Text(text = stringResource(R.string.app_text_welcome))
                 Text(text = user.username)
             }
         }

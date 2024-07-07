@@ -1,11 +1,8 @@
 package com.rndeveloper.ultimate.usecases.login
 
 import com.rndeveloper.ultimate.exceptions.CustomException
-import com.rndeveloper.ultimate.exceptions.LoginException
-import com.rndeveloper.ultimate.extensions.isEmailValid
-import com.rndeveloper.ultimate.extensions.isPasswordValid
 import com.rndeveloper.ultimate.repositories.LoginRepository
-import com.rndeveloper.ultimate.ui.screens.login.uistates.LoginState
+import com.rndeveloper.ultimate.ui.screens.login.uistates.LoginSignState
 import com.rndeveloper.ultimate.ui.screens.login.uistates.LoginUiState
 import com.rndeveloper.ultimate.usecases.BaseUseCase
 import kotlinx.coroutines.flow.Flow
@@ -24,7 +21,7 @@ class SendEmailVerificationUseCase @Inject constructor(
             // Loading
             send(
                 LoginUiState().copy(
-                    screenState = LoginState.Login(),
+                    loginSignState = LoginSignState.SignIn(),
                     isLoading = true,
                 )
             )
@@ -33,7 +30,7 @@ class SendEmailVerificationUseCase @Inject constructor(
                 .catch { exception ->
                     send(
                         LoginUiState().copy(
-                            screenState = LoginState.Login(),
+                            loginSignState = LoginSignState.SignIn(),
                             isLoading = false,
                             isEmailSent = false,
                             errorMessage = CustomException.GenericException(
@@ -47,7 +44,7 @@ class SendEmailVerificationUseCase @Inject constructor(
                         onSuccess = { _ ->
                             send(
                                 LoginUiState().copy(
-                                    screenState = LoginState.Login(),
+                                    loginSignState = LoginSignState.SignIn(),
                                     isLoading = false,
                                     isRegistered = false,
                                     isEmailSent = true,
@@ -57,7 +54,7 @@ class SendEmailVerificationUseCase @Inject constructor(
                         onFailure = { exception ->
                             send(
                                 LoginUiState().copy(
-                                    screenState = LoginState.Login(),
+                                    loginSignState = LoginSignState.SignIn(),
                                     isLoading = false,
                                     isEmailSent = false,
                                     errorMessage = CustomException.GenericException(

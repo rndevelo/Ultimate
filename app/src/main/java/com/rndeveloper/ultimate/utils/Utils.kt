@@ -39,10 +39,7 @@ object Utils {
             .setContentTitle(contentTitle)
             .setContentText(contentText)
             .setPriority(NotificationCompat.PRIORITY_MAX)
-//            .setOngoing(true)
-//            .setContentIntent(notifyPendingIntent)
-            .addAction(R.drawable.ic_add_spot, "Send",
-                notifyPendingIntent)
+            .setContentIntent(notifyPendingIntent)
 
         with(NotificationManagerCompat.from(context)) {
             // notificationId is a unique int for each notification that you must define.

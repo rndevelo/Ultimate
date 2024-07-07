@@ -17,9 +17,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.rndeveloper.ultimate.R
 import com.rndeveloper.ultimate.model.MenuItem
 import com.rndeveloper.ultimate.nav.Routes
 import com.rndeveloper.ultimate.ui.screens.home.components.subcomponents.ProfileHeaderContent
@@ -29,6 +31,7 @@ import com.rndeveloper.ultimate.ui.screens.home.uistates.UserUiState
 fun DrawerContent(
     uiUserState: UserUiState,
     onNavigate: (String) -> Unit,
+    onSetHelpValue: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -43,20 +46,14 @@ fun DrawerContent(
         DrawerMenuItemListContent(
             items = listOf(
                 MenuItem(
-//                id = 2,
-                    title = "Settings",
-//                contentDescription = "Get help",
+                    title = R.string.settings_text_settings,
                     icon = Icons.Outlined.Settings,
-//                color = Blue500,
                     unit = { onNavigate(Routes.SettingsScreen.route) }
                 ),
                 MenuItem(
-//                id = 3,
-                    title = "Ayuda",
-//                contentDescription = "Logout",
+                    title = R.string.home_text_help,
                     icon = Icons.Outlined.Info,
-//                color = Blue500,
-                    unit = {}
+                    unit = { onSetHelpValue(true) }
                 ),
             )
         )
@@ -82,15 +79,13 @@ fun DrawerMenuItemListContent(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = item.title,
-//                        color = MaterialTheme.colors.onSurface,
+                        text = stringResource(id = item.title),
                         style = itemTextStyle,
                         modifier = modifier.weight(1f)
                     )
                     Icon(
                         imageVector = item.icon,
-                        contentDescription = "item.contentDescription",
-//                        tint = MaterialTheme.colors.primary,
+                        contentDescription = item.icon.toString(),
                     )
                 }
             }

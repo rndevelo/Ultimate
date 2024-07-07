@@ -71,16 +71,6 @@ interface PermissionTextProvider {
     fun getDescription(isPermanentlyDeclined: Boolean, context: Context): String
 }
 
-class ActivityRecognitionPermissionTextProvider : PermissionTextProvider {
-    override fun getDescription(isPermanentlyDeclined: Boolean, context: Context): String {
-        return if (isPermanentlyDeclined) {
-            context.getString(R.string.permission_text_permanently_declined_activity_recognition) +
-                    context.getString(R.string.permission_text_app_settings)
-        } else {
-            context.getString(R.string.permission_text_app_requires_functionality)
-        }
-    }
-}
 
 class PostNotificationsPermissionTextProvider : PermissionTextProvider {
     override fun getDescription(isPermanentlyDeclined: Boolean, context: Context): String {
@@ -88,7 +78,18 @@ class PostNotificationsPermissionTextProvider : PermissionTextProvider {
             context.getString(R.string.permission_text_permanently_declined_post_notifications) +
                     context.getString(R.string.permission_text_app_settings)
         } else {
-            context.getString(R.string.permission_text_app_requires_functionality)
+            context.getString(R.string.permission_text_rationale_post_notification)
+        }
+    }
+}
+
+class ActivityRecognitionPermissionTextProvider : PermissionTextProvider {
+    override fun getDescription(isPermanentlyDeclined: Boolean, context: Context): String {
+        return if (isPermanentlyDeclined) {
+            context.getString(R.string.permission_text_permanently_declined_activity_recognition) +
+                    context.getString(R.string.permission_text_app_settings)
+        } else {
+            context.getString(R.string.permission_text_rationale_activity_recognition)
         }
     }
 }
@@ -99,10 +100,11 @@ class FineLocationPermissionTextProvider : PermissionTextProvider {
             context.getString(R.string.permission_text_permanently_declined_fine) +
                     context.getString(R.string.permission_text_app_settings)
         } else {
-            context.getString(R.string.permission_text_app_requires_functionality)
+            context.getString(R.string.permission_text_rationale_fine_location)
         }
     }
 }
+
 
 class BackGroundLocationPermissionTextProvider : PermissionTextProvider {
     override fun getDescription(isPermanentlyDeclined: Boolean, context: Context): String {
@@ -110,7 +112,7 @@ class BackGroundLocationPermissionTextProvider : PermissionTextProvider {
             context.getString(R.string.permission_text_permanently_declined_background) +
                     context.getString(R.string.permission_text_app_settings)
         } else {
-            context.getString(R.string.permission_text_app_requires_functionality)
+            context.getString(R.string.permission_text_rationale_background_location)
         }
     }
 }

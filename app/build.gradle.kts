@@ -115,9 +115,9 @@ dependencies {
     kapt("com.google.dagger:hilt-android-compiler:2.51.1")
 
     // Firebase
-    implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
+    implementation(platform("com.google.firebase:firebase-bom:33.1.1"))
     implementation("com.google.firebase:firebase-auth-ktx")
-    implementation("com.google.firebase:firebase-crashlytics-ktx:19.0.1")
+    implementation("com.google.firebase:firebase-crashlytics-ktx:19.0.2")
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("com.firebase:geofire-android:3.1.0")
@@ -128,7 +128,7 @@ dependencies {
     //Credential Manager
     implementation("androidx.credentials:credentials:1.2.2")
     implementation("androidx.credentials:credentials-play-services-auth:1.2.2")
-    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
 
 //    Play Services
 
@@ -139,11 +139,11 @@ dependencies {
     implementation("com.google.android.gms:play-services-location:21.3.0")
 
     // Google Maps
-    implementation("com.google.android.gms:play-services-maps:18.2.0")
+    implementation("com.google.android.gms:play-services-maps:19.0.0")
     implementation("com.google.maps.android:maps-compose:2.5.3")
 
     // Admob
-    implementation("com.google.android.gms:play-services-ads:23.1.0")
+    implementation("com.google.android.gms:play-services-ads:23.2.0")
 
 
     // DataStore
@@ -161,6 +161,7 @@ dependencies {
     // Coil
 //    implementation("io.coil-kt:coil:2.5.0")
     implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation ("io.coil-kt:coil-gif:2.1.0")
 
 //    Retrofit
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
@@ -170,8 +171,8 @@ dependencies {
 
     // Test
     testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
     androidTestImplementation(platform("androidx.compose:compose-bom:2024.06.00"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")

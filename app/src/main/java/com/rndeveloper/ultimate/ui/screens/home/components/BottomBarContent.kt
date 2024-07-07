@@ -52,6 +52,7 @@ fun BottomBarContent(
         Column {
             Row(
                 modifier = modifier
+                    .height(70.dp)
                     .fillMaxWidth()
                     .padding(horizontal = 10.dp)
                     .padding(bottom = 10.dp),

@@ -33,6 +33,10 @@ object Constants {
     const val TIMER: Long = 30_000L
     const val DEFAULT_ELAPSED_TIME: Long = 0L
 
+    //    Help
+    const val HELP_KEY = "HELP_KEY"
+
+
     //Time
     const val MINUTE: Long = 60_000L
 

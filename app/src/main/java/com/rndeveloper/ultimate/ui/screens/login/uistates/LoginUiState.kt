@@ -7,7 +7,7 @@ import com.rndeveloper.ultimate.model.User
 import com.rndeveloper.ultimate.ui.BaseUiState
 
 data class LoginUiState(
-    val screenState: LoginState,
+    val loginSignState: LoginSignState,
     val user: User,
     val isLogged: Boolean,
     val isRegistered: Boolean,
@@ -18,7 +18,7 @@ data class LoginUiState(
 ) : BaseUiState(isLoading, errorMessage) {
 
     constructor() : this(
-        screenState = LoginState.Login(),
+        loginSignState = LoginSignState.SignIn(),
         user = User(),
         isLogged = false,
         isRegistered = false,
@@ -29,20 +29,20 @@ data class LoginUiState(
     )
 }
 
-sealed class LoginState(
+sealed class LoginSignState(
     @StringRes val buttonText: Int,
     @StringRes val accountText: Int,
     @StringRes val signText: Int
 ) {
-    data class Login(
-        @StringRes val button: Int = R.string.login_text_button,
+    data class SignIn(
+        @StringRes val button: Int = R.string.login_text_sign_in,
         @StringRes val account: Int = R.string.login_text_no_account,
         @StringRes val sign: Int = R.string.login_text_sign_up
-    ) : LoginState(button, account, sign)
+    ) : LoginSignState(button, account, sign)
 
-    data class Register(
-        @StringRes val button: Int = R.string.register_text_button,
+    data class SignUp(
+        @StringRes val button: Int = R.string.login_text_sign_up,
         @StringRes val account: Int = R.string.login_text_yes_account,
         @StringRes val sign: Int = R.string.login_text_sign_in
-    ) : LoginState(button, account, sign)
+    ) : LoginSignState(button, account, sign)
 }

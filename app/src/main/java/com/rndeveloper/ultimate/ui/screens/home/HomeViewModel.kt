@@ -4,22 +4,21 @@ import android.app.Activity
 import android.content.Context
 import android.location.Location
 import android.os.CountDownTimer
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import com.rndeveloper.ultimate.BuildConfig
+import com.rndeveloper.ultimate.R
 import com.rndeveloper.ultimate.backend.ApiService
 import com.rndeveloper.ultimate.exceptions.CustomException
 import com.rndeveloper.ultimate.extensions.onNavigate
 import com.rndeveloper.ultimate.model.Directions
+import com.rndeveloper.ultimate.model.Help
 import com.rndeveloper.ultimate.model.Position
 import com.rndeveloper.ultimate.model.Item
 import com.rndeveloper.ultimate.model.SpotType
@@ -27,6 +26,7 @@ import com.rndeveloper.ultimate.model.Timer
 import com.rndeveloper.ultimate.repositories.ActivityTransitionRepo
 import com.rndeveloper.ultimate.repositories.GeocoderRepository
 import com.rndeveloper.ultimate.repositories.GeofenceClient
+import com.rndeveloper.ultimate.repositories.HelpRepository
 import com.rndeveloper.ultimate.repositories.LocationClient
 import com.rndeveloper.ultimate.repositories.TimerRepository
 import com.rndeveloper.ultimate.repositories.UserRepository
@@ -63,6 +63,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val timerRepository: TimerRepository,
+    private val helpRepository: HelpRepository,
     private val locationClient: LocationClient,
     private val spotsUseCases: SpotsUseCases,
     private val userUseCases: UserUseCases,
@@ -115,6 +116,13 @@ class HomeViewModel @Inject constructor(
         initialValue = DEFAULT_ELAPSED_TIME,
     )
 
+    private val _helpState = MutableStateFlow(false)
+    val uiHelpState: StateFlow<Boolean> = _helpState.asStateFlow().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = false,
+    )
+
     private val _directionsState = MutableStateFlow(DirectionsUiState())
     val uiDirectionsState: StateFlow<DirectionsUiState> = _directionsState.asStateFlow().stateIn(
         scope = viewModelScope,
@@ -131,17 +139,18 @@ class HomeViewModel @Inject constructor(
 
 
     init {
-        onGetAndStartTimer()
         viewModelScope.launch {
             awaitAll(
                 async { onGetUserData() },
                 async { onGetLocationData() },
             )
         }
+        onGetAndStartTimer()
+        onGetHelpValue()
     }
 
 
-    fun onCreateRoute() = viewModelScope.launch {
+    fun onCreateRoute(context: Context) = viewModelScope.launch {
         val call = apiService.getRoute(
             BuildConfig.ROUTES_API_KEY,
             "${_locationState.value.location?.lng},${_locationState.value.location?.lat}",
@@ -155,32 +164,51 @@ class HomeViewModel @Inject constructor(
                 _routeState.update {
                     mapRoute
                 }
-            }else{
+            } else {
                 _routeState.update {
                     emptyList()
                 }
                 _spotsState.update {
-                    it.copy(errorMessage = CustomException.GenericException("The route could not be calculated"))
+                    it.copy(errorMessage = CustomException.GenericException(context.getString(R.string.home_text_the_route_could_not_be_calculated)))
                 }
             }
-        }else{
+        } else {
             _routeState.update {
                 emptyList()
             }
             _spotsState.update {
-                it.copy(errorMessage = CustomException.GenericException("The route could not be calculated"))
+                it.copy(errorMessage = CustomException.GenericException(context.getString(R.string.home_text_the_route_could_not_be_calculated)))
             }
         }
     }
 
 
-    //    TIMER
+    //    HELP
+    private fun onGetHelpValue() = viewModelScope.launch {
+        helpRepository.getData(Constants.HELP_KEY).collectLatest { help ->
+            _helpState.update {
+                help.isHelp
+            }
+        }
+    }
+
+    fun onSetHelpValue(isHelp: Boolean) = viewModelScope.launch {
+        Help(
+            id = Constants.HELP_KEY,
+            isHelp = isHelp
+        ).let {
+            helpRepository.saveData(it)
+        }
+    }
+
     private fun onGetAndStartTimer() = viewModelScope.launch {
         timerRepository.getTimer(Constants.SPOTS_TIMER).collectLatest { timer ->
 
             if (timer.endTime > currentTime()) {
 
-                onSelectSpot(_spotsState.value.items.first().tag)
+                if (_spotsState.value.items.isNotEmpty()) {
+                    onSelectSpot(_spotsState.value.items.first().tag)
+                }
                 object : CountDownTimer(
                     timer.endTime - currentTime(),
                     INTERVAL
@@ -204,7 +232,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun onSaveGetStartTimer(timerId: String) {
+    fun onSaveGetStartTimer(context: Context, timerId: String) {
 
         if (_spotsState.value.items.isNotEmpty()) {
             if (_userState.value.user.points >= 5) {
@@ -222,13 +250,13 @@ class HomeViewModel @Inject constructor(
 
             } else {
                 _spotsState.update {
-                    it.copy(errorMessage = CustomException.GenericException("You don't have enough credits."))
+                    it.copy(errorMessage = CustomException.GenericException(context.getString(R.string.home_text_you_don_t_have_enough_credits)))
                 }
             }
 
         } else {
             _spotsState.update {
-                it.copy(errorMessage = CustomException.GenericException("There are no parking in this area"))
+                it.copy(errorMessage = CustomException.GenericException(context.getString(R.string.home_text_there_are_no_parking_in_this_area)))
             }
         }
     }
@@ -295,7 +323,7 @@ class HomeViewModel @Inject constructor(
             }.await()
 
             _directionsState.update {
-                it.copy(directions = directions)
+                it.copy(directions = directions, isLoading = false)
             }
 
             _locationState.value.location?.let { locPosition ->
@@ -358,8 +386,9 @@ class HomeViewModel @Inject constructor(
 
     //    SET SPOT
     fun onSet(
+        context: Context,
         rememberHomeUiContainerState: HomeUiContainerState,
-        onMainState: () -> Unit
+        onMainState: () -> Unit,
     ) = viewModelScope.launch {
 
         _spotsState.update {
@@ -388,7 +417,13 @@ class HomeViewModel @Inject constructor(
                     }.collectLatest { newHomeUiState ->
                         onMainState()
                         _spotsState.update {
-                            it.copy(errorMessage = CustomException.GenericException("Sent"))
+                            it.copy(
+                                errorMessage = CustomException.GenericException(
+                                    context.getString(
+                                        R.string.home_text_sent
+                                    )
+                                )
+                            )
                         }
                     }
                 }
@@ -399,9 +434,6 @@ class HomeViewModel @Inject constructor(
                         userRepository.setUserData(user)
                     }.collectLatest { newHomeUiState ->
                         onMainState()
-                        _userState.update {
-                            it
-                        }
                     }
                 }
 
@@ -439,7 +471,7 @@ class HomeViewModel @Inject constructor(
                     _spotsState.update {
                         _spotsState.value.copy(
                             isLoading = false,
-                            errorMessage = CustomException.GenericException("Start geofence was error")
+                            errorMessage = CustomException.GenericException(context.getString(R.string.home_text_start_geofence_was_error))
                         )
                     }
                 }
@@ -448,20 +480,19 @@ class HomeViewModel @Inject constructor(
             _spotsState.update {
                 _spotsState.value.copy(
                     isLoading = false,
-                    errorMessage = CustomException.GenericException("You can't get your own place")
+                    errorMessage = CustomException.GenericException(context.getString(R.string.home_text_you_can_t_get_your_own_place))
                 )
             }
         }
     }
 
     fun onSetPoint(points: Long) = viewModelScope.launch {
-
         _userState.value.user.copy(points = _userState.value.user.points + points).let { user ->
             userRepository.setUserData(user)
         }.collectLatest { newHomeUiState -> }
     }
 
-    fun showRewardedAdmob(context: Context) {
+    fun onShowRewardedAdmob(context: Context) {
         val adRequest = AdRequest.Builder().build()
 
         RewardedAd.load(
@@ -475,20 +506,21 @@ class HomeViewModel @Inject constructor(
             object : RewardedAdLoadCallback() {
                 override fun onAdFailedToLoad(adError: LoadAdError) {
                     _spotsState.update {
-                        it.copy(errorMessage = CustomException.GenericException("AD ERROR: ${adError.message}"))
+                        it.copy(errorMessage = CustomException.GenericException(adError.message))
                     }
                 }
 
                 override fun onAdLoaded(rewardedAd: RewardedAd) {
 
                     rewardedAd.show(context as Activity) { rewardItem ->
-                        val amount = rewardItem.amount
-                        val type = rewardItem.type
                         onSetPoint(1)
                         _spotsState.update {
-                            it.copy(errorMessage = CustomException.GenericException("Congratulations! You has won one point."))
+                            it.copy(
+                                errorMessage = CustomException.GenericException(
+                                    context.getString(R.string.home_text_add_won_one_point)
+                                )
+                            )
                         }
-                        Log.i("showRewardedAdmob", "amount $amount  type $type.")
                     }
                 }
             })

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Paparcar</string>
+
+    <!-- LOGIN-->
+    <string name="login_text_field_email">Introduce tu email</string>
+    <string name="login_text_field_password">Introduce tu contraseña</string>
+    <string name="login_text_forgot_your_password">¿Olvidaste tu contraseña?</string>
+    <string name="login_text_recover_password">Recuperar contraseña</string>
+    <string name="login_text_cancel">Cancelar</string>
+    <string name="login_text_paparcar">Bienvenido a Paparcar</string>
+    <string name="login_text_description">La aplicación que te ayuda a encontrar y gestionar plazas de aparcamiento.</string>
+    <string name="login_text_verify_email_title">Hemos enviado un correo electrónico para verificar su cuenta.</string>
+    <string name="login_text_verify_email_text">Accede a tu correo electrónico para verificarlo</string>
+    <string name="login_text_signing_in">Iniciando sesión…</string>
+    <string name="login_text_sign_in_with_google">Inicia sesión con Google</string>
+    <string name="login_icon_google">Logo Google</string>
+    <string name="login_text_no_account">" ¿No tienes una cuenta?"</string>
+    <string name="login_text_yes_account">¿Tiene usted una cuenta?</string>
+    <string name="login_text_sign_up">Registrarse</string>
+    <string name="login_text_sign_in">Iniciar sesión</string>
+
+    <!-- PERMISSIONS-->
+    <string name="permissions_text_title">¡Encuentra plazas de aparcamiento en tiempo real!</string>
+    <string name="permissions_text_main_description">Para el funcionamiento de esta aplicación necesitaremos su permiso.\n Acepta el poder de permisos para continuar. En caso contrario tendrás que hacerlo manualmente desde la configuración.</string>
+    <string name="permissions_text_activate">Activar</string>
+    <string name="permission_text_grant_permission">" Conceder permiso"</string>
+    <string name="permission_text_ok">Vale</string>
+    <string name="permission_text_permission_required">Permiso requerido</string>
+    <string name="permission_text_app_settings">" Puedes ir a la configuración de la aplicación para otorgarlo."</string>
+    <string name="permission_text_rationale_post_notification">Esta aplicación requiere permiso de notificación posterior para su funcionalidad completa.</string>
+    <string name="permission_text_rationale_activity_recognition">Esta aplicación requiere reconocimiento de actividad para su funcionalidad completa.</string>
+    <string name="permission_text_rationale_fine_location">"Esta aplicación requiere una buena ubicación para su plena funcionalidad. "</string>
+    <string name="permission_text_rationale_background_location">Esta aplicación requiere una ubicación en segundo plano para su funcionalidad completa.</string>
+    <string name="permission_text_permanently_declined_background">"Parece que rechazaste permanentemente el permiso de ubicación en segundo plano. "</string>
+    <string name="permission_text_permanently_declined_fine">"Parece que rechazaste permanentemente el permiso de ubicación fina. "</string>
+    <string name="permission_text_permanently_declined_post_notifications">Parece que rechazaste permanentemente el permiso para publicar notificaciones.</string>
+    <string name="permission_text_permanently_declined_activity_recognition">"Parece que rechazaste permanentemente el permiso de reconocimiento de actividad. "</string>
+
+    <!-- HOME-->
+    <string name="home_text_without_parking_spots">"Sin plazas de aparcamiento"</string>
+    <string name="home_text_low_areas_activity">Actividad de zona baja</string>
+    <string name="home_text_unknown_location">Ubicación desconocida</string>
+    <string name="home_text_your_parked_car">Tu vehículo estacionado</string>
+    <string name="home_text_not_park_car">No hay ningún vehiculo estacionado</string>
+    <string name="home_text_add_spot">Agregar plaza</string>
+    <string name="home_text_show_spots">Mostrar plazas</string>
+    <string name="home_text_park_your_car">Aparcar vehículo</string>
+    <string name="home_text_search_parking_spot">"Buscar plazas de aparcamiento "</string>
+    <string name="home_text_add_a_new_spot">Agregar una nueva plaza</string>
+    <string name="home_text_areas_nearby">%1$s áreas de estacionamiento cercanas</string>
+    <string name="home_text_spots_nearby">%1$s plazas de aparcamiento cercanas</string>
+    <string name="home_text_parking_spots">%1$s plazas de aparcamiento</string>
+    <string name="home_text_more_1creds">+1cred.</string>
+    <string name="home_text_more_5creds">+5cred.</string>
+    <string name="home_text_5creds">5creds.</string>
+    <string name="home_text_navigate_my_car">Haz clic aquí y navega hasta tu coche.</string>
+    <string name="home_text_more_2creds">+2creds.</string>
+    <string name="home_text_navigate">Navegar</string>
+    <string name="home_text_show_ad">Mostrar anuncio</string>
+    <string name="home_text_ten_minutes">30:00</string>
+    <string name="home_text_sent">Enviado</string>
+    <string name="home_text_add_won_one_point">¡Felicidades! Has ganado un punto.</string>
+    <string name="home_text_you_don_t_have_enough_credits">No tienes suficientes créditos.</string>
+    <string name="home_text_there_are_no_parking_in_this_area">No hay aparcamiento en esta zona</string>
+    <string name="home_text_start_geofence_was_error">Se produjo un error al iniciar la geocerca</string>
+    <string name="home_text_you_can_t_get_your_own_place">No puedes conseguir tu propia plaza</string>
+    <string name="home_text_the_route_could_not_be_calculated">No se pudo calcular la ruta.</string>
+    <string name="home_text_add_spot_time">Agregar hora puntual</string>
+    <string name="home_text_now">Ahora</string>
+    <string name="home_text_in_5_minutes">En 5 minutos</string>
+    <string name="home_text_in_10_minutes">En 10 minutos</string>
+    <string name="home_text_in_15_minutes">En 15 minutos</string>
+    <string name="home_text_in_20_minutes">En 20 minutos</string>
+    <string name="home_text_in_25_minutes">En 25 minutos</string>
+    <string name="home_text_in_30_minutes">En 30 minutos</string>
+
+    <!-- HELP-->
+    <string name="home_text_help_description_one">¡Los estacionamientos no se agregan solos! Así que para asegurar la completa funcionalidad de la aplicación hemos creado un sistema de créditos para que tanto tú como el resto de usuarios también incluyas tu espacio libre al salir. Podrás consultar cuando quieras el número de plazas libres en la zona.</string>
+    <string name="home_text_help_description_two">Para poder ver dónde están tendrás que tener un mínimo de 5 creds. y pulsar el botón "Mostrar plazas".</string>
+    <string name="home_text_help_description_three">Al navegar al lugar seleccionado recibirás automáticamente 2 créds.</string>
+    <string name="home_text_help_description_four">Para agregar una nueva plaza, presione el botón "Agregar plaza". Cuando un usuario obtenga su plaza recibirá 5 créds.</string>
+    <string name="home_text_help_description_five">Para estacionar su vehículo presione el botón Estacionar vehículo (esta función también se realiza de manera automática).</string>
+    <string name="home_text_help">Ayuda</string>
+    <string name="home_text_skip">SALTAR</string>
+    <string name="home_text_next">SIGUIENTE</string>
+
+    <string name="app_text_welcome">Bienvenido,</string>
+    <string name="app_text_send">Enviar</string>
+
+    <!-- SETTINGS-->
+    <string name="settings_text_settings">Ajustes</string>
+    <string name="settings_text_do_you_want_to_log_out">¿Quieres cerrar sesión?</string>
+    <string name="settings_text_do_you_want_to_delete_your_account">¿Quieres eliminar tu cuenta permanentemente?</string>
+    <string name="settings_text_logout">Cerrar sesión</string>
+    <string name="settings_text_delete_user">Eliminar usuario</string>
+    <string name="settings_text_dialog_confirm">Confirmas</string>
+    <string name="settings_text_dialog_cancel">Cancelar</string>
+    <string name="home_text_let_s_go">" ¡VAMOS!"</string>
+
+</resources>

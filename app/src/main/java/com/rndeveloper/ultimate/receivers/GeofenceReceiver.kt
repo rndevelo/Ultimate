@@ -47,38 +47,6 @@ class GeofenceReceiver : HiltGeofenceReceiver() {
             }
         }
 
-        val geofencingEvent = GeofencingEvent.fromIntent(intent)
-        if (geofencingEvent != null) {
-            if (geofencingEvent.hasError()) {
-                val errorMessage = GeofenceStatusCodes
-                    .getStatusCodeString(geofencingEvent.errorCode)
-                Log.e("New Receiver", errorMessage)
-                return
-            }
-        }
-        // Get the transition type.
-        val geofenceTransition = geofencingEvent?.geofenceTransition
-        // Get the geofences that were triggered. A single event can trigger
-        // multiple geofences.
-        val triggeringGeofences = geofencingEvent?.triggeringGeofences
-
-        // Test that the reported transition was of interest.
-        when (geofenceTransition) {
-            Geofence.GEOFENCE_TRANSITION_ENTER -> Toast.makeText(
-                context,
-                "ENTER",
-                Toast.LENGTH_SHORT
-            ).show()
-
-            Geofence.GEOFENCE_TRANSITION_DWELL -> Toast.makeText(
-                context,
-                "DWELL",
-                Toast.LENGTH_SHORT
-            ).show()
-
-            Geofence.GEOFENCE_TRANSITION_EXIT -> Toast.makeText(context, "EXIT", Toast.LENGTH_SHORT)
-                .show()
-        }
     }
 
     fun errorMessage(context: Context, errorCode: Int): String {

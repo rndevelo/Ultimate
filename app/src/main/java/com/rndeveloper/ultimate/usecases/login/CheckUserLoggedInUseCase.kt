@@ -2,7 +2,7 @@ package com.rndeveloper.ultimate.usecases.login
 
 import com.rndeveloper.ultimate.exceptions.CustomException
 import com.rndeveloper.ultimate.repositories.LoginRepository
-import com.rndeveloper.ultimate.ui.screens.login.uistates.LoginState
+import com.rndeveloper.ultimate.ui.screens.login.uistates.LoginSignState
 import com.rndeveloper.ultimate.ui.screens.login.uistates.LoginUiState
 import com.rndeveloper.ultimate.usecases.BaseUseCase
 import kotlinx.coroutines.flow.Flow
@@ -29,7 +29,7 @@ class CheckUserLoggedInUseCase @Inject constructor(
                 onSuccess = { logged ->
                     send(
                         LoginUiState().copy(
-                            screenState = LoginState.Login(),
+                            loginSignState = LoginSignState.SignIn(),
                             isLogged = logged
                         )
                     )
@@ -37,7 +37,7 @@ class CheckUserLoggedInUseCase @Inject constructor(
                 onFailure = {
                     send(
                         LoginUiState().copy(
-                            screenState = LoginState.Login(),
+                            loginSignState = LoginSignState.SignIn(),
                             isLogged = false,
                             errorMessage = CustomException.GenericException(
                                 it.message ?: "Google Login Error"

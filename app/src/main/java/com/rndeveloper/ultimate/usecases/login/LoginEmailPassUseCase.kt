@@ -5,7 +5,7 @@ import com.rndeveloper.ultimate.exceptions.LoginException
 import com.rndeveloper.ultimate.extensions.isEmailValid
 import com.rndeveloper.ultimate.extensions.isPasswordValid
 import com.rndeveloper.ultimate.repositories.LoginRepository
-import com.rndeveloper.ultimate.ui.screens.login.uistates.LoginState
+import com.rndeveloper.ultimate.ui.screens.login.uistates.LoginSignState
 import com.rndeveloper.ultimate.ui.screens.login.uistates.LoginUiState
 import com.rndeveloper.ultimate.usecases.BaseUseCase
 import kotlinx.coroutines.flow.Flow
@@ -25,7 +25,7 @@ class LoginEmailPassUseCase @Inject constructor(
             // Loading
             send(
                 LoginUiState().copy(
-                    screenState = LoginState.Login(),
+                    loginSignState = LoginSignState.SignIn(),
                     isLoading = true,
                 )
             )
@@ -35,7 +35,7 @@ class LoginEmailPassUseCase @Inject constructor(
                 !email.isEmailValid() -> {
                     send(
                         LoginUiState().copy(
-                            screenState = LoginState.Login(),
+                            loginSignState = LoginSignState.SignIn(),
                             errorMessage = LoginException.EmailInvalidFormat(),
                             isLoading = false
                         )
@@ -44,7 +44,7 @@ class LoginEmailPassUseCase @Inject constructor(
                 !pass.isPasswordValid() -> {
                     send(
                         LoginUiState().copy(
-                            screenState = LoginState.Login(),
+                            loginSignState = LoginSignState.SignIn(),
                             errorMessage = LoginException.PasswordInvalidFormat(),
                             isLoading = false
                         )
@@ -56,7 +56,7 @@ class LoginEmailPassUseCase @Inject constructor(
                         .catch { exception ->
                             send(
                                 LoginUiState().copy(
-                                    screenState = LoginState.Login(),
+                                    loginSignState = LoginSignState.SignIn(),
                                     isLogged = false,
                                     isLoading = false,
                                     errorMessage = CustomException.GenericException(
@@ -70,7 +70,7 @@ class LoginEmailPassUseCase @Inject constructor(
                                 onSuccess = { _ ->
                                     send(
                                         LoginUiState().copy(
-                                            screenState = LoginState.Login(),
+                                            loginSignState = LoginSignState.SignIn(),
                                             isLogged = true,
                                             isLoading = false
                                         )
@@ -79,7 +79,7 @@ class LoginEmailPassUseCase @Inject constructor(
                                 onFailure = { exception ->
                                     send(
                                         LoginUiState().copy(
-                                            screenState = LoginState.Login(),
+                                            loginSignState = LoginSignState.SignIn(),
                                             isLogged = false,
                                             isLoading = false,
                                             errorMessage = CustomException.GenericException(

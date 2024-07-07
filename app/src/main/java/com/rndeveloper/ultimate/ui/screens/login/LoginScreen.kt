@@ -132,7 +132,7 @@ fun LoginContent(
         ) {
             Column(
                 modifier = modifier
-                    .padding(horizontal = 25.dp)
+                    .padding(horizontal = 18.dp)
                     .padding(bottom = 34.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
@@ -151,7 +151,7 @@ fun LoginContent(
                     Text(
                         text = stringResource(R.string.login_text_description),
                         textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.padding(bottom = 5.dp)
                     )
                 }
@@ -206,8 +206,8 @@ fun LoginPreview() {
             recoverPassUIState = RecoverPassUiState(),
             onClickLoginOrRegister = { _, _ -> },
             onCLickRecoverPassword = {},
-            onChangeScreenState = { /*TODO*/ },
-            onClickGoogleButton = { /*TODO*/ },
+            onChangeScreenState = {},
+            onClickGoogleButton = {},
             onRecoveryPassUpdate = {}
         )
     }

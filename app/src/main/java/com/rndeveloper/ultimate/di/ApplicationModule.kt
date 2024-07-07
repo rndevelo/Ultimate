@@ -18,6 +18,8 @@ import com.rndeveloper.ultimate.repositories.GeocoderRepository
 import com.rndeveloper.ultimate.repositories.GeocoderRepositoryImpl
 import com.rndeveloper.ultimate.repositories.GeofenceClient
 import com.rndeveloper.ultimate.repositories.GeofenceClientImpl
+import com.rndeveloper.ultimate.repositories.HelpRepository
+import com.rndeveloper.ultimate.repositories.HelpRepositoryImpl
 import com.rndeveloper.ultimate.repositories.ItemsRepository
 import com.rndeveloper.ultimate.repositories.ItemsRepositoryImpl
 import com.rndeveloper.ultimate.repositories.LocationClient
@@ -74,6 +76,11 @@ object ApplicationModule {
     @Provides
     fun provideLocationRepository(fusedLocationProviderClient: FusedLocationProviderClient): LocationClient =
         LocationClientImpl(fusedLocationProviderClient = fusedLocationProviderClient)
+
+    @Singleton
+    @Provides
+    fun provideHelpRepository(userPreferencesRepository: DataStore<Preferences>): HelpRepository =
+        HelpRepositoryImpl(userPreferencesRepository = userPreferencesRepository)
 
     @Singleton
     @Provides

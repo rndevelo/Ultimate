@@ -18,7 +18,7 @@ data class User(
         uid = "",
         photo = "",
         token = "",
-        points = 0,
+        points = 3,
         car = null,
         createdAt = "",
     )

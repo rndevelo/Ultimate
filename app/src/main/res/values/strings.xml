@@ -4,33 +4,35 @@
     <!-- LOGIN-->
     <string name="login_text_field_email">Enter your email</string>
     <string name="login_text_field_password">Enter your password</string>
-    <string name="login_text_button">Login</string>
-    <string name="register_text_button">Register</string>
-    <string name="login_text_sign_in_with_google">Sign in with Google</string>
-    <string name="login_icon_google">Google Logo</string>
     <string name="login_text_no_account">Don\'t have an account?</string>
     <string name="login_text_yes_account">Do you have an account?</string>
     <string name="login_text_sign_up">Sign up</string>
     <string name="login_text_sign_in">Sign in</string>
     <string name="login_text_forgot_your_password">Forgot your password?</string>
-    <string name="login_text_recover_password">Introduce the email</string>
-    <string name="login_text_send_recover_password">Send</string>
-    <string name="login_text_recover_password_cancel">Cancel</string>
+    <string name="login_text_recover_password">Recover password</string>
+    <string name="login_text_cancel">Cancel</string>
     <string name="login_text_paparcar">Welcome to Paparcar</string>
-    <string name="login_text_description">The app helps you find and manage parking spaces</string>
+    <string name="login_text_description">The application that helps you find and manage parking spaces.</string>
     <string name="login_text_verify_email_title">We have sent a email to verify your account</string>
     <string name="login_text_verify_email_text">Access your email to verify it</string>
-
+    <string name="login_text_signing_in">Signing in…</string>
+    <string name="login_text_sign_in_with_google">Sign in with Google</string>
+    <string name="login_icon_google">Google Logo</string>
 
 
     <!-- PERMISSIONS-->
     <string name="permissions_text_title">Find parking spots in real-time!</string>
     <string name="permissions_text_main_description">For the operation of this app we will need to have your permission.\n
         Accept the permissions power to continue. Otherwise, you will have to do it manually from the configuration.</string>
-    <string name="permissions_text_background_description">In order to fulfill the full functionality of this application.\n
-        We need you to set the location permission to "Always Allow". </string>
     <string name="permissions_text_activate">Activate</string>
-
+    <string name="permission_text_grant_permission">Grant permission</string>
+    <string name="permission_text_ok">OK</string>
+    <string name="permission_text_permission_required">Permission required</string>
+    <string name="permission_text_app_settings">You can go to the app settings to grant it.</string>
+    <string name="permission_text_rationale_post_notification">This application requires post notification permission for full functionality.</string>
+    <string name="permission_text_rationale_activity_recognition">This application requires activity recognition for full functionality.</string>
+    <string name="permission_text_rationale_fine_location">This application requires fine location for full functionality.</string>
+    <string name="permission_text_rationale_background_location">This application requires background location for full functionality.</string>
     <string name="permission_text_permanently_declined_background">"It seems you permanently declined background location permission. "</string>
     <string name="permission_text_permanently_declined_fine">"It seems you permanently declined fine location permission. "</string>
     <string name="permission_text_permanently_declined_post_notifications">"It seems you permanently declined post notifications permission. "</string>
@@ -42,40 +44,62 @@
     <string name="home_text_low_areas_activity">Low areas activity</string>
     <string name="home_text_unknown_location">Unknown location</string>
     <string name="home_text_your_parked_car">Your parked car</string>
-    <string name="home_text_not_park_car">Not park car</string>
+    <string name="home_text_not_park_car">There is no parked vehicle</string>
     <string name="home_text_add_spot">Add spot</string>
     <string name="home_text_show_spots">Show spots</string>
-    <string name="home_text_park_your_car">Park your car</string>
+    <string name="home_text_park_your_car">Park car</string>
     <string name="home_text_search_parking_spot">Search parking spots</string>
     <string name="home_text_add_a_new_spot">Add a new spot</string>
     <string name="home_text_areas_nearby">%1$s activity areas nearby</string>
     <string name="home_text_spots_nearby">%1$s parking spots nearby</string>
     <string name="home_text_parking_spots">%1$s parking spots</string>
-    <string name="home_text_more_1creds">(+1cred.)</string>
-    <string name="home_text_more_5creds">(+5cred.)</string>
-    <string name="home_text_5creds">(5creds.)</string>
+    <string name="home_text_more_1creds">+1cred.</string>
+    <string name="home_text_more_5creds">+5cred.</string>
+    <string name="home_text_5creds">5creds.</string>
+    <string name="home_text_more_2creds">+2creds.</string>
     <string name="home_text_navigate_my_car">Click here and navigate to your car</string>
-    <string name="home_text_more_2creds">(+2creds.)</string>
     <string name="home_text_navigate">Navigate</string>
-    <string name="home_text_show_add">Show add</string>
-    <string name="home_text_ten_minutes">10:00</string>
+    <string name="home_text_show_ad">Show ad</string>
+    <string name="home_text_ten_minutes">30:00</string>
+    <string name="home_text_sent">Sent</string>
+    <string name="home_text_add_won_one_point">Congratulations! You has won one point.</string>
+    <string name="home_text_you_don_t_have_enough_credits">You don\'t have enough credits.</string>
+    <string name="home_text_there_are_no_parking_in_this_area">There are no parking in this area</string>
+    <string name="home_text_start_geofence_was_error">Start geofence was error</string>
+    <string name="home_text_you_can_t_get_your_own_place">You can\'t get your own place</string>
+    <string name="home_text_the_route_could_not_be_calculated">The route could not be calculated</string>
+    <string name="home_text_add_spot_time">Add spot time</string>
+    <string name="home_text_now">Now</string>
+    <string name="home_text_in_5_minutes">in 5 minutes</string>
+    <string name="home_text_in_10_minutes">in 10 minutes</string>
+    <string name="home_text_in_15_minutes">in 15 minutes</string>
+    <string name="home_text_in_20_minutes">in 20 minutes</string>
+    <string name="home_text_in_25_minutes">In 25 minutes</string>
+    <string name="home_text_in_30_minutes">In 30 minutes</string>
 
-    <string name="profile_text_welcome">Welcome,</string>
+
+    <!-- HELP-->
+    <string name="home_text_help">Help</string>
+    <string name="home_text_help_description_one">Parking lots don\'t add themselves! So to ensure the full functionality of the application we have created a credit system so that you and other users also include your free space when leaving. You can check the number of free places in the area whenever you want.</string>
+    <string name="home_text_help_description_two">To be able to see where they are you will have to have a minimum of 5 creds. and press the "Show places" button.</string>
+    <string name="home_text_help_description_three">When you navigate to the selected place you will automatically receive 2 creds.</string>
+    <string name="home_text_help_description_four">To add a new space, press the "Add place" button. When a user obtains their place they will receive 5 creds.</string>
+    <string name="home_text_help_description_five">To park your vehicle press the "Park my car" button (this function is also done automatically).</string>
+    <string name="home_text_skip">SKIP</string>
+    <string name="home_text_next">NEXT</string>
+
+    <string name="app_text_welcome">Welcome,</string>
+    <string name="app_text_send">Send</string>
 
 
     <!-- SETTINGS-->
-    <string name="settings_text_app_bar_settings">Settings</string>
+    <string name="settings_text_settings">Settings</string>
     <string name="settings_text_do_you_want_to_log_out">Do you want to log out?</string>
     <string name="settings_text_do_you_want_to_delete_your_account">Do you want to delete your account permanently?</string>
     <string name="settings_text_logout">Logout</string>
     <string name="settings_text_delete_user">Delete user</string>
     <string name="settings_text_dialog_confirm">Confirm</string>
     <string name="settings_text_dialog_cancel">Cancel</string>
-    <string name="permission_text_grant_permission">Grant permission</string>
-    <string name="permission_text_ok">OK</string>
-    <string name="permission_text_permission_required">Permission required</string>
-    <string name="permission_text_app_settings">You can go to the app settings to grant it.</string>
-    <string name="permission_text_app_requires_functionality">This application requires this permission for full functionality.</string>
-
+    <string name="home_text_let_s_go">LET\'S GO!</string>
 
 </resources>

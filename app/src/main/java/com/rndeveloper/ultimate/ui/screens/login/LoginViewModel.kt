@@ -2,10 +2,8 @@ package com.rndeveloper.ultimate.ui.screens.login
 
 import android.content.Context
 import android.util.Log
-import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
-import androidx.credentials.GetCredentialResponse
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -13,7 +11,7 @@ import com.google.android.gms.tasks.Task
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.rndeveloper.ultimate.exceptions.CustomException
-import com.rndeveloper.ultimate.ui.screens.login.uistates.LoginState
+import com.rndeveloper.ultimate.ui.screens.login.uistates.LoginSignState
 import com.rndeveloper.ultimate.ui.screens.login.uistates.LoginUiState
 import com.rndeveloper.ultimate.ui.screens.login.uistates.RecoverPassUiState
 import com.rndeveloper.ultimate.usecases.login.LoginUseCases
@@ -82,16 +80,16 @@ class LoginViewModel @Inject constructor(
 
     fun changeScreenState() = viewModelScope.launch {
         _state.update {
-            when (it.screenState) {
-                is LoginState.Login -> it.copy(screenState = LoginState.Register())
-                is LoginState.Register -> it.copy(screenState = LoginState.Login())
+            when (it.loginSignState) {
+                is LoginSignState.SignIn -> it.copy(loginSignState = LoginSignState.SignUp())
+                is LoginSignState.SignUp -> it.copy(loginSignState = LoginSignState.SignIn())
             }
         }
     }
 
     fun signInOrSignUp(email: String, password: String) = viewModelScope.launch {
-        when (_state.value.screenState) {
-            is LoginState.Login -> loginUseCases.loginEmailPassUseCase(email to password)
+        when (_state.value.loginSignState) {
+            is LoginSignState.SignIn -> loginUseCases.loginEmailPassUseCase(email to password)
                 .catch { error ->
                     _state.update { loginState ->
                         loginState.copy(
@@ -106,7 +104,7 @@ class LoginViewModel @Inject constructor(
                     }
                 }
 
-            is LoginState.Register -> loginUseCases.registerUseCase(email to password)
+            is LoginSignState.SignUp -> loginUseCases.registerUseCase(email to password)
                 .collectLatest { newLoginUIState ->
 
                     if (newLoginUIState.isRegistered) {

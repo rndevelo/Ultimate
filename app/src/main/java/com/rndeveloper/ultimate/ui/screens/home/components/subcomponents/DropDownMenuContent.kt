@@ -1,6 +1,5 @@
 package com.rndeveloper.ultimate.ui.screens.home.components.subcomponents
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.DropdownMenu
@@ -15,6 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.rndeveloper.ultimate.model.MenuItem
@@ -33,7 +33,7 @@ fun DropDownMenuContent(
 
     OutlinedButton(onClick = { isExpanded = true }) {
         Text(
-            text = items[index].title,
+            text = stringResource(id = items[index].title),
             style = MaterialTheme.typography.bodyMedium
         )
         Icon(
@@ -49,7 +49,7 @@ fun DropDownMenuContent(
             DropdownMenuItem(
                 text = {
                     Text(
-                        text = label.title,
+                        text = stringResource(id = label.title),
                         style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Light)
                     )
                 },

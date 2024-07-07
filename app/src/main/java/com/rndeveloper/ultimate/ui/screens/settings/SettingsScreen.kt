@@ -81,7 +81,7 @@ fun SettingsScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = stringResource(R.string.settings_text_app_bar_settings),
+                        text = stringResource(R.string.settings_text_settings),
                         style = MaterialTheme.typography.headlineSmall
                     )
                 },

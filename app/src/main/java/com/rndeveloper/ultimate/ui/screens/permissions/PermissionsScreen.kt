@@ -83,23 +83,11 @@ fun PermissionsScreen(
 
     val backgroundLocationPermissionResultLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
-        onResult = { perms ->
-//            if (perms[Manifest.permission.ACCESS_BACKGROUND_LOCATION] == true) {
-//                navController.navigate(Routes.HomeScreen.route) {
-//                    popUpTo(navController.graph.id) { inclusive = true }
-//                }
-//            }
-        }
+        onResult = { _ -> }
     )
 
     PermissionsMainContent(
-        description = stringResource(
-            id = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                R.string.permissions_text_background_description
-            } else {
-                R.string.permissions_text_main_description
-            }
-        ),
+        description = stringResource(id = R.string.permissions_text_main_description),
         onEvent = {
             if (!result) {
                 multiplePermissionResultLauncher.launch(permissionsToRequest)
