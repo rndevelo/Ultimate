@@ -1,4 +1,4 @@
-package com.rndeveloper.ultimate.notifications
+package com.rndeveloper.ultimate.backend.notifications
 
 import okhttp3.ResponseBody
 import retrofit2.Response

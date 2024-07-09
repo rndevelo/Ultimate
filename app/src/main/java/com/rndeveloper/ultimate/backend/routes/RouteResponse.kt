@@ -1,4 +1,4 @@
-package com.rndeveloper.ultimate.backend
+package com.rndeveloper.ultimate.backend.routes
 
 import com.google.gson.annotations.SerializedName
 

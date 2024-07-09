@@ -84,15 +84,17 @@ fun EmailAndPasswordContent(
     )
 
     Text(
-        modifier = Modifier.clickable {
-            onRecoveryPassUpdate(
-                recoverPassUIState.copy(
-                    isDialogVisible = true,
-                    emailErrorMessage = null,
-                    errorMessage = null,
-                ),
-            )
-        },
+        modifier = Modifier
+            .clickable {
+                onRecoveryPassUpdate(
+                    recoverPassUIState.copy(
+                        isDialogVisible = true,
+                        emailErrorMessage = null,
+                        errorMessage = null,
+                    ),
+                )
+            }
+            .padding(top = 4.dp),
         text = stringResource(R.string.login_text_forgot_your_password),
         color = MaterialTheme.colorScheme.primary,
         fontWeight = FontWeight.Bold,

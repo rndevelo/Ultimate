@@ -1,9 +1,9 @@
-package com.rndeveloper.ultimate.backend
+package com.rndeveloper.ultimate.backend.routes
 
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-interface ApiService {
+interface RoutesApiService {
     @GET("/v2/directions/driving-car")
     suspend fun getRoute(
         @Query("api_key") key: String,

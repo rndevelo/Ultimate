@@ -25,6 +25,5 @@ class VerifyEmailIsVerifiedUseCase @Inject constructor(
                     )
                 )
             }
-
         }
 }

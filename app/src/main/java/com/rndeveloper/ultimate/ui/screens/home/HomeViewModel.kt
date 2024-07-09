@@ -14,7 +14,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import com.rndeveloper.ultimate.BuildConfig
 import com.rndeveloper.ultimate.R
-import com.rndeveloper.ultimate.backend.ApiService
+import com.rndeveloper.ultimate.backend.routes.RoutesApiService
 import com.rndeveloper.ultimate.exceptions.CustomException
 import com.rndeveloper.ultimate.extensions.onNavigate
 import com.rndeveloper.ultimate.model.Directions
@@ -36,9 +36,8 @@ import com.rndeveloper.ultimate.ui.screens.home.uistates.LocationUiState
 import com.rndeveloper.ultimate.ui.screens.home.uistates.SpotsUiState
 import com.rndeveloper.ultimate.ui.screens.home.uistates.UserUiState
 import com.rndeveloper.ultimate.usecases.spots.SpotsUseCases
-import com.rndeveloper.ultimate.usecases.user.UserUseCases
+import com.rndeveloper.ultimate.usecases.user.GetUserDataUseCase
 import com.rndeveloper.ultimate.utils.Constants
-import com.rndeveloper.ultimate.utils.Constants.AREA_COLLECTION_REFERENCE
 import com.rndeveloper.ultimate.utils.Constants.DEFAULT_ELAPSED_TIME
 import com.rndeveloper.ultimate.utils.Constants.INTERVAL
 import com.rndeveloper.ultimate.utils.Constants.SPOT_COLLECTION_REFERENCE
@@ -62,15 +61,15 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
+    activityTransitionClient: ActivityTransitionRepo,
     private val timerRepository: TimerRepository,
     private val helpRepository: HelpRepository,
     private val locationClient: LocationClient,
     private val spotsUseCases: SpotsUseCases,
-    private val userUseCases: UserUseCases,
     private val userRepository: UserRepository,
-    private val activityTransitionClient: ActivityTransitionRepo,
+    private val getUserDataUseCase: GetUserDataUseCase,
     private val geocoderRepository: GeocoderRepository,
-    private val apiService: ApiService,
+    private val routesApiService: RoutesApiService,
     private val geofenceClient: GeofenceClient,
 ) : ViewModel() {
 
@@ -137,21 +136,21 @@ class HomeViewModel @Inject constructor(
         initialValue = emptyList(),
     )
 
-
     init {
+        activityTransitionClient.startActivityTransition()
+
         viewModelScope.launch {
             awaitAll(
                 async { onGetUserData() },
                 async { onGetLocationData() },
+                async { onGetHelpValue() },
+                async { onGetAndStartTimer() },
             )
         }
-        onGetAndStartTimer()
-        onGetHelpValue()
     }
 
-
     fun onCreateRoute(context: Context) = viewModelScope.launch {
-        val call = apiService.getRoute(
+        val call = routesApiService.getRoute(
             BuildConfig.ROUTES_API_KEY,
             "${_locationState.value.location?.lng},${_locationState.value.location?.lat}",
             "${_itemState.value.position.lng},${_itemState.value.position.lat}"
@@ -182,9 +181,8 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-
     //    HELP
-    private fun onGetHelpValue() = viewModelScope.launch {
+    private suspend fun onGetHelpValue() {
         helpRepository.getData(Constants.HELP_KEY).collectLatest { help ->
             _helpState.update {
                 help.isHelp
@@ -201,14 +199,11 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun onGetAndStartTimer() = viewModelScope.launch {
+    private suspend fun onGetAndStartTimer() {
         timerRepository.getTimer(Constants.SPOTS_TIMER).collectLatest { timer ->
 
             if (timer.endTime > currentTime()) {
 
-                if (_spotsState.value.items.isNotEmpty()) {
-                    onSelectSpot(_spotsState.value.items.first().tag)
-                }
                 object : CountDownTimer(
                     timer.endTime - currentTime(),
                     INTERVAL
@@ -245,7 +240,6 @@ class HomeViewModel @Inject constructor(
                         timerRepository.saveTimer(timer = timer)
                     }
                     onSetPoint(points = -5)
-                    onGetAndStartTimer()
                 }
 
             } else {
@@ -262,8 +256,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun onGetUserData() {
-        userUseCases.getUserDataUseCase(_userState.value.user.uid).collectLatest { newUserUiState ->
-            activityTransitionClient.startActivityTransition()
+        getUserDataUseCase(_userState.value.user.uid).collectLatest { newUserUiState ->
             _userState.update {
                 newUserUiState
             }
@@ -277,21 +270,23 @@ class HomeViewModel @Inject constructor(
 
         locationClient.getLocationsRequest().collectLatest { newLocation ->
 
-            _spotsState.update {
-                it.copy(items = _spotsState.value.items.map { spot ->
-                    val distance = FloatArray(2)
-                    _locationState.value.location?.let { it1 ->
-                        Location.distanceBetween(
-                            spot.position.lat, spot.position.lng,
-                            it1.lat, it1.lng, distance
-                        )
-                    }
-                    spot.copy(distance = "${distance[0].toInt()}m")
-                })
-            }
-
             _locationState.update {
                 it.copy(location = newLocation, isLoading = false)
+            }
+
+            _spotsState.update {
+                it.copy(
+                    items = _spotsState.value.items.map { spot ->
+                        val distance = FloatArray(2)
+                        _locationState.value.location?.let { it1 ->
+                            Location.distanceBetween(
+                                spot.position.lat, spot.position.lng,
+                                it1.lat, it1.lng, distance
+                            )
+                        }
+                        spot.copy(distance = "${distance[0].toInt()}m")
+                    }
+                )
             }
         }
     }
@@ -351,6 +346,13 @@ class HomeViewModel @Inject constructor(
                 position to locPosition,
             )
         ).collectLatest { newSpotsUiState ->
+            if (_itemState.value.tag.isEmpty()) {
+                _itemState.update {
+                    newSpotsUiState.items.first()
+                }
+                onCreateRoute(context)
+
+            }
             _spotsState.update {
                 newSpotsUiState
             }
@@ -361,25 +363,6 @@ class HomeViewModel @Inject constructor(
         _spotsState.value.items.find { it.tag == tag }?.let { spot ->
             _itemState.update {
                 spot
-            }
-        }
-    }
-
-    private suspend fun getAreasFlow(
-        context: Context,
-        directions: Directions,
-        position: Position,
-        locPosition: Position
-    ) {
-        spotsUseCases.getAreasUseCase(
-            Triple(
-                AREA_COLLECTION_REFERENCE,
-                context to directions,
-                position to locPosition,
-            )
-        ).collectLatest { newSpotsUiState ->
-            _areasState.update {
-                newSpotsUiState
             }
         }
     }
@@ -414,15 +397,11 @@ class HomeViewModel @Inject constructor(
                         user = _userState.value.user
                     ).let { spot ->
                         spotsUseCases.setSpotUseCase(SPOT_COLLECTION_REFERENCE to spot)
-                    }.collectLatest { newHomeUiState ->
+                    }.collectLatest {
                         onMainState()
                         _spotsState.update {
                             it.copy(
-                                errorMessage = CustomException.GenericException(
-                                    context.getString(
-                                        R.string.home_text_sent
-                                    )
-                                )
+                                errorMessage = CustomException.GenericException(context.getString(R.string.home_text_sent))
                             )
                         }
                     }
@@ -432,7 +411,7 @@ class HomeViewModel @Inject constructor(
 
                     _userState.value.user.copy(car = currentPosition).let { user ->
                         userRepository.setUserData(user)
-                    }.collectLatest { newHomeUiState ->
+                    }.collectLatest {
                         onMainState()
                     }
                 }

@@ -2,15 +2,13 @@ package com.rndeveloper.ultimate.di
 
 import com.rndeveloper.ultimate.annotations.FirebaseService
 import com.rndeveloper.ultimate.annotations.OpenRouteService
-import com.rndeveloper.ultimate.backend.ApiService
-import com.rndeveloper.ultimate.notifications.NotificationAPI
+import com.rndeveloper.ultimate.backend.routes.RoutesApiService
+import com.rndeveloper.ultimate.backend.notifications.NotificationAPI
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.scopes.ServiceScoped
 import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import javax.inject.Qualifier
 import javax.inject.Singleton
 
 
@@ -29,8 +27,8 @@ object RetrofitModule {
 
     @Singleton
     @Provides
-    fun provideApiService(@OpenRouteService retrofit: Retrofit): ApiService =
-        retrofit.create(ApiService::class.java)
+    fun provideApiService(@OpenRouteService retrofit: Retrofit): RoutesApiService =
+        retrofit.create(RoutesApiService::class.java)
 
 
     @Singleton

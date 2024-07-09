@@ -3,12 +3,13 @@ package com.rndeveloper.ultimate.services
 import android.content.SharedPreferences
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import com.rndeveloper.ultimate.R
 import com.rndeveloper.ultimate.utils.Utils.sendNotification
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     companion object {
-        var sharedPref: SharedPreferences? = null
+        private var sharedPref: SharedPreferences? = null
 
         var token: String?
             get() {
@@ -27,9 +28,9 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(message: RemoteMessage) {
         sendNotification(
             this,
-            "¡Enhorabuena!, Alguien encontró una plaza gracias a ti.",
-            "Has ganado 5 créditos",
-            32
+            getString(R.string.home_text_notification_congratulations_found_place),
+            getString(R.string.home_text_notification_you_have_earned_5_credits),
+            20
         )
     }
 }

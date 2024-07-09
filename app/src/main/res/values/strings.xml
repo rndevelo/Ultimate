@@ -77,6 +77,15 @@
     <string name="home_text_in_25_minutes">In 25 minutes</string>
     <string name="home_text_in_30_minutes">In 30 minutes</string>
 
+    <string name="home_text_notification_free_spot">Have you left a free spot?</string>
+    <string name="home_text_notification_add_spot">Tap here to add your free spot!</string>
+
+    <string name="home_text_notification_park_car">Have you parked?</string>
+    <string name="home_text_notification_correct_park">Tap here if you want to correct your parking!</string>
+
+    <string name="home_text_notification_congratulations_found_place">Congratulations! Someone found a place thanks to you</string>
+    <string name="home_text_notification_you_have_earned_5_credits">You have earned 5 credits</string>
+
 
     <!-- HELP-->
     <string name="home_text_help">Help</string>
@@ -87,6 +96,7 @@
     <string name="home_text_help_description_five">To park your vehicle press the "Park my car" button (this function is also done automatically).</string>
     <string name="home_text_skip">SKIP</string>
     <string name="home_text_next">NEXT</string>
+    <string name="home_text_let_s_go">LET\'S GO!</string>
 
     <string name="app_text_welcome">Welcome,</string>
     <string name="app_text_send">Send</string>
@@ -100,6 +110,5 @@
     <string name="settings_text_delete_user">Delete user</string>
     <string name="settings_text_dialog_confirm">Confirm</string>
     <string name="settings_text_dialog_cancel">Cancel</string>
-    <string name="home_text_let_s_go">LET\'S GO!</string>
 
 </resources>

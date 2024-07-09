@@ -19,6 +19,10 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object ProvidersModule {
 
+    //    Context
+    @Singleton
+    @Provides
+    fun provideContext(@ApplicationContext appContext: Context): Context = appContext
 
     //    Location
     @Singleton
@@ -32,12 +36,10 @@ object ProvidersModule {
     fun provideActivityRecognitionClient(@ApplicationContext appContext: Context): ActivityRecognitionClient =
         ActivityRecognition.getClient(appContext)
 
-
     //    Geocoder
     @Singleton
     @Provides
     fun provideGeocoder(@ApplicationContext appContext: Context) = Geocoder(appContext)
-
 
     //    GeofencingClient
     @Singleton
@@ -46,11 +48,7 @@ object ProvidersModule {
         LocationServices.getGeofencingClient(appContext)
 
 
-    //    Context
-    @Singleton
-    @Provides
-    fun provideContext(@ApplicationContext appContext: Context): Context = appContext
-
+    //    ConnectivityManager
     @Singleton
     @Provides
     fun connectivityManager(@ApplicationContext appContext: Context): ConnectivityManager =

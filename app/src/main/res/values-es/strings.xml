@@ -94,8 +94,14 @@
     <string name="settings_text_do_you_want_to_delete_your_account">¿Quieres eliminar tu cuenta permanentemente?</string>
     <string name="settings_text_logout">Cerrar sesión</string>
     <string name="settings_text_delete_user">Eliminar usuario</string>
-    <string name="settings_text_dialog_confirm">Confirmas</string>
+    <string name="settings_text_dialog_confirm">Confirmar</string>
     <string name="settings_text_dialog_cancel">Cancelar</string>
-    <string name="home_text_let_s_go">" ¡VAMOS!"</string>
+    <string name="home_text_let_s_go">"¡VAMOS!"</string>
+    <string name="home_text_notification_free_spot">¿Has dejado una plaza libre?</string>
+    <string name="home_text_notification_add_spot">¡Toca aquí para añadir tu plaza libre!</string>
+    <string name="home_text_notification_park_car">¿Has aparcado?</string>
+    <string name="home_text_notification_correct_park">¡Toca aquí si quieres corregir tu aparcamiento!</string>
+    <string name="home_text_notification_congratulations_found_place">¡Enhorabuena!, Alguien encontró una plaza gracias a ti</string>
+    <string name="home_text_notification_you_have_earned_5_credits">Has ganado 5 créditos</string>
 
 </resources>

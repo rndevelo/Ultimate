@@ -21,15 +21,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.maps.android.compose.CameraPositionState
 import com.rndeveloper.ultimate.R
 import com.rndeveloper.ultimate.ui.screens.home.HomeUiContainerState
 import com.rndeveloper.ultimate.ui.screens.home.ScreenState
-import com.rndeveloper.ultimate.ui.screens.home.components.HomeMainContent
 import com.rndeveloper.ultimate.ui.screens.home.rememberHomeUiContainerState
-import com.rndeveloper.ultimate.ui.screens.home.uistates.AreasUiState
-import com.rndeveloper.ultimate.ui.screens.home.uistates.SpotsUiState
-import com.rndeveloper.ultimate.ui.screens.home.uistates.UserUiState
 import com.rndeveloper.ultimate.ui.theme.UltimateTheme
 import com.rndeveloper.ultimate.utils.timeList
 

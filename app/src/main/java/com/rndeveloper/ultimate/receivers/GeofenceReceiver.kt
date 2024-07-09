@@ -35,6 +35,16 @@ class GeofenceReceiver : HiltGeofenceReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent) // <-- it's the trick
 
+        val geofencingEvent = GeofencingEvent.fromIntent(intent)
+        if (geofencingEvent != null) {
+            if (geofencingEvent.hasError()) {
+                val errorMessage = GeofenceStatusCodes
+                    .getStatusCodeString(geofencingEvent.errorCode)
+                Toast.makeText(context,errorMessage, Toast.LENGTH_LONG).show()
+                return
+            }
+        }
+
         val country = intent.extras!!.getString("country")
         val area = intent.extras!!.getString("area")
         val tag = intent.extras!!.getString("tag")
@@ -43,18 +53,17 @@ class GeofenceReceiver : HiltGeofenceReceiver() {
         if (country != null && area != null && tag != null && uid != null && token != null) {
             GlobalScope.launch(Dispatchers.IO) {
                 removeSpotUseCase(Pair(Triple(country, area, tag), uid to token))
-                    .collectLatest { newHomeUiState -> }
+                    .collectLatest { }
             }
         }
-
     }
 
-    fun errorMessage(context: Context, errorCode: Int): String {
-        return when (errorCode) {
-            GeofenceStatusCodes.GEOFENCE_NOT_AVAILABLE -> "El servicio de geovalla no está disponible ahora"
-            GeofenceStatusCodes.GEOFENCE_TOO_MANY_GEOFENCES -> "Tu aplicación ha registrado demasiadas geocercas"
-            GeofenceStatusCodes.GEOFENCE_TOO_MANY_PENDING_INTENTS -> "Ha proporcionado demasiados PendingIntents a la llamada addGeofences ()"
-            else -> "Error desconocido: el servicio Geofence no está disponible ahora"
-        }
-    }
+//    fun errorMessage(context: Context, errorCode: Int): String {
+//        return when (errorCode) {
+//            GeofenceStatusCodes.GEOFENCE_NOT_AVAILABLE -> "El servicio de geovalla no está disponible ahora"
+//            GeofenceStatusCodes.GEOFENCE_TOO_MANY_GEOFENCES -> "Tu aplicación ha registrado demasiadas geocercas"
+//            GeofenceStatusCodes.GEOFENCE_TOO_MANY_PENDING_INTENTS -> "Ha proporcionado demasiados PendingIntents a la llamada addGeofences ()"
+//            else -> "Error desconocido: el servicio Geofence no está disponible ahora"
+//        }
+//    }
 }

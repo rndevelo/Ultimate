@@ -16,7 +16,7 @@ object Utils {
 
     fun currentTime() = Calendar.getInstance().time.time
 
-    val request = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 2000).build()
+    val request = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000).build()
 
     @SuppressLint("MissingPermission")
     fun sendNotification(
@@ -34,12 +34,13 @@ object Utils {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val builder = NotificationCompat.Builder(context, Constants.ACT_CHANNEL_ID)
+        val builder = NotificationCompat.Builder(context, Constants.CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_ultimate)
             .setContentTitle(contentTitle)
             .setContentText(contentText)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setContentIntent(notifyPendingIntent)
+            .setAutoCancel(true)
 
         with(NotificationManagerCompat.from(context)) {
             // notificationId is a unique int for each notification that you must define.

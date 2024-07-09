@@ -31,7 +31,7 @@ class LoginWithGoogleUseCase @Inject constructor(
             }
             .collect { result ->
                 result.fold(
-                    onSuccess = { authResult ->
+                    onSuccess = {
                         send(
                             LoginUiState().copy(
                                 isLogged = true,

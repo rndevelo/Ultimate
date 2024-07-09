@@ -5,9 +5,10 @@ import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.rndeveloper.ultimate.model.Directions
 import com.rndeveloper.ultimate.model.Item
-import com.rndeveloper.ultimate.notifications.NotificationAPI
-import com.rndeveloper.ultimate.notifications.PushNotification
+import com.rndeveloper.ultimate.backend.notifications.NotificationAPI
+import com.rndeveloper.ultimate.backend.notifications.PushNotification
 import com.rndeveloper.ultimate.utils.Constants.SPOT_COLLECTION_REFERENCE
+import com.rndeveloper.ultimate.utils.Constants.TIMESTAMP
 import com.rndeveloper.ultimate.utils.Utils.currentTime
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.ProducerScope
@@ -35,7 +36,7 @@ class ItemsRepositoryImpl @Inject constructor(
             val cutOff = currentTime() - TimeUnit.MILLISECONDS.convert(60, TimeUnit.MINUTES)
 
             collection
-                .whereLessThan("timestamp", cutOff)
+                .whereLessThan(TIMESTAMP, cutOff)
                 .addSnapshotListener { snapshot, e ->
                     if (snapshot != null && !snapshot.isEmpty) {
                         snapshot.documents.forEach { document ->

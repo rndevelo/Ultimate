@@ -2,9 +2,10 @@ package com.rndeveloper.ultimate.ui.screens.home
 
 import android.os.Build.VERSION.SDK_INT
 import androidx.annotation.DrawableRes
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -230,18 +231,14 @@ private fun NextContent(
     ElevatedButton(
         onClick = { onNextPage() }
     ) {
-        Text(
-            text = stringResource(R.string.home_text_next),
-        )
+        Text(text = stringResource(R.string.home_text_next),)
     }
 
 }
 
 @Composable
-fun GifImage(
-    @DrawableRes idImage: Int,
-    modifier: Modifier = Modifier,
-) {
+fun GifImage(@DrawableRes idImage: Int) {
+
     val context = LocalContext.current
     val imageLoader = ImageLoader.Builder(context).components {
         if (SDK_INT >= 28) {
@@ -260,8 +257,11 @@ fun GifImage(
         contentDescription = null,
         modifier = Modifier
             .size(480.dp)
-            .padding(top = 12.dp, bottom = 12.dp, start = 25.dp, end = 25.dp),
-//            .border(border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.primary)),
+            .padding(top = 12.dp, bottom = 12.dp, start = 25.dp, end = 25.dp)
+            .border(
+                border = BorderStroke(width = 0.7.dp, color = MaterialTheme.colorScheme.primary),
+                shape = RoundedCornerShape(5.dp)
+            ),
         contentScale = ContentScale.Crop
     )
 }

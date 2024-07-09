@@ -8,7 +8,7 @@ import com.rndeveloper.ultimate.repositories.LoginRepository
 import com.rndeveloper.ultimate.repositories.UserRepository
 import com.rndeveloper.ultimate.ui.screens.home.uistates.UserUiState
 import com.rndeveloper.ultimate.usecases.login.LoginUseCases
-import com.rndeveloper.ultimate.usecases.user.UserUseCases
+import com.rndeveloper.ultimate.usecases.user.GetUserDataUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -27,7 +27,7 @@ class SettingsViewModel @Inject constructor(
     private val loginUseCases: LoginUseCases,
     private val loginRepository: LoginRepository,
     private val userRepository: UserRepository,
-    private val userUseCases: UserUseCases,
+    private val getUserDataUseCase: GetUserDataUseCase,
 ) : ViewModel() {
 
     private val _settingsState = MutableStateFlow(SettingsUiState())
@@ -55,7 +55,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     private suspend fun onGetUserData() {
-        userUseCases.getUserDataUseCase(_settingsState.value.user.uid)
+        getUserDataUseCase(_settingsState.value.user.uid)
             .collectLatest { newUserUiState ->
                 _settingsState.update {
                     it.copy(user = newUserUiState.user)

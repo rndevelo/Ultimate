@@ -8,7 +8,7 @@ import android.content.Context
 import android.graphics.Color
 import android.os.Build
 import com.google.firebase.BuildConfig
-import com.rndeveloper.ultimate.utils.Constants.ACT_CHANNEL_ID
+import com.rndeveloper.ultimate.utils.Constants.CHANNEL_ID
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber.DebugTree
 import timber.log.Timber.Forest.plant
@@ -31,7 +31,7 @@ class UltimateApp : Application() {
             val name = getString(R.string.app_name)
             val descriptionText = getString(R.string.home_text_not_park_car)
             val importance = NotificationManager.IMPORTANCE_DEFAULT
-            val channel = NotificationChannel(ACT_CHANNEL_ID, name, importance).apply {
+            val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
                 setShowBadge(true)
                 enableLights(true)
                 lightColor = Color.BLUE

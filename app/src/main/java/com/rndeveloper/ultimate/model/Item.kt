@@ -16,7 +16,6 @@ data class Item(
     val type: SpotType,
     val time: String,
     val timestamp: Long,
-    val newpoints: Long,
     val user: User
 ) {
     constructor() : this(
@@ -30,7 +29,6 @@ data class Item(
         type = SpotType.FREE,
         time = "",
         timestamp = 0L,
-        newpoints = 0L,
         user = User()
     )
 }

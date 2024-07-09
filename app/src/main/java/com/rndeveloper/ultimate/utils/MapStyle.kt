@@ -1,28 +1,5 @@
 package com.rndeveloper.ultimate.utils
 
-const val jsonWithoutPoi = """
-        [
-            {
-                "featureType": "poi",
-                "elementType": "labels.icon",
-                "stylers": [
-                {
-                    "visibility": "off"
-                }
-                ]
-            },
-            {
-                "featureType": "road.local",
-                "elementType": "geometry.fill",
-                "stylers": [
-                {
-                    "color": "#FFFFFF"
-                }
-                ]
-            }
-        ]
-        """
-
 object MapStyle {
 
     const val jsonMapDarkMode = """

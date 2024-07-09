@@ -97,7 +97,7 @@ fun SupportingErrorText(errorMessage: String?) {
         errorMessage?.let {
             Icon(
                 imageVector = Icons.Filled.Error,
-                contentDescription = "Error",
+                contentDescription = Icons.Filled.Error.toString(),
                 modifier = Modifier.padding(4.dp),
             )
             Text(text = it)

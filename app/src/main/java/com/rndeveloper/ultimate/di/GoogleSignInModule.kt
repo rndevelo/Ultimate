@@ -16,21 +16,17 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object GoogleSignInModule {
 
-
     @Singleton
     @Provides
     fun signInWithGoogleOption(): GetSignInWithGoogleOption =
         GetSignInWithGoogleOption.Builder(BuildConfig.WEB_ID_CLIENT)
             .build()
 
-
-    //    1
     @Singleton
     @Provides
     fun credentialManager(@ApplicationContext context: Context): CredentialManager =
         CredentialManager.create(context)
 
-    //    2
     @Singleton
     @Provides
     fun credentialRequest(

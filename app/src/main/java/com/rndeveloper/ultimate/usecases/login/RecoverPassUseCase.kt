@@ -40,7 +40,7 @@ class RecoverPassUseCase @Inject constructor(
                 )
             }.collectLatest { result ->
                 result.fold(
-                    onSuccess = { firebaseResponse ->
+                    onSuccess = {
                         send(RecoverPassUiState().copy(isLoading = false))
                     },
                     onFailure = {

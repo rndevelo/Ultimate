@@ -10,8 +10,7 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.GeofencingClient
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.rndeveloper.ultimate.notifications.NotificationAPI
-import com.rndeveloper.ultimate.repositories.ActivityTransitionManager
+import com.rndeveloper.ultimate.backend.notifications.NotificationAPI
 import com.rndeveloper.ultimate.repositories.ActivityTransitionRepo
 import com.rndeveloper.ultimate.repositories.ActivityTransitionRepoImpl
 import com.rndeveloper.ultimate.repositories.GeocoderRepository
@@ -45,8 +44,6 @@ import com.rndeveloper.ultimate.usecases.spots.GetSpotsUseCase
 import com.rndeveloper.ultimate.usecases.spots.RemoveSpotUseCase
 import com.rndeveloper.ultimate.usecases.spots.SetSpotUseCase
 import com.rndeveloper.ultimate.usecases.spots.SpotsUseCases
-import com.rndeveloper.ultimate.usecases.user.GetUserDataUseCase
-import com.rndeveloper.ultimate.usecases.user.UserUseCases
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -57,20 +54,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object ApplicationModule {
-
-    @Singleton
-    @Provides
-    fun provideLoginRepository(
-        firebaseAuth: FirebaseAuth,
-    ): LoginRepository = LoginRepositoryImpl(firebaseAuth = firebaseAuth)
-
-    @Singleton
-    @Provides
-    fun provideUserRepository(
-        firebaseAuth: FirebaseAuth,
-        fireStore: FirebaseFirestore
-    ): UserRepository =
-        UserRepositoryImpl(firebaseAuth = firebaseAuth, fireStore = fireStore)
 
     @Singleton
     @Provides
@@ -90,6 +73,20 @@ object ApplicationModule {
     @Provides
     fun provideNetworkConnectivity(connectivityManager: ConnectivityManager): NetworkConnectivity =
         NetworkConnectivityImpl(connectivityManager = connectivityManager)
+
+    @Singleton
+    @Provides
+    fun provideLoginRepository(
+        firebaseAuth: FirebaseAuth,
+    ): LoginRepository = LoginRepositoryImpl(firebaseAuth = firebaseAuth)
+
+    @Singleton
+    @Provides
+    fun provideUserRepository(
+        firebaseAuth: FirebaseAuth,
+        fireStore: FirebaseFirestore
+    ): UserRepository =
+        UserRepositoryImpl(firebaseAuth = firebaseAuth, fireStore = fireStore)
 
     @Singleton
     @Provides
@@ -117,18 +114,9 @@ object ApplicationModule {
 
     @Singleton
     @Provides
-    fun provideActivityTransitionManager(
-        @ApplicationContext appContext: Context,
-        activityRecognitionClient: ActivityRecognitionClient,
-    ): ActivityTransitionManager = ActivityTransitionManager(
-        activityRecognitionClient = activityRecognitionClient,
-        appContext = appContext
-    )
-
-    @Singleton
-    @Provides
     fun provideGeocoderRepository(geocoder: Geocoder): GeocoderRepository =
         GeocoderRepositoryImpl(geocoder = geocoder)
+
 
     @Singleton
     @Provides
@@ -154,11 +142,6 @@ object ApplicationModule {
         sendEmailVerificationUseCase = SendEmailVerificationUseCase(repo),
         verifyEmailIsVerifiedUseCase = VerifyEmailIsVerifiedUseCase(repoImpl),
     )
-
-    @Provides
-    fun provideUserUseCases(
-        repo: UserRepository
-    ) = UserUseCases(getUserDataUseCase = GetUserDataUseCase(repo))
 
     @Provides
     fun provideSpotUseCases(

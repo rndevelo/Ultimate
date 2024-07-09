@@ -16,8 +16,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -25,7 +23,6 @@ import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.rndeveloper.ultimate.model.Position
-import com.rndeveloper.ultimate.nav.Routes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -37,15 +34,13 @@ fun rememberHomeUiContainerState(
     bsScaffoldState: BottomSheetScaffoldState = rememberBottomSheetScaffoldState(),
     scrollState: LazyListState = rememberLazyListState(),
     scope: CoroutineScope = rememberCoroutineScope(),
-    navController: NavHostController = rememberNavController(),
 ): HomeUiContainerState = remember {
     HomeUiContainerState(
-        camPosState,
-        drawerState,
-        bsScaffoldState,
-        scrollState,
-        scope,
-        navController
+        camPosState = camPosState,
+        drawerState = drawerState,
+        bsScaffoldState = bsScaffoldState,
+        scrollState = scrollState,
+        scope = scope,
     )
 }
 
@@ -56,14 +51,11 @@ class HomeUiContainerState @OptIn(ExperimentalMaterial3Api::class) constructor(
     val bsScaffoldState: BottomSheetScaffoldState,
     val scrollState: LazyListState,
     private val scope: CoroutineScope,
-    val navController: NavHostController,
 ) {
 
     var screenState by mutableStateOf(ScreenState.MAIN)
         private set
 
-
-    // UI logic
     val isSetState: Boolean
         get() = screenState == ScreenState.ADDSPOT || screenState == ScreenState.PARKMYCAR
 
@@ -74,8 +66,6 @@ class HomeUiContainerState @OptIn(ExperimentalMaterial3Api::class) constructor(
     var isAlertDialogVisible by mutableStateOf(false)
 
     var indexSpotTime by mutableIntStateOf(0)
-
-    var indexSpotType by mutableIntStateOf(0)
 
     private var isTilt = false
 
@@ -89,16 +79,6 @@ class HomeUiContainerState @OptIn(ExperimentalMaterial3Api::class) constructor(
 
     fun onSpotTime(spotTime: Int) {
         indexSpotTime = spotTime
-    }
-
-    fun onSpotType(spotType: Int) {
-        indexSpotType = spotType
-    }
-
-    fun onNavigate() {
-        navController.navigate(Routes.PermissionsScreen.route) {
-            popUpTo(Routes.HomeScreen.route) { inclusive = true }
-        }
     }
 
     fun onMapLoaded() {

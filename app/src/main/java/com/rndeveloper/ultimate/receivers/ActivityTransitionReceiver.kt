@@ -1,7 +1,6 @@
 package com.rndeveloper.ultimate.receivers
 
 import android.annotation.SuppressLint
-import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -10,15 +9,11 @@ import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.ActivityTransitionEvent
 import com.google.android.gms.location.ActivityTransitionResult
 import com.google.android.gms.location.DetectedActivity
-import com.google.common.base.Stopwatch
 import com.google.firebase.auth.FirebaseAuth
-import com.rndeveloper.ultimate.extensions.fixApi31
-import com.rndeveloper.ultimate.model.User
+import com.rndeveloper.ultimate.R
 import com.rndeveloper.ultimate.repositories.GeocoderRepository
 import com.rndeveloper.ultimate.repositories.LocationClient
 import com.rndeveloper.ultimate.repositories.UserRepository
-import com.rndeveloper.ultimate.services.MyService
-import com.rndeveloper.ultimate.usecases.spots.SetSpotUseCase
 import com.rndeveloper.ultimate.usecases.user.GetUserDataUseCase
 import com.rndeveloper.ultimate.utils.Utils.sendNotification
 import dagger.hilt.android.AndroidEntryPoint
@@ -61,19 +56,17 @@ class ActivityTransitionReceiver : HiltActivityTransitionReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
 
-//        val user = intent.getBundleExtra("bundle")?.let { getBundleExtras(it) }
-
         if (ActivityTransitionResult.hasResult(intent)) {
 
             val result = ActivityTransitionResult.extractResult(intent)
             result?.transitionEvents?.forEach { event ->
 
-//                sendNotification(
-//                    context = context,
-//                    contentTitle = "Hola",
-//                    contentText = getInfo(event),
-//                    34
-//                )
+                sendNotification(
+                    context = context,
+                    contentTitle = "Hola",
+                    contentText = getInfo(event),
+                    34
+                )
 
                 when {
                     event.activityType == DetectedActivity.IN_VEHICLE &&
@@ -85,8 +78,8 @@ class ActivityTransitionReceiver : HiltActivityTransitionReceiver() {
                             event.transitionType == ActivityTransition.ACTIVITY_TRANSITION_ENTER -> {
                         sendNotification(
                             context = context,
-                            contentTitle = "¿Has dejado una plaza libre?",
-                            contentText = "¡Toca aquí para añadir tu aparcamiento!",
+                            contentTitle = context.getString(R.string.home_text_notification_free_spot),
+                            contentText = context.getString(R.string.home_text_notification_add_spot),
                             35
                         )
                     }
@@ -108,8 +101,8 @@ class ActivityTransitionReceiver : HiltActivityTransitionReceiver() {
                     userRepository.setUserData(user).collectLatest {
                         sendNotification(
                             context = context,
-                            contentTitle = "¿Has aparcado?",
-                            contentText = "¡Toca aquí si quieres corregir tu aparcamiento!",
+                            contentTitle = context.getString(R.string.home_text_notification_park_car),
+                            contentText = context.getString(R.string.home_text_notification_correct_park),
                             notificationId = 32
                         )
                     }
@@ -118,19 +111,19 @@ class ActivityTransitionReceiver : HiltActivityTransitionReceiver() {
         }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
-    private fun setSpotData(
-        context: Context,
-        user: User?,
-    ) {
-
-        sendNotification(
-            context = context,
-            contentTitle = "¿Has dejado una plaza libre?",
-            contentText = "Envíala para que otro usuario la obtenga.",
-            notificationId = 32
-        )
-
+//    @OptIn(DelicateCoroutinesApi::class)
+//    private fun setSpotData(
+//        context: Context,
+//        user: User?,
+//    ) {
+//
+//        sendNotification(
+//            context = context,
+//            contentTitle = "¿Has dejado una plaza libre?",
+//            contentText = "Envíala para que otro usuario la obtenga.",
+//            notificationId = 32
+//        )
+//
 //        GlobalScope.launch {
 //            locationClient.getLocationsRequest().cancellable().collectLatest { location ->
 //                geocoderRepository.getAddressList(LatLng(location.lat, location.lng)) { directions ->
@@ -157,14 +150,6 @@ class ActivityTransitionReceiver : HiltActivityTransitionReceiver() {
 //                    }
 //                }
 //            }
-//        }
-    }
-
-//    private fun getBundleExtras(bundle: Bundle): User? {
-//        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-//            bundle.getSerializable("user", User::class.java)
-//        } else {
-//            bundle.getSerializable("user") as User?
 //        }
 //    }
 

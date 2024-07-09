@@ -32,9 +32,5 @@ class MyService : LifecycleService() {
     }
 
     private fun setSpotData() =
-        lifecycleScope.launch {
-
-
-
-        }
+        lifecycleScope.launch {}
 }

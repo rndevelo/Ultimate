@@ -11,7 +11,7 @@ data class DirectionsUiState(
 ) : BaseUiState(isLoading, errorMessage) {
 
     constructor() : this(
-        directions = Directions(addressLine = "", locality = "", area = "", country = ""),
+        directions = Directions(),
         isLoading = false,
         errorMessage = null,
     )

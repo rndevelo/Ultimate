@@ -90,15 +90,7 @@ class LoginViewModel @Inject constructor(
     fun signInOrSignUp(email: String, password: String) = viewModelScope.launch {
         when (_state.value.loginSignState) {
             is LoginSignState.SignIn -> loginUseCases.loginEmailPassUseCase(email to password)
-                .catch { error ->
-                    _state.update { loginState ->
-                        loginState.copy(
-                            errorMessage = CustomException.GenericException(
-                                error.message ?: "Login Error"
-                            )
-                        )
-                    }
-                }.collectLatest { newLoginUIState ->
+                .collectLatest { newLoginUIState ->
                     _state.update {
                         newLoginUIState
                     }
@@ -106,7 +98,6 @@ class LoginViewModel @Inject constructor(
 
             is LoginSignState.SignUp -> loginUseCases.registerUseCase(email to password)
                 .collectLatest { newLoginUIState ->
-
                     if (newLoginUIState.isRegistered) {
                         loginUseCases.sendEmailVerificationUseCase(Unit)
                             .collectLatest { newEmailSentLoginUIState ->

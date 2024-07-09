@@ -33,88 +33,88 @@ import com.rndeveloper.ultimate.extensions.getFormattedPrettyTime
 import com.rndeveloper.ultimate.model.Item
 import com.rndeveloper.ultimate.ui.screens.home.uistates.UserUiState
 
-@Composable
-fun HistoryScreen(
-    navController: NavController,
-    homeViewModel: HistoryViewModel = hiltViewModel(),
-) {
-
-    val uiUserState by homeViewModel.uiUserState.collectAsStateWithLifecycle()
-    val uiHistoryState by homeViewModel.uiHistoryState.collectAsStateWithLifecycle()
-
-    HistoryContent(uiUserState = uiUserState, uiHistoryState = uiHistoryState)
-}
-
-@Composable
-fun HistoryContent(uiUserState: UserUiState, uiHistoryState: HistoryUiState) {
-
-    val scrollState = rememberLazyListState()
-
-    Column(modifier = Modifier.fillMaxSize()) {
-
-        Text(text = uiUserState.user.username, modifier = Modifier.padding(7.dp))
-
-        LazyColumn(state = scrollState) {
-
-            items(items = uiHistoryState.history, key = { i -> i.tag }) { item ->
-                HistoryItemContent(item = item) {
-
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun HistoryItemContent(
-    item: Item,
-    showSnackBar: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 22.dp, vertical = 15.dp)
-            .clickable {
-//                navController.navigate(
-//                    route = Routes.MarkerScreen.passId(
-//                        item.address,
-//                        item.lat.toString(),
-//                        item.lng.toString()
-//                    )
-//                ) {
-//                    launchSingleTop = true
+//@Composable
+//fun HistoryScreen(
+//    navController: NavController,
+//    homeViewModel: HistoryViewModel = hiltViewModel(),
+//) {
+//
+//    val uiUserState by homeViewModel.uiUserState.collectAsStateWithLifecycle()
+//    val uiHistoryState by homeViewModel.uiHistoryState.collectAsStateWithLifecycle()
+//
+//    HistoryContent(uiUserState = uiUserState, uiHistoryState = uiHistoryState)
+//}
+//
+//@Composable
+//fun HistoryContent(uiUserState: UserUiState, uiHistoryState: HistoryUiState) {
+//
+//    val scrollState = rememberLazyListState()
+//
+//    Column(modifier = Modifier.fillMaxSize()) {
+//
+//        Text(text = uiUserState.user.username, modifier = Modifier.padding(7.dp))
+//
+//        LazyColumn(state = scrollState) {
+//
+//            items(items = uiHistoryState.history, key = { i -> i.tag }) { item ->
+//                HistoryItemContent(item = item) {
+//
 //                }
-            },
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            imageVector = /*if (item.isSelected == true) */Icons.Filled.People/* else Icons.Filled.Person*/,
-            contentDescription = "Icon User",
-//            tint = if (item.isSelected == true) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
-        )
-        Text(
-            modifier = Modifier
-                .width(160.dp)
-                .horizontalScroll(rememberScrollState()),
-            text = item.directions.addressLine,
-            style = MaterialTheme.typography.bodyMedium
-        )
-        Text(
-            text = item.timestamp.getFormattedPrettyTime(),
-            color = Color.DarkGray,
-            style = MaterialTheme.typography.labelMedium,
-            fontStyle = FontStyle.Italic
-        )
-        Text(
-            text = "+${item.newpoints}",
-            modifier = Modifier.clickable {
-                showSnackBar()
-            },
-            color = /*if (item.isSelected == true) */MaterialTheme.colorScheme.error/* else MaterialTheme.colorScheme.primary*/,
-            style = MaterialTheme.typography.bodyMedium.copy(
-                fontWeight = FontWeight.W500
-            )
-        )
-    }
-}
+//            }
+//        }
+//    }
+//}
+//
+//@Composable
+//fun HistoryItemContent(
+//    item: Item,
+//    showSnackBar: () -> Unit
+//) {
+//    Row(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .padding(horizontal = 22.dp, vertical = 15.dp)
+//            .clickable {
+////                navController.navigate(
+////                    route = Routes.MarkerScreen.passId(
+////                        item.address,
+////                        item.lat.toString(),
+////                        item.lng.toString()
+////                    )
+////                ) {
+////                    launchSingleTop = true
+////                }
+//            },
+//        horizontalArrangement = Arrangement.SpaceBetween,
+//        verticalAlignment = Alignment.CenterVertically
+//    ) {
+//        Icon(
+//            imageVector = /*if (item.isSelected == true) */Icons.Filled.People/* else Icons.Filled.Person*/,
+//            contentDescription = "Icon User",
+////            tint = if (item.isSelected == true) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+//        )
+//        Text(
+//            modifier = Modifier
+//                .width(160.dp)
+//                .horizontalScroll(rememberScrollState()),
+//            text = item.directions.addressLine,
+//            style = MaterialTheme.typography.bodyMedium
+//        )
+//        Text(
+//            text = item.timestamp.getFormattedPrettyTime(),
+//            color = Color.DarkGray,
+//            style = MaterialTheme.typography.labelMedium,
+//            fontStyle = FontStyle.Italic
+//        )
+//        Text(
+//            text = "+${item.newpoints}",
+//            modifier = Modifier.clickable {
+//                showSnackBar()
+//            },
+//            color = /*if (item.isSelected == true) */MaterialTheme.colorScheme.error/* else MaterialTheme.colorScheme.primary*/,
+//            style = MaterialTheme.typography.bodyMedium.copy(
+//                fontWeight = FontWeight.W500
+//            )
+//        )
+//    }
+//}
