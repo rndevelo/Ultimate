@@ -27,6 +27,8 @@ import com.rndeveloper.ultimate.repositories.LoginRepository
 import com.rndeveloper.ultimate.repositories.LoginRepositoryImpl
 import com.rndeveloper.ultimate.repositories.NetworkConnectivity
 import com.rndeveloper.ultimate.repositories.NetworkConnectivityImpl
+import com.rndeveloper.ultimate.repositories.PrivacyPolicyRepository
+import com.rndeveloper.ultimate.repositories.PrivacyPolicyRepositoryImpl
 import com.rndeveloper.ultimate.repositories.TimerRepository
 import com.rndeveloper.ultimate.repositories.TimerRepositoryImpl
 import com.rndeveloper.ultimate.repositories.UserRepository
@@ -59,6 +61,11 @@ object ApplicationModule {
     @Provides
     fun provideLocationRepository(fusedLocationProviderClient: FusedLocationProviderClient): LocationClient =
         LocationClientImpl(fusedLocationProviderClient = fusedLocationProviderClient)
+
+    @Singleton
+    @Provides
+    fun providePrivatePolicyRepository(userPreferencesRepository: DataStore<Preferences>): PrivacyPolicyRepository =
+        PrivacyPolicyRepositoryImpl(userPreferencesRepository = userPreferencesRepository)
 
     @Singleton
     @Provides

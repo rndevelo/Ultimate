@@ -6,6 +6,7 @@ import android.os.Build
 object Constants {
 
     //    Screens
+    const val PRIVACY_POLICY_SCREEN = "privacy_policy_screen"
     const val LOGIN_SCREEN = "login_screen"
     const val PERMISSIONS_SCREEN = "permissions_screen"
     const val HOME_SCREEN = "profile_screen"
@@ -28,6 +29,9 @@ object Constants {
 
     //    Help
     const val HELP_KEY = "HELP_KEY"
+
+    //    PrivatePolicy
+    const val PRIVATE_POLICY_KEY = "PRIVATE_POLICY_KEY"
 
 
     //Time

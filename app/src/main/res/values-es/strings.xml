@@ -27,15 +27,18 @@
     <string name="permission_text_grant_permission">" Conceder permiso"</string>
     <string name="permission_text_ok">Vale</string>
     <string name="permission_text_permission_required">Permiso requerido</string>
-    <string name="permission_text_app_settings">" Puedes ir a la configuración de la aplicación para otorgarlo."</string>
+    <string name="permission_text_app_settings">Puedes ir a la configuración de la aplicación para otorgarlo.</string>
     <string name="permission_text_rationale_post_notification">Esta aplicación requiere permiso de notificación posterior para su funcionalidad completa.</string>
     <string name="permission_text_rationale_activity_recognition">Esta aplicación requiere reconocimiento de actividad para su funcionalidad completa.</string>
-    <string name="permission_text_rationale_fine_location">"Esta aplicación requiere una buena ubicación para su plena funcionalidad. "</string>
-    <string name="permission_text_rationale_background_location">Esta aplicación requiere una ubicación en segundo plano para su funcionalidad completa.</string>
-    <string name="permission_text_permanently_declined_background">"Parece que rechazaste permanentemente el permiso de ubicación en segundo plano. "</string>
-    <string name="permission_text_permanently_declined_fine">"Parece que rechazaste permanentemente el permiso de ubicación fina. "</string>
+    <string name="permission_text_rationale_fine_location">Esta aplicación requiere una buena ubicación para su plena funcionalidad.</string>
+    <string name="permission_text_rationale_background_location">Esta aplicación necesita acceder a tu ubicación en segundo plano para proporcionarte funciones mejoradas, estás son sus funciones:\n\n
+- Notificar al usuario cuando este mismo empieze a conducir para avisarle de que ya puede agregar una plaza de aparcamiento nueva.\n
+- Notificar al usuario cuando este mismo termine de conducir para avisarle de que puede corregir la ubicación de su vehículo aparcado.\n
+- Eliminar los datos de ubicación de la plaza obtenida cuando el usuario haya llegado al lugar deseado.</string>
+    <string name="permission_text_permanently_declined_background">"Parece que rechazaste permanentemente el permiso de ubicación en segundo plano."</string>
+    <string name="permission_text_permanently_declined_fine">"Parece que rechazaste permanentemente el permiso de ubicación precisa."</string>
     <string name="permission_text_permanently_declined_post_notifications">Parece que rechazaste permanentemente el permiso para publicar notificaciones.</string>
-    <string name="permission_text_permanently_declined_activity_recognition">"Parece que rechazaste permanentemente el permiso de reconocimiento de actividad. "</string>
+    <string name="permission_text_permanently_declined_activity_recognition">"Parece que rechazaste permanentemente el permiso de reconocimiento de actividad."</string>
 
     <!-- HOME-->
     <string name="home_text_without_parking_spots">"Sin plazas de aparcamiento"</string>
@@ -103,5 +106,8 @@
     <string name="home_text_notification_correct_park">¡Toca aquí si quieres corregir tu aparcamiento!</string>
     <string name="home_text_notification_congratulations_found_place">¡Enhorabuena!, Alguien encontró una plaza gracias a ti</string>
     <string name="home_text_notification_you_have_earned_5_credits">Has ganado 5 créditos</string>
+    <string name="privacy_policy_text_agree_to_the_terms_of_the">Estoy de acuerdo con los terminos de</string>
+    <string name="privacy_policy_text_continue">Continuar</string>
+    <string name="privacy_policy_text_privacy_policy">Política de privacidad.</string>
 
 </resources>

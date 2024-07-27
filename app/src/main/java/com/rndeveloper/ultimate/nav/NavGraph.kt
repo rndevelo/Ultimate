@@ -8,6 +8,7 @@ import androidx.navigation.compose.rememberNavController
 import com.rndeveloper.ultimate.ui.screens.home.HomeScreen
 import com.rndeveloper.ultimate.ui.screens.login.LoginScreen
 import com.rndeveloper.ultimate.ui.screens.permissions.PermissionsScreen
+import com.rndeveloper.ultimate.ui.screens.privatepolicy.PrivacyPolicyScreen
 import com.rndeveloper.ultimate.ui.screens.settings.SettingsScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -18,8 +19,11 @@ fun NavGraph() {
 
     NavHost(
         navController = navController,
-        startDestination = Routes.LoginScreen.route
+        startDestination = Routes.PrivacyPolicyScreen.route
     ) {
+        composable(route = Routes.PrivacyPolicyScreen.route) {
+            PrivacyPolicyScreen(navController = navController)
+        }
         composable(route = Routes.LoginScreen.route) {
             LoginScreen(navController = navController)
         }

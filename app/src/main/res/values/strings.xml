@@ -1,6 +1,11 @@
 <resources>
     <string name="app_name">Paparcar</string>
 
+    <!-- PRIVACY POLICY-->
+    <string name="privacy_policy_text_agree_to_the_terms_of_the">" I agree to the terms of"</string>
+    <string name="privacy_policy_text_privacy_policy">Privacy policy</string>
+    <string name="privacy_policy_text_continue">Continue</string>
+
     <!-- LOGIN-->
     <string name="login_text_field_email">Enter your email</string>
     <string name="login_text_field_password">Enter your password</string>
@@ -32,11 +37,14 @@
     <string name="permission_text_rationale_post_notification">This application requires post notification permission for full functionality.</string>
     <string name="permission_text_rationale_activity_recognition">This application requires activity recognition for full functionality.</string>
     <string name="permission_text_rationale_fine_location">This application requires fine location for full functionality.</string>
-    <string name="permission_text_rationale_background_location">This application requires background location for full functionality.</string>
-    <string name="permission_text_permanently_declined_background">"It seems you permanently declined background location permission. "</string>
-    <string name="permission_text_permanently_declined_fine">"It seems you permanently declined fine location permission. "</string>
-    <string name="permission_text_permanently_declined_post_notifications">"It seems you permanently declined post notifications permission. "</string>
-    <string name="permission_text_permanently_declined_activity_recognition">"It seems you permanently declined activity recognition permission. "</string>
+    <string name="permission_text_rationale_background_location">This app needs to access your location in the background to provide you with enhanced features, these are its functions:\n\n
+- Notify the user when he/she starts driving to let him/her know that he/she can now add a new parking space.\n
+- Notify the user when he/she finishes driving to let him/her know that he/she can correct the location of his/her parked vehicle.\n
+- Delete the location data of the obtained space when the user has reached the desired location.</string>
+    <string name="permission_text_permanently_declined_background">"It seems you permanently declined background location permission."</string>
+    <string name="permission_text_permanently_declined_fine">"It seems you permanently declined fine location permission."</string>
+    <string name="permission_text_permanently_declined_post_notifications">"It seems you permanently declined post notifications permission."</string>
+    <string name="permission_text_permanently_declined_activity_recognition">"It seems you permanently declined activity recognition permission."</string>
 
 
     <!-- HOME-->

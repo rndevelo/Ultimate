@@ -204,6 +204,12 @@ class HomeViewModel @Inject constructor(
 
             if (timer.endTime > currentTime()) {
 
+                if (_itemState.value.tag.isEmpty()) {
+                    _itemState.update {
+                        _spotsState.value.items.firstOrNull() ?: Item()
+                    }
+                }
+
                 object : CountDownTimer(
                     timer.endTime - currentTime(),
                     INTERVAL
@@ -346,13 +352,13 @@ class HomeViewModel @Inject constructor(
                 position to locPosition,
             )
         ).collectLatest { newSpotsUiState ->
+
             if (_itemState.value.tag.isEmpty()) {
                 _itemState.update {
-                    newSpotsUiState.items.first()
+                    newSpotsUiState.items.firstOrNull() ?: Item()
                 }
-                onCreateRoute(context)
-
             }
+
             _spotsState.update {
                 newSpotsUiState
             }

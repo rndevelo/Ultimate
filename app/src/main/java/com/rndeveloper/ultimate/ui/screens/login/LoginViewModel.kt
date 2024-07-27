@@ -6,8 +6,6 @@ import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.tasks.Task
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.rndeveloper.ultimate.exceptions.CustomException
@@ -130,19 +128,7 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    //    Google sing in
-    fun handleGoogleSignInResult(task: Task<GoogleSignInAccount>) = viewModelScope.launch {
-        val account = task.result as GoogleSignInAccount
-        loginUseCases.loginWithGoogleUseCase(account.idToken!!).let { result ->
-            result.collectLatest { newLoginUIState ->
-                _state.update {
-                    newLoginUIState
-                }
-            }
-        }
-    }
-
-    fun handleSignIn(context: Context)= viewModelScope.launch {
+    fun handleSignIn(context: Context) = viewModelScope.launch {
         // Handle the successfully returned credential.
 
         val credentialResponse = credentialManager.getCredential(
@@ -159,13 +145,14 @@ class LoginViewModel @Inject constructor(
                 val googleIdTokenCredential = GoogleIdTokenCredential
                     .createFrom(credential.data)
 
-                loginUseCases.loginWithGoogleUseCase(googleIdTokenCredential.idToken).let { result ->
-                    result.collectLatest { newLoginUIState ->
-                        _state.update {
-                            newLoginUIState
+                loginUseCases.loginWithGoogleUseCase(googleIdTokenCredential.idToken)
+                    .let { result ->
+                        result.collectLatest { newLoginUIState ->
+                            _state.update {
+                                newLoginUIState
+                            }
                         }
                     }
-                }
             } catch (e: GoogleIdTokenParsingException) {
                 Log.e("TAG", "Received an invalid google id token response", e)
             }
