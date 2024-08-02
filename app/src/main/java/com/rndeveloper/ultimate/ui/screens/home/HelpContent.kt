@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.AddLocationAlt
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Navigation
+import androidx.compose.material.icons.filled.Slideshow
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
@@ -85,6 +86,12 @@ fun HelpContent(onSetHelpValue: (Boolean) -> Unit) {
             description = R.string.home_text_help_description_five,
             image = R.drawable.tutorial_4_park_car,
             imageVector = Icons.Default.DirectionsCar
+        ),
+        HelpExample(
+            title = R.string.home_text_show_ad,
+            description = R.string.home_text_help_description_six,
+            image = R.drawable.tutorial_5_show_ad,
+            imageVector = Icons.Default.Slideshow
         ),
     )
     val pagerState = rememberPagerState { onBoarding.size }
@@ -183,7 +190,7 @@ fun HelpContent(onSetHelpValue: (Boolean) -> Unit) {
             ) {
 
                 val scope = rememberCoroutineScope()
-                if (pagerState.currentPage != 4) {
+                if (pagerState.currentPage != 5) {
                     NextContent(
                         onSetHelpValue,
                         onBoarding,
@@ -231,7 +238,7 @@ private fun NextContent(
     ElevatedButton(
         onClick = { onNextPage() }
     ) {
-        Text(text = stringResource(R.string.home_text_next),)
+        Text(text = stringResource(R.string.home_text_next))
     }
 
 }

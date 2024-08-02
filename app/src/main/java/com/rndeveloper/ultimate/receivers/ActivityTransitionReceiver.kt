@@ -11,6 +11,7 @@ import com.google.android.gms.location.ActivityTransitionResult
 import com.google.android.gms.location.DetectedActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.rndeveloper.ultimate.R
+import com.rndeveloper.ultimate.model.User
 import com.rndeveloper.ultimate.repositories.GeocoderRepository
 import com.rndeveloper.ultimate.repositories.LocationClient
 import com.rndeveloper.ultimate.repositories.UserRepository
@@ -86,10 +87,10 @@ class ActivityTransitionReceiver : HiltActivityTransitionReceiver() {
 
         GlobalScope.launch {
 
-            val userData = async { firebaseAuth.currentUser?.let { userRepository.getUserData(it.uid).firstOrNull()?.getOrNull() } }.await()
+            val userData = async { firebaseAuth.currentUser?.let { userRepository.getUserData(it.uid).firstOrNull()?.getOrNull() } }.await() ?: User()
             val locationData = async { locationClient.getLocationsRequest().firstOrNull() }.await()
 
-            userData?.copy(car = locationData)?.let { user ->
+            userData.copy(car = locationData).let { user ->
                 firebaseAuth.currentUser?.let {
                     userRepository.setUserData(user).collectLatest {
                         sendNotification(

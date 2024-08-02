@@ -53,7 +53,12 @@
     <string name="home_text_add_a_new_spot">Agregar una nueva plaza</string>
     <string name="home_text_areas_nearby">%1$s áreas de estacionamiento cercanas</string>
     <string name="home_text_spots_nearby">%1$s plazas de aparcamiento cercanas</string>
-    <string name="home_text_parking_spots">%1$s plazas de aparcamiento</string>
+
+    <plurals name="home_text_parking_spots">
+        <item quantity="one">1 plaza de aparcamiento</item>
+        <item quantity="other">%d plazas de aparcamiento</item>
+    </plurals>
+
     <string name="home_text_more_1creds">+1cred.</string>
     <string name="home_text_more_5creds">+5cred.</string>
     <string name="home_text_5creds">5creds.</string>
@@ -85,6 +90,7 @@
     <string name="home_text_help_description_four">Para agregar una nueva plaza, presione el botón "Agregar plaza". Cuando un usuario obtenga tu plaza recibirá 5 créds.</string>
     <string name="home_text_help_description_five">Para estacionar su vehículo presione el botón Estacionar vehículo (esta función también se realiza de manera automática).</string>
     <string name="home_text_help">Ayuda</string>
+    <string name="home_text_help_description_six">" Puede ver un anuncio haciendo clic en \"Mostrar anuncio\" para ganar 1 créd."</string>
     <string name="home_text_skip">SALTAR</string>
     <string name="home_text_next">SIGUIENTE</string>
 

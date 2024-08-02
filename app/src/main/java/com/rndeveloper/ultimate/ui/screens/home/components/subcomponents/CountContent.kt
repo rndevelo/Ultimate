@@ -1,5 +1,6 @@
 package com.rndeveloper.ultimate.ui.screens.home.components.subcomponents
 
+import android.annotation.SuppressLint
 import android.text.format.DateUtils
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -21,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,6 +34,7 @@ import com.rndeveloper.ultimate.ui.screens.home.uistates.DirectionsUiState
 import com.rndeveloper.ultimate.ui.screens.home.uistates.SpotsUiState
 import com.rndeveloper.ultimate.utils.Constants
 
+@SuppressLint("ResourceType")
 @Composable
 fun CountContent(
     screenState: ScreenState,
@@ -60,7 +63,7 @@ fun CountContent(
             Text(
                 text = when (screenState) {
                     ScreenState.MAIN -> if (uiSpotsState.items.isNotEmpty()) {
-                        stringResource(R.string.home_text_parking_spots, uiSpotsState.items.size)
+                        pluralStringResource(R.plurals.home_text_parking_spots, uiSpotsState.items.size, uiSpotsState.items.size)
                     } else {
                         stringResource(R.string.home_text_without_parking_spots)
                     }

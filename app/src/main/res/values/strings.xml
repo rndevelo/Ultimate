@@ -60,7 +60,13 @@
     <string name="home_text_add_a_new_spot">Add a new spot</string>
     <string name="home_text_areas_nearby">%1$s activity areas nearby</string>
     <string name="home_text_spots_nearby">%1$s parking spots nearby</string>
-    <string name="home_text_parking_spots">%1$s parking spots</string>
+
+
+    <plurals name="home_text_parking_spots">
+        <item quantity="one">1 free parking spot</item>
+        <item quantity="other">%d free parking spots</item>
+    </plurals>
+
     <string name="home_text_more_1creds">+1cred.</string>
     <string name="home_text_more_5creds">+5cred.</string>
     <string name="home_text_5creds">5creds.</string>
@@ -102,6 +108,7 @@
     <string name="home_text_help_description_three">When you navigate to the selected place you will automatically receive 2 creds.</string>
     <string name="home_text_help_description_four">To add a new space, press the "Add place" button. When a user obtains their place they will receive 5 creds.</string>
     <string name="home_text_help_description_five">To park your vehicle press the "Park my car" button (this function is also done automatically).</string>
+    <string name="home_text_help_description_six">You can view an ad by clicking "Show ad" to earn 1 cred.</string>
     <string name="home_text_skip">SKIP</string>
     <string name="home_text_next">NEXT</string>
     <string name="home_text_let_s_go">LET\'S GO!</string>

@@ -33,7 +33,7 @@ class ItemsRepositoryImpl @Inject constructor(
 
             val collection = fireStore.collection(collectionRef).document(directions.country)
                 .collection(directions.area)
-            val cutOff = currentTime() - TimeUnit.MILLISECONDS.convert(60, TimeUnit.MINUTES)
+            val cutOff = currentTime() - TimeUnit.MILLISECONDS.convert(12, TimeUnit.HOURS)
 
             collection
                 .whereLessThan(TIMESTAMP, cutOff)
